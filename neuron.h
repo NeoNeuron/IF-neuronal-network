@@ -2,7 +2,7 @@
 //	Copyright: Kyle Chen
 //	Author: Kyle Chen
 //	Description: Define class Neuron, structure Spike and NeuronState;
-//	Date: 2017-02-21 16:02:56
+//	Date: 2017-03-08 11:08:45
 //******************************
 #ifndef _MULTI_NETWORK_SIMULATION_SINGLEIF_H_
 #define _MULTI_NETWORK_SIMULATION_SINGLEIF_H_
@@ -12,13 +12,13 @@
 
 using namespace std;
 
-struct Spike {	
+struct Spike {
 	bool function; // function of spike: true for excitation, false for inhibition;
 	double t; // Exact spiking time;		
 	bool mode; // mode of spike: true for feedforward spike, false for neuronal input spike;
 };
 
-struct NeuronalState {	
+struct NeuronalState {
 	bool type; // neuronal type: true for excitatory, false for inhibitory;
 	int index; // index of neuron in loop lattice;		
 	double membrane_potential_; // membrane potential;		
@@ -75,6 +75,12 @@ private:
 	
 	// FUNCTIONS:
 
+	// Generate Poisson sequence within each time step, autosort after generatation;
+	void GenerateInternalPoisson(bool function, double tmax, bool outSet); 
+	
+	// Input external Poisson sequence within each time step, autosort after generatation;	
+	void InputExternalPoisson(bool function, double tmax, vector<double> & x);
+
 	//	Update excitatory conductance:
 	//		Mode description: true for feedforward input, false for interneuronal input;
 	//		function description: functional type of inputing signal, true for excitation, false for inhibition;
@@ -104,8 +110,7 @@ private:
 	double UpdatePotential(double dt); 
 
 	//	Check whether the membrane potential reaches the threshold or not; 
-	//		Description: if membrane potential didn't reach threshold, accept prediction; 
-	//					else estimate the exact time that membrane potential reach the threshold by cubic interpolation, and record as spiking events;
+	//		Description: if membrane potential didn't reach threshold, accept prediction; else estimate the exact time that membrane potential reach the threshold by cubic interpolation, and record as spiking events;
 	//		DOUBLE voltage: the membrane potential at t = t(n) + dt predicted by UpdatePotential(dt);
 	//		DOUBLE t: current time point;
 	//		DOUBLE dt: size of time step, unit millisecond;
@@ -113,8 +118,7 @@ private:
 	void CheckFire(double voltage, double t, double dt);
 
 	//	Temporarily check whether the membrane potential reaches the threshold or not, and results would be saved as temp_ version; 
-	//		Description: if membrane potential didn't reach threshold, accept prediction; 
-	//    			else estimate the exact time that membrane potential reach the threshold by cubic interpolation;
+	//		Description: if membrane potential didn't reach threshold, accept prediction; else estimate the exact time that membrane potential reach the threshold by cubic interpolation;
 	//		DOUBLE voltage: the membrane potential at t = t(n) + dt predicted by UpdatePotential(dt);
 	//		DOUBLE t: current time point;
 	//		DOUBLE dt: size of time step, unit millisecond;
@@ -153,6 +157,7 @@ private:
 	void UpdateConductanceOfFiredNeuron(bool is_fire, bool fireMode, bool fireType, double t, double dt);
 	
 public:
+	// Auto initialization of parameters in Neuron;
 	Neuron() {
 		type_ = true;
 		index_ = -1;
@@ -186,13 +191,23 @@ public:
 		remaining_refractory_period_temp_ = -1;
 		remaining_refractory_period_ = -1;
 	}
+
 	// INPUTS:
+
+	// Set neuronal type: true for excitatory; false for inhibitory;
 	void SetNeuronType(bool x);
+
+	//	Set neuronal index: indices of neurons in 1-D loop lattice, starting from 0 to maximum number - 1;
 	void SetNeuronIndex(int x);	
-	void SetDrivingType(bool x);
+
+	//	Set driving type: true for external, false for internal;
+	void SetDrivingType(bool x); 
+
+	//	Set Poisson Rate: homogeneous Poisson driving rate of internal driving type;
+	//	BOOL function: type of Poisson drive, true for excitatory, false for inhibitory;
 	void SetPoissonRate(bool function, double rate);
 
-	// Define a 'neuronFile' type to store neuronal condition;
+	// Define a 'neuron_file' type to store neuronal condition;
 	// A ROW VECTOR:
 	//	0: neuronal type;
 	//	1: neuronal index;
@@ -202,31 +217,55 @@ public:
 	//	5: remaining refractory period;
 	void LoadNeuronalState(NeuronalState & data);
 
-	// Generate Poisson sequence within each time step, autosort after generatation;
-	void GenerateInternalPoisson(bool function, double tmax, bool outSet); 
-	
-	// Input external Poisson sequence within each time step, autosort after generatation;	
-	void InputExternalPoisson(bool function, double tmax, vector<double> & x);
-	
+	//	Input synaptic inputs, either feedforward or interneuronal ones;
 	void InputSpike(Spike x);
-	void Reset(); // Reset neuron into the condition at zero time point;
+	
+	// Reset neuron into the condition at zero time point;
+	void Reset(); 
 
 	// DYNAMICS:
 
+	// 	Update neuronal state:
+	//	Description: update neuron within single time step, including its membrane potential, conductances and counter of refractory period;
+	//	DOUBLE t: time point of the begining of the time step;
+	//	DOUBLE dt: size of time step;
+	//	VECTOR<DOUBLE> inPE: external excitatory Poisson sequence;
+	//	VECTOR<DOUBLE> inPI: external inhibitory Poisson sequence;
+	//	Return: membrane potential at t = t + dt;
 	double UpdateNeuronalState(double t, double dt, vector<double> & inPE, vector<double> & inPI);
+
+	//	Temporally update neuronal state;
+	//	Description: update neuron state to check whether it would fire, while don't change its stored parameters, including membrane potential, conductances and counter of refractory period;
+	//	DOUBLE t: time point of the begining of the time step;
+	//	DOUBLE dt: size of time step;
+	//	VECTOR<DOUBLE> inPE: external excitatory Poisson sequence;
+	//	VECTOR<DOUBLE> inPI: external inhibitory Poisson sequence;
+	//	Return: if fire, return the spiking time;
+	//					if not, return -1;
 	double TemporallyUpdateNeuronalState(double t, double dt, vector<double> & inPE, vector<double> & inPI);
+
+	//	Fire: update neuronal state for neurons which fire at t = t + dt;
 	void Fire(double t, double dt);
 
 	// OUTPUTS:
 
+	//	Get last spike: return the time point of latest spiking events;
 	double GetLastSpike();
+
+	//	Get potential: return the current value of membrane potential;
 	double GetPotential();
+
+	//	Get neuronal type: true for excitatory, false for inhibitory;
 	bool GetNeuronalType();
+
 	int GetNeuronIndex();
+
+	//	Output spike train
 	void OutputSpikeTrain(vector<double> &x);
 
   //  Output Spikes before t;
 	void OutputNewSpikes(double t, vector<Spike> &x);
+	
 	void SetFeedforwardConductance(bool function, double F);
 
 	// Total membrane current;

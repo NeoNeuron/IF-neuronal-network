@@ -2,7 +2,7 @@
 //	Copyright: Kyle Chen
 //	Author: Kyle Chen
 //	Description: Define class Neuron, structure Spike and NeuronState;
-//	Date: 2017-02-21 16:05:19
+//	Date: 2017-03-08 11:09:04
 //******************************
 #include "neuron.h"
 #include<iostream>
@@ -15,6 +15,58 @@ using namespace std;
 
 bool compPoisson(const Spike & x, const Spike & y) {
 	return x.t < y.t;
+}
+
+void Neuron::GenerateInternalPoisson(bool function, double tmax, bool outSet) {				
+	double temp, rate;
+	if (function == true) {
+		temp = latest_excitatory_poisson_time_;
+		rate = excitatory_poisson_rate_;
+	} else {
+		temp = latest_inhibitory_poisson_time_;
+		rate = inhibitory_poisson_rate_;
+	}
+	Spike ADD;
+	ADD.t = temp;
+	ADD.function = function;
+	ADD.mode = true;
+	double x, tLast;
+	if (rate > 1e-18) {
+		if (temp < 1e-18) {
+			synaptic_driven_.push_back(ADD);
+			if (outSet == true) cout << ADD.t << '\t';
+		}
+		tLast = temp;
+		while (tLast < tmax) {
+			x = rand() / (RAND_MAX + 1.0);
+			tLast -= log(x) / rate;
+			ADD.t = tLast;
+			synaptic_driven_.push_back(ADD);
+			if (outSet == true) cout << ADD.t << '\t';
+		}
+		if (function == true) {
+			latest_excitatory_poisson_time_ = tLast;				
+		} else {
+			latest_inhibitory_poisson_time_ = tLast;
+		}
+	}
+	sort(synaptic_driven_.begin(), synaptic_driven_.end(), compPoisson);		
+}
+
+void Neuron::InputExternalPoisson(bool function, double tmax, vector<double>& x) {
+	Spike ADD;
+	ADD.mode = true;
+	ADD.function = function;
+	if (x.size() != 0) {
+		vector<double>::iterator it = x.begin();
+		while (*it < tmax) {
+			ADD.t = *it;
+			synaptic_driven_.push_back(ADD);
+			it = x.erase(it);
+			if (x.size() == 0) break;
+		}
+	}
+	sort(synaptic_driven_.begin(), synaptic_driven_.end(), compPoisson);
 }
 
 void Neuron::UpdateExcitatoryConductance(bool mode, bool function, double t, double dt) {
@@ -46,7 +98,7 @@ void Neuron::UpdateInhibitoryConductance(bool mode, bool function, double t, dou
 		if (function == false) {
 			inhibitory_conductance_1_ = inhibitory_conductance_1_ + feedforward_inhibitory_intensity_;
 			inhibitory_conductance_2_ = inhibitory_conductance_1_ * exp(-dt / tau_i_ / 2);
-			inhibitory_conductance_3_ = inhibitory_conductance_1_  * exp(-dt / tau_i_);
+			inhibitory_conductance_3_ = inhibitory_conductance_1_ * exp(-dt / tau_i_);
 		} else {
 			inhibitory_conductance_1_ = inhibitory_conductance_1_;
 			inhibitory_conductance_2_ = inhibitory_conductance_1_ * exp(-dt / tau_i_ / 2);
@@ -56,7 +108,7 @@ void Neuron::UpdateInhibitoryConductance(bool mode, bool function, double t, dou
 		if (function == false) {
 			inhibitory_conductance_1_ = inhibitory_conductance_1_ + interneuronal_synaptic_intensity_;
 			inhibitory_conductance_2_ = inhibitory_conductance_1_ * exp(-dt / tau_i_ / 2);
-			inhibitory_conductance_3_ = inhibitory_conductance_1_  * exp(-dt / tau_i_);
+			inhibitory_conductance_3_ = inhibitory_conductance_1_ * exp(-dt / tau_i_);
 		} else {
 			inhibitory_conductance_1_ = inhibitory_conductance_1_;
 			inhibitory_conductance_2_ = inhibitory_conductance_1_ * exp(-dt / tau_i_ / 2);
@@ -234,58 +286,6 @@ void Neuron::SetDrivingType(bool x) {
 	driven_type_ = x;
 }
 
-void Neuron::GenerateInternalPoisson(bool function, double tmax, bool outSet) {				
-	double temp, rate;
-	if (function == true) {
-		temp = latest_excitatory_poisson_time_;
-		rate = excitatory_poisson_rate_;
-	} else {
-		temp = latest_inhibitory_poisson_time_;
-		rate = inhibitory_poisson_rate_;
-	}
-	Spike ADD;
-	ADD.t = temp;
-	ADD.function = function;
-	ADD.mode = true;
-	double x, tLast;
-	if (rate > 1e-18) {
-		if (temp < 1e-18) {
-			synaptic_driven_.push_back(ADD);
-			if (outSet == true) cout << ADD.t << '\t';
-		}
-		tLast = temp;
-		while (tLast < tmax) {
-			x = rand() / (RAND_MAX + 1.0);
-			tLast -= log(x) / rate;
-			ADD.t = tLast;
-			synaptic_driven_.push_back(ADD);
-			if (outSet == true) cout << ADD.t << '\t';
-		}
-		if (function == true) {
-			latest_excitatory_poisson_time_ = tLast;				
-		} else {
-			latest_inhibitory_poisson_time_ = tLast;
-		}
-	}
-	sort(synaptic_driven_.begin(), synaptic_driven_.end(), compPoisson);		
-}
-
-void Neuron::InputExternalPoisson(bool function, double tmax, vector<double>& x) {
-	Spike ADD;
-	ADD.mode = true;
-	ADD.function = function;
-	if (x.size() != 0) {
-		vector<double>::iterator it = x.begin();
-		while (*it < tmax) {
-			ADD.t = *it;
-			synaptic_driven_.push_back(ADD);
-			it = x.erase(it);
-			if (x.size() == 0) break;
-		}
-	}
-	sort(synaptic_driven_.begin(), synaptic_driven_.end(), compPoisson);
-}
-
 void Neuron::SetPoissonRate(bool function, double rate) {
 	if (function == true) {
 		excitatory_poisson_rate_ = rate;
@@ -356,13 +356,13 @@ void Neuron::OutputSpikeTrain(vector<double>& x) {
 }
 
 void Neuron::OutputNewSpikes(double t, vector<Spike>& x) {
-	Spike ADD;
-	ADD.mode = false;
-	ADD.function = type_;
+	Spike add_spike;
+	add_spike.mode = false;
+	add_spike.function = type_;
 	for (vector<double>::reverse_iterator iter = spike_train_.rbegin(); iter != spike_train_.rend(); iter++) {
 		if (*iter >= t) {
-			ADD.t = *iter;
-			x.push_back(ADD);
+			add_spike.t = *iter;
+			x.push_back(add_spike);
 		} else break;
 	}
 }
@@ -468,8 +468,7 @@ double Neuron::TemporallyUpdateNeuronalState(double t, double dt, vector<double>
 	return SET;
 }
 
-void Neuron::Fire(double t, double dt)
-{
+void Neuron::Fire(double t, double dt) {
 	double tmax = t + dt;
 	excitatory_conductance_1_ = excitatory_conductance_;
 	inhibitory_conductance_1_ = inhibitory_conductance_;
