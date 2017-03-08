@@ -41,74 +41,6 @@ double NeuronalNetwork::SortSpikes(double t, double dt, vector<SpikeElement>& T)
 	}	
 }
 
-void NeuronalNetwork::Read2DInfo(string filename, vector<vector<int> >& data) {
-	data.clear();
-	ifstream ifile;
-	const char* char_filename = filename.c_str();
-	ifile.open(char_filename);
-	string s;
-	vector<int> add_int;
-	string::size_type pos;
-	while (getline(ifile, s)) {
-		add_int.clear();
-		pos = s.find_first_of('\t', 0);
-		string ss;
-		const char *sss;
-		while (pos != s.npos) {
-			ss = s.substr(0, pos);
-			sss = ss.c_str();
-			add_int.push_back(atof(sss));
-			s.erase(0, pos + 1);
-			ss.clear();
-			pos = s.find_first_of('\t', 0);
-		}
-		pos = s.find_first_of('\n', 0);
-		if (pos == 0) continue;
-		else {
-			ss = s.substr(0, pos);
-			sss = ss.c_str();
-			add_int.push_back(atof(sss));
-		}
-		data.push_back(add_int);
-		s.clear();
-	}
-	ifile.close();
-}
-
-void NeuronalNetwork::Read2DInfo(string filename, vector<vector<double> >& data) {
-	data.clear();
-	ifstream ifile;
-	const char* char_filename = filename.c_str();
-	ifile.open(char_filename);
-	string s;
-	vector<double> add_double;
-	string::size_type pos;
-	while (getline(ifile, s)) {
-		add_double.clear();
-		pos = s.find_first_of('\t', 0);
-		string ss;
-		const char *sss;
-		while (pos != s.npos) {
-			ss = s.substr(0, pos);
-			sss = ss.c_str();
-			add_double.push_back(atof(sss));
-			s.erase(0, pos + 1);
-			ss.clear();
-			pos = s.find_first_of('\t', 0);
-		}
-		pos = s.find_first_of('\n', 0);
-		if (pos == 0) continue;
-		else {
-			ss = s.substr(0, pos);
-			sss = ss.c_str();
-			add_double.push_back(atof(sss));
-		}
-		data.push_back(add_double);
-		s.clear();
-	}
-	ifile.close();
-}
-
 void NeuronalNetwork::InitializeNeuronalType(double p, int seed) {
 	srand(seed);
 	double x = 0;
@@ -179,8 +111,7 @@ void NeuronalNetwork::InputNewSpikes(vector<vector<Spike> > &data) {
 	}
 }
 
-void NeuronalNetwork::LoadNetworkState(string neuron_file, string connecting_matrix_file)
-{
+void NeuronalNetwork::LoadNetworkState(string neuron_file, string connecting_matrix_file) {
 	vector<vector<double> > neuronalSetups;
 	Read2DInfo(neuron_file, neuronalSetups);
 	NeuronalState add;
@@ -341,4 +272,72 @@ void NeuronalNetwork::RestoreNeurons() {
 	}
 	external_excitatory_inputs_.clear();
 	external_inhibitory_inputs_.clear();
+}
+
+void Read2DInfo(string filename, vector<vector<int> >& data) {
+	data.clear();
+	ifstream ifile;
+	const char* char_filename = filename.c_str();
+	ifile.open(char_filename);
+	string s;
+	vector<int> add_int;
+	string::size_type pos;
+	while (getline(ifile, s)) {
+		add_int.clear();
+		pos = s.find_first_of('\t', 0);
+		string ss;
+		const char *sss;
+		while (pos != s.npos) {
+			ss = s.substr(0, pos);
+			sss = ss.c_str();
+			add_int.push_back(atof(sss));
+			s.erase(0, pos + 1);
+			ss.clear();
+			pos = s.find_first_of('\t', 0);
+		}
+		pos = s.find_first_of('\n', 0);
+		if (pos == 0) continue;
+		else {
+			ss = s.substr(0, pos);
+			sss = ss.c_str();
+			add_int.push_back(atof(sss));
+		}
+		data.push_back(add_int);
+		s.clear();
+	}
+	ifile.close();
+}
+
+void Read2DInfo(string filename, vector<vector<double> >& data) {
+	data.clear();
+	ifstream ifile;
+	const char* char_filename = filename.c_str();
+	ifile.open(char_filename);
+	string s;
+	vector<double> add_double;
+	string::size_type pos;
+	while (getline(ifile, s)) {
+		add_double.clear();
+		pos = s.find_first_of('\t', 0);
+		string ss;
+		const char *sss;
+		while (pos != s.npos) {
+			ss = s.substr(0, pos);
+			sss = ss.c_str();
+			add_double.push_back(atof(sss));
+			s.erase(0, pos + 1);
+			ss.clear();
+			pos = s.find_first_of('\t', 0);
+		}
+		pos = s.find_first_of('\n', 0);
+		if (pos == 0) continue;
+		else {
+			ss = s.substr(0, pos);
+			sss = ss.c_str();
+			add_double.push_back(atof(sss));
+		}
+		data.push_back(add_double);
+		s.clear();
+	}
+	ifile.close();
 }

@@ -38,12 +38,6 @@ private:
 	// Description: Sort spikes within single time interval, and return the time of first spike;
 	double SortSpikes(double t, double dt, vector<SpikeElement> &T);	
 
-	//	Read 2 dimensional information;
-	//	Read 2-D data from text files; data type can be int or double;
-	//	Return: none;
-	void Read2DInfo(string filename, vector<vector<int> > & data);
-	void Read2DInfo(string filename, vector<vector<double> > & data);
-
 public:
 	//	Neuronal network initialization:
 	NeuronalNetwork(int neuron_number, int density) {
@@ -139,5 +133,11 @@ public:
 	void GetMatrix(ofstream & matrix_file);	
 
 };
+
+//	Read 2 dimensional information;
+	//	Read 2-D data from text files; data type can be int or double;
+	//	Return: none;
+void Read2DInfo(string filename, vector<vector<int> > & data);
+void Read2DInfo(string filename, vector<vector<double> > & data);
 
 #endif // _MULTI_NETWORK_SIMULATION_GROUP_H_
