@@ -6,8 +6,10 @@
 //*************************
 
 #include "multi_network.h"
+#include "get-config.h"
 #include <cmath>
 #include <ctime>
+#include <sstream>
 
 using namespace std;
 
@@ -22,12 +24,19 @@ int main() {
 	
 	start = clock();
 	// SETUP NETWORKS:
+
+	string m_sPath = "./config.ini";  
+  map<string, string> m_mapConfig;  
+  ReadConfig(m_sPath,m_mapConfig);  
+  PrintConfig(m_mapConfig);
 	
-	int preNetNum, postNetNum;
-	preNetNum = 100;
-	postNetNum = 100;
-	NeuronalNetwork preNet(preNetNum, 3), postNet(postNetNum, 3);
-	double maximum_time = 10000;	
+	int preNetNum, postNetNum, preNetDensity, postNetDensity;
+	preNetNum = atoi(m_mapConfig["PreNetNeuronNumber"].c_str());
+	postNetNum = atoi(m_mapConfig["PostNetNeuronNumber"].c_str());
+	preNetDensity = atoi(m_mapConfig["PreNetConnectingDensity"].c_str());
+	postNetDensity = atoi(m_mapConfig["PostNetConnectingDensity"].c_str());
+	NeuronalNetwork preNet(preNetNum, preNetDensity), postNet(postNetNum, postNetDensity);
+	double maximum_time = atof(m_mapConfig["MaximumTime"].c_str());
 	//cout << "Input the maximum simulating time (ms):" << endl;
 	//cin >> maximum_time;
 	string neuronFileName, conMatFileName;
@@ -37,26 +46,28 @@ int main() {
 	//neuronFileName = dir + "postNeuron.txt";
 	//conMatFileName = dir + "postMat.txt";
 	//postNet.load(neuronFileName, conMatFileName);
-	preNet.InitializeNeuronalType(0.8, 1);
-	postNet.InitializeNeuronalType(0.8, 2);
+	preNet.InitializeNeuronalType(atof(m_mapConfig["PreNetTypeProbability"].c_str()), atoi(m_mapConfig["PreNetTypeSeed"].c_str()));
+	postNet.InitializeNeuronalType(atof(m_mapConfig["PostNetTypeProbability"].c_str()), atoi(m_mapConfig["PostNetTypeSeed"].c_str()));
 
-	preNet.SetDrivingType(true);
-	preNet.InitializeExternalPoissonProcess(true, 1.5, maximum_time, 5);
-	preNet.InitializeExternalPoissonProcess(false, 0, maximum_time, 5);
+	bool type;
+	istringstream(m_mapConfig["PreNetDrivingType"]) >> boolalpha >> type;
+	preNet.SetDrivingType(type);
+	preNet.InitializeExternalPoissonProcess(true, atof(m_mapConfig["PreNetDrivingRate"].c_str()), maximum_time, atoi(m_mapConfig["PreNetExternalDrivingSeed"].c_str()));
+	preNet.InitializeExternalPoissonProcess(false, 0, maximum_time, 0);
 
-	postNet.SetDrivingType(true);
-	postNet.InitializeExternalPoissonProcess(true, 1.5, maximum_time, 6);
-	postNet.InitializeExternalPoissonProcess(false, 0, maximum_time, 6);
+	istringstream(m_mapConfig["PostNetDrivingType"]) >> boolalpha >> type;
+	postNet.SetDrivingType(type);
+	postNet.InitializeExternalPoissonProcess(true, atof(m_mapConfig["PostNetDrivingRate"].c_str()), maximum_time, atoi(m_mapConfig["PostNetExternalDrivingSeed"].c_str()));
+	postNet.InitializeExternalPoissonProcess(false, 0, maximum_time, 0);
 
 	// SETUP CONNECTIVITY MAT
 	vector<vector<bool> > conMat;
-	double conP = 0.1;
-	srand(100);
+	double conP = atof(m_mapConfig["ConnectingProbability"].c_str());
+	srand(atoi(m_mapConfig["ConnectingSeed"].c_str()));
 	vector<bool> addRow;
 	ofstream conMatFile;
 	string conMatFilename = dir + "conMat.txt";
-	const char* char_connectivity_matrix_filename = conMatFilename.c_str();
-	conMatFile.open(char_connectivity_matrix_filename);
+	conMatFile.open(conMatFilename.c_str());
 	for (int i = 0; i < preNetNum; i++) {
 		addRow.clear();
 		for (int j = 0; j < postNetNum; j++) {
@@ -74,7 +85,7 @@ int main() {
 	conMatFile.close();
 
 	// SETUP DYNAMICS:
-	double t = 0, dt = pow(2, -5), tmax = maximum_time;
+	double t = 0, dt = atof(m_mapConfig["TimingStep"].c_str()), tmax = maximum_time;
 	ofstream preV, preGE, preGI, postV, postGE, postGI;
 	string preV_filename = dir + "preV.txt";
 	string preGE_filename = dir + "preGE.txt";
@@ -82,18 +93,13 @@ int main() {
 	string postV_filename = dir + "postV.txt";
 	string postGE_filename = dir + "postGE.txt";
 	string postGI_filename = dir + "postGI.txt";
-	const char* char_preV_filename = preV_filename.c_str();
-	const char* char_preGE_filename = preGE_filename.c_str();
-	const char* char_preGI_filename = preGI_filename.c_str();
-	const char* char_postV_filename = postV_filename.c_str();
-	const char* char_postGE_filename = postGE_filename.c_str();
-	const char* char_postGI_filename = postGI_filename.c_str();	
-	preV.open(char_preV_filename);
-	preGE.open(char_preGE_filename);
-	postGE.open(char_postGE_filename);
-	postV.open(char_postV_filename);
-	preGI.open(char_preGI_filename);
-	postGI.open(char_postGI_filename);
+	preV.open(preV_filename.c_str());
+	preGE.open(preGE_filename.c_str());
+	preGI.open(preGI_filename.c_str());
+	postV.open(postV_filename.c_str());	
+	postGE.open(postGE_filename.c_str());
+	postGI.open(postGI_filename.c_str());
+
 	vector<vector<double> > readme;
 	char cr = (char)13;
 	double progress;
@@ -148,12 +154,13 @@ int main() {
 	ofstream data;
 	string pre_raster_filename = dir + "rasterPre.txt";
 	string post_raster_filename = dir + "rasterPost.txt";
-	const char* char_pre_raster_filename = pre_raster_filename.c_str();
-	const char* char_post_raster_filename = post_raster_filename.c_str();
 	spikes.clear();
 	preNet.OutputSpikeTrains(spikes);
-	data.open(char_pre_raster_filename);
+	data.open(pre_raster_filename.c_str());
+	int neuron_indices = 0;
 	for (vector<vector<double> >::iterator it = spikes.begin(); it != spikes.end(); it++) {
+		data << (int) neuron_indices << '\t';
+		neuron_indices ++;
 		for (vector<double>::iterator itt = it->begin(); itt != it->end(); itt++) {
 			data << setprecision(5) << (double)*itt << '\t';
 		}
@@ -163,8 +170,11 @@ int main() {
 
 	spikes.clear();
 	postNet.OutputSpikeTrains(spikes);
-	data.open(char_post_raster_filename);
+	data.open(post_raster_filename.c_str());
+	neuron_indices = 0;
 	for (vector<vector<double> >::iterator it = spikes.begin(); it != spikes.end(); it++) {
+		data << (int) neuron_indices << '\t';
+		neuron_indices ++;
 		for (vector<double>::iterator itt = it->begin(); itt != it->end(); itt++) {
 			data << setprecision(5) << (double)*itt << '\t';
 		}
