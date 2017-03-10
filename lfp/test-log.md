@@ -1,0 +1,19 @@
+# 2017-03-10 11:57:46
+BEGIN: 
+>> Enter directory for neural data: /media/kyle/Drive/ResearchData/Mar09/
+>> Preparing parameters...
+>> >> Objective neuron index: 64
+>> >> Lower time limit (ms): 1000
+>> >> Upper time limit (ms): 10000
+>> >> Connecting order: 1
+>> Searching objective neuron ...
+>> The number of connected neurons is 10.
+>> Classification of sub neuron cluster: 
+[1]Excitatory; [2]Inhibitory; [3]Both;  3
+>> Loading parameters of connected neurons ...
+>> Calculating LFP ...
+   Loading ... 
+   Processing ... 100.00%
+Done!
+>> Outputing LFP and spike train ...
+>> END!

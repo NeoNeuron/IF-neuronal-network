@@ -1,15 +1,18 @@
-set xlabel 'Delayed (ms)'
+set term pop
+set output
+set xlabel 'Time Delay (ms)'
 set mxtics 10
 
 set ylabel 'Mutual Information(Bits)'
 set mytics 5
+set format y '%.0te%+T'
+set ytics add ('0' 0)
 
 set grid
-set title 'TDMI of #65 neuron and LFP from its first-order connected post-neurons'
 
-set terminal postscript color enhanced eps
-set output './figure_eps/current_draw.eps'
-set size 1,1
+#set terminal postscript color enhanced eps
+#set output './figure-eps/current_draw.eps'
+#set size 1,1
 
-plot './file_dat/tdmi_ordered.dat' u 1:2 t 'TDMI ordered' w lp, \
-'./file_dat/tdmi_rand.dat' u 1:2 t 'TDMI rand' w lp
+plot './file-dat/tdmi_ordered.dat' u 1:2 t 'TDMI ordered' w lp, \
+'./file-dat/tdmi_rand.dat' u 1:2 t 'TDMI rand' w lp

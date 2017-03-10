@@ -620,5 +620,5 @@ void TDMI(vector<double>& spikes, vector<double>& LFP, int expected_occupancy, d
 		printf("%6.2f",progress);
 		cout << "%";
 	}
-	cout << endl << ">> END!" << endl;
+	cout << endl << ">> Done. " << endl;
 }

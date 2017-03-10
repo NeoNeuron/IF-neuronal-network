@@ -22,6 +22,15 @@ int main() {
 	cout << ">> >> Objective neuron index: ";
 	int objective_neuron_index;
 	cin >> objective_neuron_index;
+	string pre_neuron_filename = loading_dir + "preNeuron.txt";
+	vector<int> pre_neuron_type;
+	ReadColumn(pre_neuron_filename, 0, 6, pre_neuron_type);
+	if (pre_neuron_type[objective_neuron_index] == 1) {
+		cout << ">> >> #" << objective_neuron_index << " neuron is an excitatory neuron." << endl;
+	} else {
+		cout << ">> >> #" << objective_neuron_index << " neuron is an inhibitory neuron." << endl;
+	}
+
 	//	Choose objective time range;
 	double t_range[2]; // t_range[0] = t_min; t_range[1] = t_max;
 	cout << ">> >> Lower time limit (ms): ";
@@ -61,8 +70,8 @@ int main() {
 	cout << ">> Classification of sub neuron cluster: " << endl << "[1]Excitatory; [2]Inhibitory; [3]Both; \t";
 	cin >> classification;
 	vector<int> post_neuron_type;
-	string neuron_filename = loading_dir + "postNeuron.txt";
-	ReadColumn(neuron_filename, 0, 6, post_neuron_type);
+	string post_neuron_filename = loading_dir + "postNeuron.txt";
+	ReadColumn(post_neuron_filename, 0, 6, post_neuron_type);
 	int initial_size = connected_neurons.size();
 	vector<int> connected_neurons_copy = connected_neurons;
 	switch(classification) {
@@ -95,7 +104,7 @@ int main() {
 	LFP(t_range, connected_neurons, potential_filename, excitatory_conductance_filename, inhibitory_conductance_filename, lfp);
 
 	//	Output data:
-	string out_dir = "./file_txt/";
+	string out_dir = "./file-txt/";
 	string lfp_filename = out_dir + "lfp_test.txt";
 	string raster_filename = out_dir + "raster_test.txt";
 

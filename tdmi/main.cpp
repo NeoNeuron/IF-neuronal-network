@@ -21,7 +21,7 @@ int main() {
 	ifstream data;
 	vector<double> raster_test;
 	vector<double> LFP_test;
-	string file_dir = "../lfp/file_txt/";
+	string file_dir = "../lfp/file-txt/";
 
 	// DATA OF PRELAYER NEURON:
 
@@ -33,39 +33,43 @@ int main() {
 
 	// TIME DELAY
 
-	vector<double> tdmi;
+	
 	int expected_occupancy, negative_time_delay, positive_time_delay;
 	double dt, dtSampling;
-	cout << ">> Input expected occupancy:";
+	cout << ">> Input expected occupancy: ";
 	cin >> expected_occupancy;
-	cout << ">> Input dt:";
+	cout << ">> Input dt: ";
 	cin >> dt;
-	cout << ">> Input maximum negative time delay:";
+	cout << ">> Input maximum negative time delay: ";
 	cin >> negative_time_delay;
-	cout << ">> Input maximum positive time delay:";
+	cout << ">> Input maximum positive time delay: ";
 	cin >> positive_time_delay;
-	bool rand_switch;
-	char rs;
-	cout << ">> Randomly swap the spike strain [Y] or not [N]?";
-	cin >> rs;
-	ofstream data_out;
-	if (rs == 'Y' or rs == 'y') {
-		rand_switch = true;
-		data_out.open("./file_dat/tdmi_rand.dat");
-	} else {
-		rand_switch = false;
-		data_out.open("./file_dat/tdmi_ordered.dat");
-	}
+
 	double sampling_dt = 0.03125;
 
 	start = clock();
-	
-	TDMI(raster_test, LFP_test, expected_occupancy, dt, sampling_dt, negative_time_delay, positive_time_delay, tdmi, rand_switch);
+	cout << ">> Calculate TDMI based on ordered spike train ... " << endl;	
+	vector<double> tdmi_ordered;
+	TDMI(raster_test, LFP_test, expected_occupancy, dt, sampling_dt, negative_time_delay, positive_time_delay, tdmi_ordered, false);
+	cout << ">> Calculate TDMI based on swapped spike train ... " << endl;	
+	vector<double> tdmi_random;
+	TDMI(raster_test, LFP_test, expected_occupancy, dt, sampling_dt, negative_time_delay, positive_time_delay, tdmi_random, true);
+
 	//	Output data:
+	ofstream data_out;
+	cout << ">> Outputing data ... " << endl;
+	data_out.open("./file-dat/tdmi_ordered.dat");
 	for (int i = 0; i < negative_time_delay + positive_time_delay + 1; i++) {
-		data_out << (double)dt*(i - negative_time_delay) << "\t" << (double)tdmi[i];
+		data_out << (double)dt*(i - negative_time_delay) << "\t" << (double)tdmi_ordered[i];
 		if (i < positive_time_delay + negative_time_delay) data_out << endl;
 	}
+	data_out.close();
+	data_out.open("./file-dat/tdmi_rand.dat");
+	for (int i = 0; i < negative_time_delay + positive_time_delay + 1; i++) {
+		data_out << (double)dt*(i - negative_time_delay) << "\t" << (double)tdmi_random[i];
+		if (i < positive_time_delay + negative_time_delay) data_out << endl;
+	}
+	data_out.close();
 
 	finish = clock();
 
