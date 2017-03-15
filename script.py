@@ -56,8 +56,9 @@ def CreateText(dir, neuron_index, order, classification):
 	if order == 1:
 		neuron_list_all = neuron_list_1
 	else:
+		neuron_list_2 = []
 		for ind in neuron_list_1:
-			neuron_list_2 = [j for j in range(np.size(con_mat[ind, :])) if abs(con_mat[ind, :] - 1) < 1e-6]
+			neuron_list_2 += [j for j in range(np.size(con_mat[neuron_index, :])) if abs(con_mat[ind, j] - 1) < 1e-6]
 		del ind
 		neuron_list_2 = np.unique(neuron_list_2)
 		neuron_list_all = np.setdiff1d(neuron_list_2, neuron_list_1)
@@ -122,20 +123,23 @@ def main(): #test version
 	# Update to newest code version;
 	Compile()
 	# setting preliminary parameters
-	loading_dir = "/media/kyle/Drive/ResearchData/Mar14/"
-	time_lb = 100
-	time_ub = 1000
+	loading_dir = "/media/kyle/Drive/ResearchData/Mar15/"
+	simulation_accomplish = True
+	time_lb = 1000
+	time_ub = 10000
 	expected_occupancy = 50
 	negative_time_delay = 60
 	positive_time_delay = 100
 	
 	# Generating neruonal data based on settings above;
-	subprocess.call(["./multi-network/two-network-system.out", loading_dir])
+	if simulation_accomplish == False:
+		subprocess.call(["./multi-network/two-network-system.out", loading_dir])
 	# Setting loops for local field potentials;
-	all_neuron = np.linspace(0, 19 ,20)
-	target_neuron_indice_list = random.sample(all_neuron, 1)
-	order_options = [1]
-	classification_options = ['all']
+	#all_neuron = np.linspace(0, 99 ,100)
+	#target_neuron_indice_list = random.sample(all_neuron, 10)
+	target_neuron_indice_list = [3, 14, 28, 42, 60, 61, 62, 74, 85, 90, 95]
+	order_options = [2]
+	classification_options = ['all', 'exc', 'inh']
 	# Setting loops for time-delayed mutual information;
 	timing_step_list = [0.25, 0.03125]
 	# Start loops
@@ -154,6 +158,7 @@ def main(): #test version
 					figure_text = CreateText(dir = loading_dir, neuron_index = int(ind), order = order, classification = classification)
 					print figure_text
 					PlotTdmi(saving_filename = saving_filename, figure_text = figure_text)
+					print '=================================================='
 
 
 def test():

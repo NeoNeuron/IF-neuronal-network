@@ -53,12 +53,15 @@ int main(int argc, const char* argv[]) {
 	vector<int> neuronal_connectivity_list; // list of neuronal index from those which dirctly connected with objective neuron;
 	ReadLine(connectivity_filename_name, objective_neuron_index, neuronal_connectivity_list);
 	//	Read neuron indices of neurons in the neuronal_connectivity_list;
+	//	First order neuron indices;
 	vector<int> connected_neurons;
 	for (int i = 0; i < neuronal_connectivity_list.size(); i ++) {
 		if (neuronal_connectivity_list[i] == 1) connected_neurons.push_back(i);
 	}
 	int first_order_size = connected_neurons.size();
+	//	Second order neuron indices;
 	if (connecting_order == 2) {
+		vector<int> first_order_connected_neurons = connected_neurons;
 		vector<int> second_order_connected_neurons;
 		for (int i = 0; i < first_order_size; i ++) {
 			neuronal_connectivity_list.clear();
@@ -70,6 +73,10 @@ int main(int argc, const char* argv[]) {
 		connected_neurons.clear();
 		sort(second_order_connected_neurons.begin(),second_order_connected_neurons.end());
 		unique_copy(second_order_connected_neurons.begin(),second_order_connected_neurons.end(), back_inserter(connected_neurons));
+		second_order_connected_neurons.clear();
+		second_order_connected_neurons = connected_neurons;
+		connected_neurons.clear();
+		set_difference(second_order_connected_neurons.begin(), second_order_connected_neurons.end(), first_order_connected_neurons.begin(), first_order_connected_neurons.end(), inserter(connected_neurons, connected_neurons.begin()));
 	}
 	int neuron_num = connected_neurons.size();
 	printf(">> %d neurons in post-network connect(s) with target neuron in given order.\n", neuron_num);
