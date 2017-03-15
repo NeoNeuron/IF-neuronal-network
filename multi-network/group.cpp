@@ -52,7 +52,7 @@ void NeuronalNetwork::InitializeNeuronalType(double p, int seed) {
 			counter++;
 		} else neurons_[i].SetNeuronType(false);
 	}
-	cout << "There are " << counter << " excitatory neurons and " << neuron_number_ - counter << " inhibitory neurons in the network." << endl;
+	printf(">> There are %d excitatory neurons and %d inhibitory neurons ", counter, neuron_number_-counter);
 }
 
 void NeuronalNetwork::InitializeInternalPoissonRate(bool function, double rate) {

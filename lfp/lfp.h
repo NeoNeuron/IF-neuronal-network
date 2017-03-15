@@ -41,6 +41,11 @@ void ReadColumn(string filename, int column_index, int num_column, vector<int> &
 //	Return: none;
 void ReadLines(string filename, vector<int> &line_index, vector<vector<double> > &data);
 
+//	ChooseNeurons:
+//	Choose the specific portion of neurons in post-network;
+//	
+
+
 //	Local field potential model [version 0.10]
 //	Description: point current source model without sptial distribution;
 //	DOUBLE* t_range: time period used in calculation, with unit ms, include the last point while not the first point

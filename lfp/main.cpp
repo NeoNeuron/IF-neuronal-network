@@ -1,7 +1,7 @@
 //***************
 //	Copyright: Kyle Chen
 //	Author: Kyle Chen
-//	Date: 2017-03-05 14:44:33
+//	Date: 2017-03-13 15:07:34
 //	Description: test file for lfp.h and lfp.cpp
 //***************
 #include "lfp.h"
@@ -11,37 +11,44 @@
 
 using namespace std;
 
-int main() {
-	cout << "BEGIN: " << endl;
+//	Function of calculating LFP with point current source model in 1-D loop network case;
+//	arguments:
+//	argv[1] = loading directory for neural data;
+//	argv[2] = neuronal index for target neuron in pre network;
+//	argv[3] = connecting order of neurons generating LFP;
+//	argv[4] = lower bond of time range;
+//	argv[5] = upper bond of time range;
+//	argv[6] = detailed connecting classification of neurons in post network;
+//		"all" = all neuron in given order;
+//		"excitatory" = excitatory neurons among neurons in given order;
+//		"inhibitory" = inhibitory neurons among neurons in given order;
+int main(int argc, const char* argv[]) {
+	if (argc != 7) {
+		throw runtime_error("wrong number of args");
+	}
 	//	Defined folder path;
-	cout << ">> Enter directory for neural data: ";
-	string loading_dir;
-	cin >> loading_dir;
+	string loading_dir = argv[1];
+
 	//	Choose objective neuron in loop 1;
-	cout << ">> Preparing parameters..." << endl;
-	cout << ">> >> Objective neuron index: ";
-	int objective_neuron_index;
-	cin >> objective_neuron_index;
+	int objective_neuron_index = atoi(argv[2]);
 	string pre_neuron_filename = loading_dir + "preNeuron.txt";
 	vector<int> pre_neuron_type;
 	ReadColumn(pre_neuron_filename, 0, 6, pre_neuron_type);
+	cout << ">> Target neuron in pre-network: ";
 	if (pre_neuron_type[objective_neuron_index] == 1) {
-		cout << ">> >> #" << objective_neuron_index << " neuron is an excitatory neuron." << endl;
+		cout << "#" << objective_neuron_index << " neuron is an excitatory neuron." << endl;
 	} else {
-		cout << ">> >> #" << objective_neuron_index << " neuron is an inhibitory neuron." << endl;
+		cout << "#" << objective_neuron_index << " neuron is an inhibitory neuron." << endl;
 	}
+	int connecting_order =  atoi(argv[3]);
+	printf(">> Connecting order is %d.\n", connecting_order);
 
 	//	Choose objective time range;
 	double t_range[2]; // t_range[0] = t_min; t_range[1] = t_max;
-	cout << ">> >> Lower time limit (ms): ";
-	cin >> t_range[0];
-	cout << ">> >> Upper time limit (ms): ";
-	cin >> t_range[1];
-	int connecting_order;
-	cout << ">> >> Connecting order: ";
-	cin >> connecting_order;
+	t_range[0] = atof(argv[4]);
+	t_range[1] = atof(argv[5]);
+	printf(">> Time range is (%.2f, %.2f] ms.\n", t_range[0], t_range[1]);
 	//	Search in connectivity matrix and load connectivity vector of chosen neuron;
-	cout << ">> Searching objective neuron ..." << endl;
 	string connectivity_filename_name = loading_dir + "conMat.txt";
 	vector<int> neuronal_connectivity_list; // list of neuronal index from those which dirctly connected with objective neuron;
 	ReadLine(connectivity_filename_name, objective_neuron_index, neuronal_connectivity_list);
@@ -64,34 +71,31 @@ int main() {
 		sort(second_order_connected_neurons.begin(),second_order_connected_neurons.end());
 		unique_copy(second_order_connected_neurons.begin(),second_order_connected_neurons.end(), back_inserter(connected_neurons));
 	}
-	cout << ">> The number of connected neurons is " << connected_neurons.size() << "." << endl;
+	int neuron_num = connected_neurons.size();
+	printf(">> %d neurons in post-network connect(s) with target neuron in given order.\n", neuron_num);
 
-	int classification;
-	cout << ">> Classification of sub neuron cluster: " << endl << "[1]Excitatory; [2]Inhibitory; [3]Both; \t";
-	cin >> classification;
+	string classification = argv[6];
+	cout << ">> Classification of sub neuron cluster is " << classification << endl;
 	vector<int> post_neuron_type;
 	string post_neuron_filename = loading_dir + "postNeuron.txt";
 	ReadColumn(post_neuron_filename, 0, 6, post_neuron_type);
 	int initial_size = connected_neurons.size();
 	vector<int> connected_neurons_copy = connected_neurons;
-	switch(classification) {
-		case 1: {
-			connected_neurons.clear();
-			for (int i = 0; i < initial_size; i++) { // loop for seleted neurons in first step;
-				if (post_neuron_type[connected_neurons_copy[i]] == 1) connected_neurons.push_back(connected_neurons_copy[i]);
-			}
-			break;
+	if (classification == "exc") {
+		connected_neurons.clear();
+		for (int i = 0; i < initial_size; i++) { // loop for seleted neurons in first step;
+			if (post_neuron_type[connected_neurons_copy[i]] == 1) connected_neurons.push_back(connected_neurons_copy[i]);
 		}
-		case 2: {
-			connected_neurons.clear();
-			for (int i = 0; i < initial_size; i++) { // loop for seleted neurons in first step;
-				if (post_neuron_type[connected_neurons_copy[i]] == 0) connected_neurons.push_back(connected_neurons_copy[i]);
-			}
+	} else if (classification == "inh") {
+		connected_neurons.clear();
+		for (int i = 0; i < initial_size; i++) { // loop for seleted neurons in first step;
+			if (post_neuron_type[connected_neurons_copy[i]] == 0) connected_neurons.push_back(connected_neurons_copy[i]);
 		}
-		case 3: break;
-		default: break;
-	}
+	};
 	connected_neurons_copy.clear();
+	cout << ">> The number of chosen neurons is " << connected_neurons.size() << "." << endl;
+	neuron_num = connected_neurons.size();
+	printf(">> %d neurons in post-network is(are) chosen to generate local field potential.\n", neuron_num);
 	
 	//	Search in files of neurons in loop 2, and load neuronal parameters, including potential, excitatory_conductance and inhibitory conductance, of neurons in the neuronal_connectivity_list;
 	cout << ">> Loading parameters of connected neurons ..." << endl;
@@ -104,7 +108,7 @@ int main() {
 	LFP(t_range, connected_neurons, potential_filename, excitatory_conductance_filename, inhibitory_conductance_filename, lfp);
 
 	//	Output data:
-	string out_dir = "./file-txt/";
+	string out_dir = "./lfp/file-txt/";
 	string lfp_filename = out_dir + "lfp_test.txt";
 	string raster_filename = out_dir + "raster_test.txt";
 
@@ -116,6 +120,6 @@ int main() {
 	vector<double> objective_neuron_raster;
 	ReadLine(original_raster_filename, objective_neuron_index, objective_neuron_raster);
 	OutputSpikeTrain(t_range, objective_neuron_raster, raster_filename);
-	cout << ">> END!" << endl;
+	cout << ">> Finished." << endl;
 	return 0;
 }

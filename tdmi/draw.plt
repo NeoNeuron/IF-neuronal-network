@@ -5,7 +5,7 @@ set mxtics 10
 
 set ylabel 'Mutual Information(Bits)'
 set mytics 5
-set format y '%.0te%+T'
+set format y '%.2te%+T'
 set ytics add ('0' 0)
 
 set grid

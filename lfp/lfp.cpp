@@ -183,7 +183,7 @@ void LFP(double* t_range, vector<int> & neuron_list, string potential_filename, 
 	string s_potential, s_e_conductance, s_i_conductance;
 	string ss;
 	// For t = [0, t_begin];
-	cout << "   Loading ... " << endl;
+	cout << ">> Loading ... " << endl;
 	ifstream potential_in_file, excitatory_conductance_in_file, inhibitory_conductance_in_file;
 	potential_in_file.open(char_potential_filename);
 	excitatory_conductance_in_file.open(char_excitatory_conductance_filename);
@@ -231,7 +231,7 @@ void LFP(double* t_range, vector<int> & neuron_list, string potential_filename, 
 			if (neuron_list_counter == neuron_list.size()) break;
 		}
 		lfp[i - t_begin] = temp_lfp / neuron_list.size();
-		cout << cr << "   Processing ... ";
+		cout << cr << ">> Processing ... ";
 		current_progress = (i - t_begin + 1)*100.0/size_of_lfp;
 		printf("%.2f", current_progress);
 		cout << "%";
@@ -239,7 +239,7 @@ void LFP(double* t_range, vector<int> & neuron_list, string potential_filename, 
 	potential_in_file.close();
 	excitatory_conductance_in_file.close();
 	inhibitory_conductance_in_file.close();
-	cout << endl << "Done!" << endl;
+	cout << endl;
 }
 
 void OutputLFP(vector<double> &lfp, string filename) {

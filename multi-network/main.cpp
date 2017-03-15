@@ -1,42 +1,47 @@
 //*************************
 //	Copyright: Kyle Chen
 //	Author: Kyle Chen
-//	Date: 2017-03-08 17:21:36
+//	Date: 2017-03-13 15:07:52
 //	Description: test program for multi-network simulation;
 //*************************
 
 #include "multi_network.h"
 #include "get-config.h"
+#include <cstdlib>
 #include <cmath>
 #include <ctime>
 #include <sstream>
 
 using namespace std;
-
-int main() {
+//	Simulation program for two network system;
+//	arguments:
+//	argv[1] = Outputing directory for neural data;
+int main(int argc, const char* argv[]) {
+	if (argc != 2) {
+		throw runtime_error("wrong number of args");
+	}
 	clock_t start, finish;
-
+	start = clock();
 	// 	Setup directory for output files;
 	//	it must be existing dir;
 	string dir;
-	cout << "Enter existing directory of output files: " << endl;
-	cin >> dir;
-	
-	start = clock();
-	// SETUP NETWORKS:
+	dir = argv[1];
 
-	string m_sPath = "./config.ini";  
-  map<string, string> m_mapConfig;  
-  ReadConfig(m_sPath,m_mapConfig);  
-  PrintConfig(m_mapConfig);
+	// Loading config.ini:
+	string net_config_path = "./multi-network/config.ini";
+  map<string, string> m_map_config;  
+  ReadConfig(net_config_path,m_map_config);
+  cout << ">> [Config.ini]:" << endl;
+	PrintConfig(m_map_config);  
+	cout << endl;
 	
 	int preNetNum, postNetNum, preNetDensity, postNetDensity;
-	preNetNum = atoi(m_mapConfig["PreNetNeuronNumber"].c_str());
-	postNetNum = atoi(m_mapConfig["PostNetNeuronNumber"].c_str());
-	preNetDensity = atoi(m_mapConfig["PreNetConnectingDensity"].c_str());
-	postNetDensity = atoi(m_mapConfig["PostNetConnectingDensity"].c_str());
+	preNetNum = atoi(m_map_config["PreNetNeuronNumber"].c_str());
+	postNetNum = atoi(m_map_config["PostNetNeuronNumber"].c_str());
+	preNetDensity = atoi(m_map_config["PreNetConnectingDensity"].c_str());
+	postNetDensity = atoi(m_map_config["PostNetConnectingDensity"].c_str());
 	NeuronalNetwork preNet(preNetNum, preNetDensity), postNet(postNetNum, postNetDensity);
-	double maximum_time = atof(m_mapConfig["MaximumTime"].c_str());
+	double maximum_time = atof(m_map_config["MaximumTime"].c_str());
 	//cout << "Input the maximum simulating time (ms):" << endl;
 	//cin >> maximum_time;
 	string neuronFileName, conMatFileName;
@@ -46,24 +51,26 @@ int main() {
 	//neuronFileName = dir + "postNeuron.txt";
 	//conMatFileName = dir + "postMat.txt";
 	//postNet.load(neuronFileName, conMatFileName);
-	preNet.InitializeNeuronalType(atof(m_mapConfig["PreNetTypeProbability"].c_str()), atoi(m_mapConfig["PreNetTypeSeed"].c_str()));
-	postNet.InitializeNeuronalType(atof(m_mapConfig["PostNetTypeProbability"].c_str()), atoi(m_mapConfig["PostNetTypeSeed"].c_str()));
+	preNet.InitializeNeuronalType(atof(m_map_config["PreNetTypeProbability"].c_str()), atoi(m_map_config["PreNetTypeSeed"].c_str()));
+	cout << "in pre-network." << endl;
+	postNet.InitializeNeuronalType(atof(m_map_config["PostNetTypeProbability"].c_str()), atoi(m_map_config["PostNetTypeSeed"].c_str()));
+	cout << "in post-network." << endl;
 
 	bool type;
-	istringstream(m_mapConfig["PreNetDrivingType"]) >> boolalpha >> type;
+	istringstream(m_map_config["PreNetDrivingType"]) >> boolalpha >> type;
 	preNet.SetDrivingType(type);
-	preNet.InitializeExternalPoissonProcess(true, atof(m_mapConfig["PreNetDrivingRate"].c_str()), maximum_time, atoi(m_mapConfig["PreNetExternalDrivingSeed"].c_str()));
+	preNet.InitializeExternalPoissonProcess(true, atof(m_map_config["PreNetDrivingRate"].c_str()), maximum_time, atoi(m_map_config["PreNetExternalDrivingSeed"].c_str()));
 	preNet.InitializeExternalPoissonProcess(false, 0, maximum_time, 0);
 
-	istringstream(m_mapConfig["PostNetDrivingType"]) >> boolalpha >> type;
+	istringstream(m_map_config["PostNetDrivingType"]) >> boolalpha >> type;
 	postNet.SetDrivingType(type);
-	postNet.InitializeExternalPoissonProcess(true, atof(m_mapConfig["PostNetDrivingRate"].c_str()), maximum_time, atoi(m_mapConfig["PostNetExternalDrivingSeed"].c_str()));
+	postNet.InitializeExternalPoissonProcess(true, atof(m_map_config["PostNetDrivingRate"].c_str()), maximum_time, atoi(m_map_config["PostNetExternalDrivingSeed"].c_str()));
 	postNet.InitializeExternalPoissonProcess(false, 0, maximum_time, 0);
 
 	// SETUP CONNECTIVITY MAT
 	vector<vector<bool> > conMat;
-	double conP = atof(m_mapConfig["ConnectingProbability"].c_str());
-	srand(atoi(m_mapConfig["ConnectingSeed"].c_str()));
+	double conP = atof(m_map_config["ConnectingProbability"].c_str());
+	srand(atoi(m_map_config["ConnectingSeed"].c_str()));
 	vector<bool> addRow;
 	ofstream conMatFile;
 	string conMatFilename = dir + "conMat.txt";
@@ -85,7 +92,7 @@ int main() {
 	conMatFile.close();
 
 	// SETUP DYNAMICS:
-	double t = 0, dt = atof(m_mapConfig["TimingStep"].c_str()), tmax = maximum_time;
+	double t = 0, dt = atof(m_map_config["TimingStep"].c_str()), tmax = maximum_time;
 	ofstream preV, preGE, preGI, postV, postGE, postGI;
 	string preV_filename = dir + "preV.txt";
 	string preGE_filename = dir + "preGE.txt";
@@ -103,7 +110,6 @@ int main() {
 	vector<vector<double> > readme;
 	char cr = (char)13;
 	double progress;
-	cout << "Begin ... " << endl;
 	while (t < tmax) {
 		UpdateSystemState(preNet, postNet, conMat, t, dt);
 		t += dt;
@@ -129,11 +135,11 @@ int main() {
 		postGE << endl;
 		postGI << endl;
 		progress = t * 100.0 / tmax;
-		cout << cr << ">> Processing ...";
-		printf("%6.2f", progress);
+		cout << cr;
+		printf(">> Processing ... %6.2f", progress);
 		cout << "%";
 	}
-	cout << endl << "END!" << endl;
+	cout << endl;
 
 	preV.close();
 	preGE.close();
@@ -188,20 +194,21 @@ int main() {
 	double ToTtime;
 	ToTtime = (finish - start) / CLOCKS_PER_SEC;
 	if (ToTtime < 60) {
-		cout << "It takes " << (double)ToTtime << "s" << endl;
+		printf(">> It takes %.2fs\n", ToTtime);
 	} else if (ToTtime >= 60 && ToTtime < 3600) {
 		int  MIN;
 		double S;
 		MIN = floor(ToTtime / 60);
 		S = ToTtime - MIN * 60;
-		cout << "It takes " << MIN << " min " << (double)S << " s" << endl;
+		printf(">> It takes %dmin %.2fs\n", MIN, S);
 	} else {
 		int MIN, H;
 		double S;
 		H = ToTtime / 3600;
 		MIN = (ToTtime - H * 3600) / 60;
 		S = ToTtime - H * 3600 - MIN * 60;
-		cout << "It takes " << H << " h " << MIN << " min " << (double)S << " s" << endl;
+		printf(">> It takes %dh %dmin %.2fs\n", H, MIN, S);
 	}
+	cout << ">> END!" << endl;
 	return 0;
 }
