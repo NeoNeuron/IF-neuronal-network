@@ -12,6 +12,13 @@
 
 using namespace std;
 
+struct neuron_type{
+	int index;
+	bool type;
+};
+
+void Sample(vector<int> & origin_vector, vector<int> &sample_vector, int num);
+
 //	Read specific line from *.txt file;
 //	STRING filename: file name of txt file;
 //	INT line_index: the index of chosen lines, from 0 to maximum - 1;
@@ -41,10 +48,10 @@ void ReadColumn(string filename, int column_index, int num_column, vector<int> &
 //	Return: none;
 void ReadLines(string filename, vector<int> &line_index, vector<vector<double> > &data);
 
-//	ChooseNeurons:
-//	Choose the specific portion of neurons in post-network;
-//	
-
+//	Key Selection:
+//	Choose the specific portion of neurons in post-network, according to key;
+//	Return number of selected neurons;
+int KeySelect(string & key, vector<neuron_type> & type, vector<int> & indices);
 
 //	Local field potential model [version 0.10]
 //	Description: point current source model without sptial distribution;

@@ -9,8 +9,29 @@
 #include <fstream>
 #include <algorithm>
 #include <iomanip>
+#include <cstdlib>
+#include <ctime>
 
 using namespace std;
+
+void Sample(vector<int> & origin_vector, vector<int> & sample_vector, int num) {
+	if (origin_vector.size() == num) return;
+	else {
+		srand(time(0));
+		int ind;
+		sample_vector.clear();
+		sample_vector.resize(num);
+		vector<int> vector_copy = origin_vector;
+		for (int i = 0; i < num; i++) {
+			if (vector_copy.size() == 1) ind = 0;
+			else ind = rand() % (vector_copy.size() - 1);
+			sample_vector[i] = vector_copy[ind];
+			vector_copy.erase(vector_copy.begin() + ind, vector_copy.begin() + ind + 1);
+		}
+		return;
+	}	
+}
+
 
 void ReadLine(string file_name, int line_index, vector<int> &output) {
 	// open data file;
@@ -159,6 +180,27 @@ void ReadLines(string file_name, vector<int> &line_index, vector<vector<double> 
 	}
 	ifile.close();
 }
+
+int KeySelect(string & key, vector<neuron_type> & types, vector<int> & indices) {	
+	// select keys:
+	indices.clear();
+	if (key == "all") {
+		indices.resize(types.size());
+		for (int i = 0; i < types.size(); i ++) {
+			indices[i] = types[i].index;
+		} 
+	} else if (key == "exc") {
+		for (vector<neuron_type>::iterator it = types.begin(); it != types.end(); it ++) {
+			if (it->type == true) indices.push_back(it->index);
+		}
+	} else if (key == "inh") {
+		for (vector<neuron_type>::iterator it = types.begin(); it != types.end(); it ++) {
+			if (it->type == false) indices.push_back(it->index);
+		}
+	}
+	return indices.size();
+}
+
 
 void LFP(double* t_range, vector<int> & neuron_list, string potential_filename, string excitatory_conductance_filename, string inhibitory_conductance_filename, vector<double> &lfp) {
 	// preliminary parameters;

@@ -204,3 +204,18 @@ Start to find RA position;
 
 - Fixed bugs of directory in `./multi-network/main.cpp` `./lfp/main.cpp` `./tdmi/main.cpp`
 - Add complete version of python scripts for verifying previous three proposals
+
+***
+
+# 2017-03-19 15:58:13
+
+Review about discussion with Douglas:
+
+1. Is the difference between TDMI graph a result from the different dynamical state of pre-network neurons (To see whether there is any different firing state)?
+2. The different behavior of post-synaptic neurons that directly connected to the same neuron;
+3. different component, different dynamic processes;
+4. To analyze the correlation between second order connected neurons;
+
+# 2017-03-21 01:06:04
+
+Finished Report of Week 3 & 4

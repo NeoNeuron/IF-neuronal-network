@@ -22,8 +22,9 @@ using namespace std;
 //		"all" = all neuron in given order;
 //		"excitatory" = excitatory neurons among neurons in given order;
 //		"inhibitory" = inhibitory neurons among neurons in given order;
+//	argv[7] = number of neurons that chosen in the subset of given classification; if argv[7] = 0, all neurons that pass previous selections are preserved;
 int main(int argc, const char* argv[]) {
-	if (argc != 7) {
+	if (argc != 8) {
 		throw runtime_error("wrong number of args");
 	}
 	//	Defined folder path;
@@ -83,24 +84,32 @@ int main(int argc, const char* argv[]) {
 
 	string classification = argv[6];
 	cout << ">> Classification of sub neuron cluster is " << classification << endl;
+	int num = atoi(argv[7]);
 	vector<int> post_neuron_type;
 	string post_neuron_filename = loading_dir + "postNeuron.txt";
 	ReadColumn(post_neuron_filename, 0, 6, post_neuron_type);
-	int initial_size = connected_neurons.size();
-	vector<int> connected_neurons_copy = connected_neurons;
-	if (classification == "exc") {
-		connected_neurons.clear();
-		for (int i = 0; i < initial_size; i++) { // loop for seleted neurons in first step;
-			if (post_neuron_type[connected_neurons_copy[i]] == 1) connected_neurons.push_back(connected_neurons_copy[i]);
+	vector<neuron_type> types(neuron_num);
+	for (int i = 0; i < neuron_num; i++) {
+		types[i].index = connected_neurons[i];
+		if (post_neuron_type[types[i].index] == 1) {
+			types[i].type = true;
+		} else {
+			types[i].type = false;
 		}
-	} else if (classification == "inh") {
-		connected_neurons.clear();
-		for (int i = 0; i < initial_size; i++) { // loop for seleted neurons in first step;
-			if (post_neuron_type[connected_neurons_copy[i]] == 0) connected_neurons.push_back(connected_neurons_copy[i]);
-		}
-	};
-	connected_neurons_copy.clear();
+	}
+	KeySelect(classification, types, connected_neurons);
+	vector<int> temp_neurons;
+	Sample(connected_neurons, temp_neurons, num);
+	connected_neurons.clear();
+	connected_neurons = temp_neurons;	
+	// int target = connected_neurons[num];
+	// connected_neurons.clear();
+	// connected_neurons.push_back(target);
+	//connected_neurons.erase(connected_neurons.begin() + num, connected_neurons.begin() + num + 1);
+	for (int i = 0; i < num; i ++) cout << connected_neurons[i] << '\t';
+	cout << endl; 
 	cout << ">> The number of chosen neurons is " << connected_neurons.size() << "." << endl;
+	sort(connected_neurons.begin(), connected_neurons.end());
 	neuron_num = connected_neurons.size();
 	printf(">> %d neurons in post-network is(are) chosen to generate local field potential.\n", neuron_num);
 	
