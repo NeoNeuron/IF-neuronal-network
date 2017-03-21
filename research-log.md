@@ -219,3 +219,19 @@ Review about discussion with Douglas:
 # 2017-03-21 01:06:04
 
 Finished Report of Week 3 & 4
+
+# 2017-03-21 22:10:40
+## Finished
+- Fix the old syntax of STL vector with new ones, which increase the efficiency of simulation of two-network system;
+- Update the method to calculate LFP by directly input the total membrane current at the begining;
+
+## To do:
+1. Define parameters of neuronal dynamics:
+	- Firing frequency;
+	- connecting neighborhood;
+	- Driving component;
+2. Define a pattern for TDMI data;
+	- noise level [mean value and std];
+	- maximum peak value; [difference with noise level]
+	- time to reach the peak;
+	- time constant for decay side;

@@ -71,7 +71,7 @@ public:
 	void InitializeExternalPoissonProcess(bool function, double rate, double tmax, int seed);
 
 	// 	Input new spikes for neurons all together;
-	void InputNewSpikes(vector<vector<Spike> > &data);
+	void InNewSpikes(vector<vector<Spike> > &data);
 
 	//Load previous setups;
 	//Define a 'NeuronState' type to store neuronal condition;
@@ -100,13 +100,16 @@ public:
 
 	// OUTPUTS:
 
-	void OutputPotential(vector<double> &x);
+	void OutPotential(vector<double> & potential);
 
   //	Read all Temporal Parameters:
   //		Panel x[0]: Voltage;
   //		Panel x[1]: Excitatory synaptic conductance;
   //		Panel x[2]: Inhibitory synaptic conductance;
-  void OutputTemporalParameters(vector<vector<double> > &x);
+  void OutTemporalParameters(vector<vector<double> > &x);
+
+  //	Output the total membrane ionic current of each neuron:
+  void OutCurrent(vector<double> & current);
 
 	//	Save corrent neuronal States and connectivity matrix:
 	//	Define a 'neuronFile' type to store neuronal condition;
@@ -119,12 +122,12 @@ public:
 	//		5: remaining refractory period;
 	void Save(string neuron_file, string connecting_matrix_file);
 
-	void OutputSpikeTrains(vector<vector<double> > &data);
+	void OutSpikeTrains(vector<vector<double> > & data);
 
-  //  Output spikes before t;
-	void OutputNewSpikes(double t, vector<vector<Spike> > &data);
+  //  Output spikes before t, including their modes and functions;
+	void OutNewSpikes(double t, vector<vector<Spike> > &data);
 
-	void OutputNeuronType(vector<bool> & x);
+	void OutNeuronType(vector<bool> & x);
 
 	int GetNeuronNumber();
 

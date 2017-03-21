@@ -218,7 +218,7 @@ public:
 	void LoadNeuronalState(NeuronalState & data);
 
 	//	Input synaptic inputs, either feedforward or interneuronal ones;
-	void InputSpike(Spike x);
+	void InSpike(Spike x);
 	
 	// Reset neuron into the condition at zero time point;
 	void Reset(); 
@@ -261,15 +261,15 @@ public:
 	int GetNeuronIndex();
 
 	//	Output spike train
-	void OutputSpikeTrain(vector<double> &x);
+	void OutSpikeTrain(vector<double> & spikes);
 
   //  Output Spikes before t;
-	void OutputNewSpikes(double t, vector<Spike> &x);
+	void OutNewSpikes(double t, vector<Spike> &x);
 	
 	void SetFeedforwardConductance(bool function, double F);
 
 	// Total membrane current;
-	double OutputIonCurrent();
+	double OutTotalCurrent();
 
 	// True return excitatory conductance, false return inhibitory conductance;
 	double GetConductance(bool x);

@@ -9,19 +9,13 @@
 
 using namespace std;
 
-void UpdateSystemState(NeuronalNetwork & pre_network, 
-												NeuronalNetwork & post_network, 
-												vector<vector<bool> > & connectivity_matrix, 
-												double t, double dt) {
+void UpdateSystemState(NeuronalNetwork & pre_network, NeuronalNetwork & post_network, vector<vector<bool> > & connectivity_matrix, double t, double dt) {
 	//	Update pre_network in two network system;
 	pre_network.UpdateNetworkState(t, dt);
 	//	Transmit spiking information from pre_network to post_network;
 	vector<vector<Spike> > tempPreSpikes, tempPostSpikes;
-	pre_network.OutputNewSpikes(t, tempPreSpikes);
-	vector<Spike> ADD;
-	for (int i = 0; i < connectivity_matrix[1].size(); i++) {
-		tempPostSpikes.push_back(ADD);
-	}
+	pre_network.OutNewSpikes(t, tempPreSpikes);
+	tempPostSpikes.resize(connectivity_matrix[1].size());
 	for (int i = 0; i < connectivity_matrix.size(); i++) {		
 		if (tempPreSpikes[i].size() != 0) {
 			for (int j = 0; j < connectivity_matrix.size(); j++) {
@@ -31,7 +25,7 @@ void UpdateSystemState(NeuronalNetwork & pre_network,
 			}
 		}
 	}	
-	post_network.InputNewSpikes(tempPostSpikes);
+	post_network.InNewSpikes(tempPostSpikes);
 	//	Update post_network in two network system;
 	post_network.UpdateNetworkState(t, dt);
 }

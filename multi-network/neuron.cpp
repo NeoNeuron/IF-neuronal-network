@@ -349,13 +349,12 @@ int Neuron::GetNeuronIndex() {
   return index_;
 }
 
-void Neuron::OutputSpikeTrain(vector<double>& x) {
-	for (vector<double>::iterator iter = spike_train_.begin(); iter != spike_train_.end(); iter++) {
-		x.push_back(*iter);
-	}
+void Neuron::OutSpikeTrain(vector<double> & spikes) {
+	spikes.clear();
+	spikes = spike_train_;
 }
 
-void Neuron::OutputNewSpikes(double t, vector<Spike>& x) {
+void Neuron::OutNewSpikes(double t, vector<Spike>& x) {
 	Spike add_spike;
 	add_spike.mode = false;
 	add_spike.function = type_;
@@ -512,7 +511,7 @@ void Neuron::Fire(double t, double dt) {
 	}
 }
 
-void Neuron::InputSpike(Spike x) {
+void Neuron::InSpike(Spike x) {
 	synaptic_driven_.push_back(x);	
 }
 
@@ -524,7 +523,7 @@ void Neuron::SetFeedforwardConductance(bool function, double F) {
 	}
 }
 
-double Neuron::OutputIonCurrent() {
+double Neuron::OutTotalCurrent() {
 	return -Alpha(3)*membrane_potential_ + Beta(3);
 }
 

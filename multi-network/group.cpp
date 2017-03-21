@@ -101,11 +101,11 @@ void NeuronalNetwork::InitializeExternalPoissonProcess(bool function, double rat
 	}
 }
 
-void NeuronalNetwork::InputNewSpikes(vector<vector<Spike> > &data) {
+void NeuronalNetwork::InNewSpikes(vector<vector<Spike> > & data) {
 	for (int i = 0; i < neuron_number_; i++) {
 		if (data[i].size() != 0) {
 			for (vector<Spike>::iterator it = data[i].begin(); it != data[i].end(); it++) {
-				neurons_[i].InputSpike(*it);
+				neurons_[i].InSpike(*it);
 			}			
 		}		
 	}
@@ -173,7 +173,7 @@ void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
 					neurons_[j].UpdateNeuronalState(t, newt - t, external_excitatory_inputs_[j], external_inhibitory_inputs_[j]);
 					if (connectivity_matrix_.ReadMatrix(IND,j) != 0) {
 						ADD_mutual.t = newt;
-						neurons_[j].InputSpike(ADD_mutual);
+						neurons_[j].InSpike(ADD_mutual);
 					}
 				}
 			}
@@ -188,28 +188,37 @@ void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
 	}	
 }
 
-void NeuronalNetwork::OutputPotential(vector<double>& x) {
+void NeuronalNetwork::OutPotential(vector<double>& potential) {
+	potential.clear();
+	potential.resize(neuron_number_);
 	for (int i = 0; i < neuron_number_; i++) {
-		x.push_back(neurons_[i].GetPotential());
+		potential[i] = neurons_[i].GetPotential();
 	}
 }
 
-void NeuronalNetwork::OutputTemporalParameters(vector<vector<double> > &x) {
+void NeuronalNetwork::OutTemporalParameters(vector<vector<double> > &x) {
   x.clear();
-  vector<double> add;
-  for (int i = 0; i < 3; i++) x.push_back(add);
+  vector<double> add(3);
+  x.resize(neuron_number_, add);
   for (int i = 0; i < neuron_number_; i++) {
-    x[0].push_back(neurons_[i].GetPotential());
-    x[1].push_back(neurons_[i].GetConductance(true));
-    x[2].push_back(neurons_[i].GetConductance(false));
+  	x[i][0] = neurons_[i].GetPotential();
+  	x[i][1] = neurons_[i].GetConductance(true);
+  	x[i][2] = neurons_[i].GetConductance(false);  
   }
 }
 
+void NeuronalNetwork::OutCurrent(vector<double> & current) {
+	current.clear();
+	current.resize(neuron_number_);
+	for (int i = 0; i < neuron_number_; i++) {
+		current[i] = neurons_[i].OutTotalCurrent();
+	}
+}
+
+
 void NeuronalNetwork::Save(string neuron_file, string connecting_matrix_file) {
 	ofstream data;
-	const char* char_filename = neuron_file.c_str();
-	const char* char_matrix_filename = connecting_matrix_file.c_str();
-	data.open(char_filename);
+	data.open(neuron_file.c_str());
 	NeuronalState add;
 	for (int i = 0; i < neuron_number_; i++) {
 		neurons_[i].Save(add);
@@ -221,34 +230,37 @@ void NeuronalNetwork::Save(string neuron_file, string connecting_matrix_file) {
 		data << (double)add.remaining_refractory_time << endl;
 	}
 	data.close();
-	data.open(char_matrix_filename);
+	data.open(connecting_matrix_file.c_str());
 	connectivity_matrix_.OutputMatrix(data);
 	data.close();
 }
 
 
-void NeuronalNetwork::OutputSpikeTrains(vector<vector<double> > &data) {
-	vector<double> x;
-	for (int i = 0; i < neuron_number_; i++) {
-		x.clear();
-		neurons_[i].OutputSpikeTrain(x);
-		data.push_back(x);
+void NeuronalNetwork::OutSpikeTrains(vector<vector<double> > & data) {
+	data.clear();
+	data.resize(neuron_number_);
+	vector<double> add_spike_train;
+	for (int i = 0; i < neuron_number_; i++) {		
+		neurons_[i].OutSpikeTrain(add_spike_train);
+		data[i] = add_spike_train;
 	}
 }
 
-void NeuronalNetwork::OutputNewSpikes(double t, vector<vector<Spike> >& data) {
+void NeuronalNetwork::OutNewSpikes(double t, vector<vector<Spike> >& data) {
+	data.clear();
+	data.resize(neuron_number_);
 	vector<Spike> x;
 	for (int i = 0; i < neuron_number_; i++) {
-		x.clear();
-		neurons_[i].OutputNewSpikes(t, x);
-		data.push_back(x);
+		neurons_[i].OutNewSpikes(t, x);
+		data[i] = x;
 	}
 }
 
-void NeuronalNetwork::OutputNeuronType(vector<bool>& x) {
-	x.clear();
+void NeuronalNetwork::OutNeuronType(vector<bool>& types) {
+	types.clear();
+	types.resize(neuron_number_);
 	for (int i = 0; i < neuron_number_; i++) {
-		x.push_back(neurons_[i].GetNeuronalType());
+		types[i] = neurons_[i].GetNeuronalType();
 	}
 }
 

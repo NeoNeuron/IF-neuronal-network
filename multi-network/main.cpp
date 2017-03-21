@@ -68,25 +68,23 @@ int main(int argc, const char* argv[]) {
 	postNet.InitializeExternalPoissonProcess(false, 0, maximum_time, 0);
 
 	// SETUP CONNECTIVITY MAT
-	vector<vector<bool> > conMat;
+	vector<vector<bool> > conMat(preNetNum);
 	double conP = atof(m_map_config["ConnectingProbability"].c_str());
 	srand(atoi(m_map_config["ConnectingSeed"].c_str()));
-	vector<bool> addRow;
 	ofstream conMatFile;
 	string conMatFilename = dir + "conMat.txt";
 	conMatFile.open(conMatFilename.c_str());
 	for (int i = 0; i < preNetNum; i++) {
-		addRow.clear();
+		conMat[i].resize(postNetNum);
 		for (int j = 0; j < postNetNum; j++) {
 			if (rand() / (RAND_MAX*1.0) < conP) {
-				addRow.push_back(true);
+				conMat[i][j] = true;
 				conMatFile << true << "\t";
 			} else {
-				addRow.push_back(false);
+				conMat[i][j] = false;
 				conMatFile << false << "\t";
 			}
 		}
-		conMat.push_back(addRow);
 		conMatFile << endl;
 	}
 	conMatFile.close();
@@ -94,46 +92,60 @@ int main(int argc, const char* argv[]) {
 	// SETUP DYNAMICS:
 	double t = 0, dt = atof(m_map_config["TimingStep"].c_str()), tmax = maximum_time;
 	ofstream preV, preGE, preGI, postV, postGE, postGI;
+	ofstream preI, postI;
 	string preV_filename = dir + "preV.txt";
 	string preGE_filename = dir + "preGE.txt";
 	string preGI_filename = dir + "preGI.txt";
 	string postV_filename = dir + "postV.txt";
 	string postGE_filename = dir + "postGE.txt";
 	string postGI_filename = dir + "postGI.txt";
+	string preI_filename = dir + "preI.txt";
+	string postI_filename = dir + "postI.txt";
 	preV.open(preV_filename.c_str());
 	preGE.open(preGE_filename.c_str());
 	preGI.open(preGI_filename.c_str());
 	postV.open(postV_filename.c_str());	
 	postGE.open(postGE_filename.c_str());
 	postGI.open(postGI_filename.c_str());
+	preI.open(preI_filename.c_str());
+	postI.open(postI_filename.c_str());
 
 	vector<vector<double> > readme;
+	vector<double> current;
 	char cr = (char)13;
 	double progress;
 	while (t < tmax) {
 		UpdateSystemState(preNet, postNet, conMat, t, dt);
 		t += dt;
 		readme.clear();
-		preNet.OutputTemporalParameters(readme);
+		current.clear();
+		preNet.OutTemporalParameters(readme);
+		preNet.OutCurrent(current);
 		for (int i = 0; i < preNetNum; i++) {
-			preV << setprecision(15) << (double)readme[0][i] << '\t';
-			preGE << setprecision(15) << (double)readme[1][i] << '\t';
-			preGI << setprecision(15) << (double)readme[2][i] << '\t';
+			preV << setprecision(15) << (double)readme[i][0] << '\t';
+			preGE << setprecision(15) << (double)readme[i][1] << '\t';
+			preGI << setprecision(15) << (double)readme[i][2] << '\t';
+			preI << setprecision(15) << (double)current[i] << '\t';
 		}
 		preV << endl;
 		preGE << endl;
 		preGI << endl;
+		preI << endl;
 
 		readme.clear();
-		postNet.OutputTemporalParameters(readme);
+		current.clear();
+		postNet.OutTemporalParameters(readme);
+		postNet.OutCurrent(current);
 		for (int i = 0; i < postNetNum; i++) {
-			postV << setprecision(15) << (double)readme[0][i] << '\t';
-			postGE << setprecision(15) << (double)readme[1][i] << '\t';
-			postGI << setprecision(15) << (double)readme[2][i] << '\t';
+			postV << setprecision(15) << (double)readme[i][0] << '\t';
+			postGE << setprecision(15) << (double)readme[i][1] << '\t';
+			postGI << setprecision(15) << (double)readme[i][2] << '\t';
+			postI << setprecision(15) << (double)current[i] << '\t';
 		}
 		postV << endl;
 		postGE << endl;
 		postGI << endl;
+		postI << endl;
 		progress = t * 100.0 / tmax;
 		cout << cr;
 		printf(">> Processing ... %6.2f", progress);
@@ -147,6 +159,8 @@ int main(int argc, const char* argv[]) {
 	postV.close();
 	preGI.close();
 	postGI.close();
+	preI.close();
+	postI.close();
 
 	neuronFileName = dir + "preNeuron.txt";
 	conMatFileName = dir + "preMat.txt";
@@ -161,7 +175,7 @@ int main(int argc, const char* argv[]) {
 	string pre_raster_filename = dir + "rasterPre.txt";
 	string post_raster_filename = dir + "rasterPost.txt";
 	spikes.clear();
-	preNet.OutputSpikeTrains(spikes);
+	preNet.OutSpikeTrains(spikes);
 	data.open(pre_raster_filename.c_str());
 	int neuron_indices = 0;
 	for (vector<vector<double> >::iterator it = spikes.begin(); it != spikes.end(); it++) {
@@ -175,7 +189,7 @@ int main(int argc, const char* argv[]) {
 	data.close();
 
 	spikes.clear();
-	postNet.OutputSpikeTrains(spikes);
+	postNet.OutSpikeTrains(spikes);
 	data.open(post_raster_filename.c_str());
 	neuron_indices = 0;
 	for (vector<vector<double> >::iterator it = spikes.begin(); it != spikes.end(); it++) {

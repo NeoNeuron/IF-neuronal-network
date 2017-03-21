@@ -106,8 +106,8 @@ int main(int argc, const char* argv[]) {
 	// connected_neurons.clear();
 	// connected_neurons.push_back(target);
 	//connected_neurons.erase(connected_neurons.begin() + num, connected_neurons.begin() + num + 1);
-	for (int i = 0; i < num; i ++) cout << connected_neurons[i] << '\t';
-	cout << endl; 
+	// for (int i = 0; i < num; i ++) cout << connected_neurons[i] << '\t';
+	// cout << endl; 
 	cout << ">> The number of chosen neurons is " << connected_neurons.size() << "." << endl;
 	sort(connected_neurons.begin(), connected_neurons.end());
 	neuron_num = connected_neurons.size();
@@ -115,13 +115,15 @@ int main(int argc, const char* argv[]) {
 	
 	//	Search in files of neurons in loop 2, and load neuronal parameters, including potential, excitatory_conductance and inhibitory conductance, of neurons in the neuronal_connectivity_list;
 	cout << ">> Loading parameters of connected neurons ..." << endl;
-	string potential_filename = loading_dir + "postV.txt";
-	string excitatory_conductance_filename = loading_dir + "postGE.txt";
-	string inhibitory_conductance_filename = loading_dir + "postGI.txt";
+	// string potential_filename = loading_dir + "postV.txt";
+	// string excitatory_conductance_filename = loading_dir + "postGE.txt";
+	// string inhibitory_conductance_filename = loading_dir + "postGI.txt";
+	string current_filename = loading_dir + "postI.txt";
 	
 	cout << ">> Calculating LFP ..." << endl;
 	vector<double> lfp;
-	LFP(t_range, connected_neurons, potential_filename, excitatory_conductance_filename, inhibitory_conductance_filename, lfp);
+	//LFP(t_range, connected_neurons, potential_filename, excitatory_conductance_filename, inhibitory_conductance_filename, lfp);
+	LFP(t_range, connected_neurons, current_filename, lfp);
 
 	//	Output data:
 	string out_dir = "./lfp/file-txt/";

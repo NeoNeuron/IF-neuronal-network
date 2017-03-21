@@ -15,11 +15,13 @@
 using namespace std;
 
 void Sample(vector<int> & origin_vector, vector<int> & sample_vector, int num) {
-	if (origin_vector.size() == num) return;
-	else {
+	sample_vector.clear();
+	if (num == origin_vector.size() || num == 0) {
+		sample_vector = origin_vector;
+		return;
+	} else {
 		srand(time(0));
 		int ind;
-		sample_vector.clear();
 		sample_vector.resize(num);
 		vector<int> vector_copy = origin_vector;
 		for (int i = 0; i < num; i++) {
@@ -281,6 +283,61 @@ void LFP(double* t_range, vector<int> & neuron_list, string potential_filename, 
 	potential_in_file.close();
 	excitatory_conductance_in_file.close();
 	inhibitory_conductance_in_file.close();
+	cout << endl;
+}
+
+void LFP(double* t_range, vector<int> & neuron_list, string current_filename, vector<double> &lfp) {
+	// preliminary parameters;
+	double sampling_rate = 32; // Unit ms: 32/ms;
+	int total_neuron_number = 100;
+
+	// Preparing time series;
+	int t_begin = t_range[0] * sampling_rate; // not included
+	int t_end = t_range[1] * sampling_rate; // included
+	int size_of_lfp = t_end - t_begin;
+	lfp.clear();
+	lfp.resize(size_of_lfp);
+
+	// Load potential file and conductance files;
+	string s_current;
+	string ss;
+	// For t = [0, t_begin];
+	cout << ">> Loading ... " << endl;
+	ifstream current_in_file;
+	current_in_file.open(current_filename.c_str());
+	for (int i = 0; i < t_begin; i ++) {
+		getline(current_in_file, s_current);
+	}
+	// For t = (t_begin, t_end]
+	char cr = (char)13;
+	double current_progress;
+	double temp_current;
+	double temp_lfp;
+	int neuron_list_counter;
+	string::size_type pos_current;
+	for (int i = t_begin; i < t_end; i++) {
+		getline(current_in_file, s_current);
+		neuron_list_counter = 0;
+		temp_lfp = 0;
+		for (int j = 0; j < total_neuron_number; j ++) {
+			pos_current = s_current.find_first_of('\t', 0);		
+			if (j == neuron_list[neuron_list_counter]) {	
+				ss = s_current.substr(0, pos_current);
+				temp_current = atof(ss.c_str());
+				
+				temp_lfp += temp_current;
+				neuron_list_counter ++;
+			}
+			s_current.erase(0, pos_current + 1);
+			if (neuron_list_counter == neuron_list.size()) break;
+		}
+		lfp[i - t_begin] = temp_lfp / neuron_list.size();
+		cout << cr << ">> Processing ... ";
+		current_progress = (i - t_begin + 1)*100.0/size_of_lfp;
+		printf("%.2f", current_progress);
+		cout << "%";
+	}
+	current_in_file.close();
 	cout << endl;
 }
 

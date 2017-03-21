@@ -130,7 +130,7 @@ def main():
 	if compile_updated == False:
 		Compile()
 	# setting preliminary parameters
-	loading_dir = "/media/kyle/Drive/ResearchData/Mar15/"
+	loading_dir = "/media/kyle/Drive/ResearchData/Mar21/"
 	simulation_accomplish = True
 	time_lb = 1000
 	time_ub = 10000
@@ -149,7 +149,7 @@ def main():
 	classification_options = ['exc']
 	# number of neurons in given classification;
 	#num_list = range(0, 8)
-	num = 8
+	num = 0
 	# Setting loops for time-delayed mutual information;
 	timing_step_list = [0.25]
 	# Start loops
