@@ -10,6 +10,7 @@ Rename all existing files; [done]
 Construct a path dependent network program; run and check the result; [not yet]
 write the current situation in my project proposal; [not yet]
 summarize the results got since last time met with Douglas, make a ppt; [not yet]
+
 ***
 # 2017-02-22 15:27:33
 Review about interview with professor Jeffrey Erlich:
@@ -235,3 +236,16 @@ Finished Report of Week 3 & 4
 	- maximum peak value; [difference with noise level]
 	- time to reach the peak;
 	- time constant for decay side;
+
+# 2017-03-28 11:47:37
+
+- Built program for signal-noise ratio analysis;
+
+## To Do:
+1. Run test based on following network structures:
+	- two network are both regular;
+	- post network are rewired with 0.1 rewiring probability;
+	- pre network are rewired with 0.1 rewiring probability;
+	- two network are both rewired with 0.1 probability;
+2. Labeled each neuron with the clustering coefficienct as well as mean path of its belonged sub neuron clusters. Investigate the change of signal-noise ratio respect to different network structures;
+3. Start to write the introductory part of my thesis paper;

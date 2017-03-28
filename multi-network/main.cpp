@@ -36,14 +36,21 @@ int main(int argc, const char* argv[]) {
 	cout << endl;
 	
 	int preNetNum, postNetNum, preNetDensity, postNetDensity;
+	double pre_rewiring_probability, post_rewiring_probability;
+	int pre_rewiring_seed, post_rewiring_seed;
 	preNetNum = atoi(m_map_config["PreNetNeuronNumber"].c_str());
 	postNetNum = atoi(m_map_config["PostNetNeuronNumber"].c_str());
 	preNetDensity = atoi(m_map_config["PreNetConnectingDensity"].c_str());
 	postNetDensity = atoi(m_map_config["PostNetConnectingDensity"].c_str());
+	pre_rewiring_probability = atof(m_map_config["PreNetRewiringProbability"].c_str());
+	post_rewiring_probability = atof(m_map_config["PostNetRewiringProbability"].c_str());
+	pre_rewiring_seed = atoi(m_map_config["PreNetRewiringSeed"].c_str());
+	post_rewiring_seed = atoi(m_map_config["PostNetRewiringSeed"].c_str());
+	// Generate networks;
 	NeuronalNetwork preNet(preNetNum, preNetDensity), postNet(postNetNum, postNetDensity);
+	preNet.Rewire(pre_rewiring_probability, pre_rewiring_seed, true);
+	postNet.Rewire(post_rewiring_probability, post_rewiring_seed, true);
 	double maximum_time = atof(m_map_config["MaximumTime"].c_str());
-	//cout << "Input the maximum simulating time (ms):" << endl;
-	//cin >> maximum_time;
 	string neuronFileName, conMatFileName;
 	//neuronFileName = dir + "preNeuron.txt";
 	//conMatFileName = dir + "preMat.txt";

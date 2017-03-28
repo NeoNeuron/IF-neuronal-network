@@ -61,7 +61,7 @@ int KeySelect(string & key, vector<neuron_type> & type, vector<int> & indices);
 //	STRING inhibitory_conductance_file;
 //	VECTOR<DOUBLE> lfp: local field potential data;
 //	Return: none;
-void LFP(double* t_range, vector<int> & neuron_list, string potential_filename, string excitatory_conductance_filename, string inhibitory_conductance_filename, vector<double> &lfp);
+void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, string potential_filename, string excitatory_conductance_filename, string inhibitory_conductance_filename, vector<double> &lfp);
 
 //	Local field potential model [version 0.11]
 //	Description: point current source model without sptial distribution;
@@ -69,7 +69,7 @@ void LFP(double* t_range, vector<int> & neuron_list, string potential_filename, 
 //	STRING current_file: total membrane current;
 //	VECTOR<DOUBLE> lfp: local field potential data;
 //	Return: none;
-void LFP(double* t_range, vector<int> & neuron_list, string current_filename, vector<double> &lfp);
+void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, string current_filename, vector<double> &lfp);
 
 // 	Output LFP;
 //	Description: output LFP data to a given file;

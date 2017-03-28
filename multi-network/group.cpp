@@ -130,19 +130,15 @@ void NeuronalNetwork::LoadNetworkState(string neuron_file, string connecting_mat
 	connectivity_matrix_.LoadMatrix(connecting_matrix);
 }
 
-void NeuronalNetwork::SetDrivingType(bool driving_type)
-{
-	for (int i = 0; i < neuron_number_; i++)
-	{
+void NeuronalNetwork::SetDrivingType(bool driving_type) {
+	for (int i = 0; i < neuron_number_; i++) {
 		neurons_[i].SetDrivingType(driving_type);
 	}
 }
 
-void NeuronalNetwork::Rewire(double p, int seed, bool output_option)
-{
+void NeuronalNetwork::Rewire(double p, int seed, bool output_option) {
 	connectivity_matrix_.Rewire(p, seed, output_option);
-	if (output_option == true)
-	{
+	if (output_option == true) {
 		double mean_path, mean_clustering_coefficient;
 		mean_path = connectivity_matrix_.OutputMeanPath();
 		mean_clustering_coefficient = connectivity_matrix_.OutputMeanClusteringCoefficient();

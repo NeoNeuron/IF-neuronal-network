@@ -204,14 +204,13 @@ int KeySelect(string & key, vector<neuron_type> & types, vector<int> & indices) 
 }
 
 
-void LFP(double* t_range, vector<int> & neuron_list, string potential_filename, string excitatory_conductance_filename, string inhibitory_conductance_filename, vector<double> &lfp) {
+void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, string potential_filename, string excitatory_conductance_filename, string inhibitory_conductance_filename, vector<double> &lfp) {
 	// preliminary parameters;
 	double sampling_rate = 32; // Unit ms: 32/ms;
 	double leaky_reversal_potential = 0;
 	double excitatory_reversal_potential = 14 / 3;
 	double inhibitory_reversal_potential = -2 / 3;
 	double leaky_conductance = 0.05;
-	int total_neuron_number = 100;
 
 	// Preparing time series;
 	int t_begin = t_range[0] * sampling_rate; // not included
@@ -286,10 +285,9 @@ void LFP(double* t_range, vector<int> & neuron_list, string potential_filename, 
 	cout << endl;
 }
 
-void LFP(double* t_range, vector<int> & neuron_list, string current_filename, vector<double> &lfp) {
+void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, string current_filename, vector<double> &lfp) {
 	// preliminary parameters;
 	double sampling_rate = 32; // Unit ms: 32/ms;
-	int total_neuron_number = 100;
 
 	// Preparing time series;
 	int t_begin = t_range[0] * sampling_rate; // not included

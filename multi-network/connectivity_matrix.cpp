@@ -6,9 +6,7 @@
 //***************
 #include "connectivity_matrix.h"
 
-void ConnectivityMatrix::Scan(int target_value, 
-															int row_index, 
-															vector<int> &output_indices) {
+void ConnectivityMatrix::Scan(int target_value, int row_index, vector<int> &output_indices) {
 	for (int s = 0; s < neuron_number_; s++) {
 		if (matrix_[row_index][s] == target_value) {
 			output_indices.push_back(s);
@@ -111,8 +109,8 @@ void ConnectivityMatrix::LoadMatrix(vector<vector<int> >& matrix) {
 void ConnectivityMatrix::Rewire(double p, int seed, bool OutputOption) {
 	cout << 2 * neuron_number_ * connecting_density_ << " connections total with ";
 	srand(seed);
-	double x;
-	int y, empty_connection, count = 0;
+	double x; // random variable;
+	int ind, empty_connection, count = 0;
 	vector<int> ones, zeros;
 	for (int i = 0; i < neuron_number_; i++) {
 		Scan(1, i, ones);
@@ -120,16 +118,15 @@ void ConnectivityMatrix::Rewire(double p, int seed, bool OutputOption) {
 			x = rand() / (RAND_MAX + 1.0);
 			if (x <= p) {
 				Scan(0, i, zeros);
-				for (vector<int>::iterator it = zeros.begin(); 
-					it != zeros.end(); it++) {
+				for (vector<int>::iterator it = zeros.begin(); it != zeros.end(); it++) {
 					if (*it == i) {
 						zeros.erase(it);
 						break;
 					}
 				}
 				empty_connection = zeros.size();
-				y = rand() % empty_connection;
-				matrix_[i][zeros[y]] = 1;
+				ind = rand() % empty_connection;
+				matrix_[i][zeros[ind]] = 1;
 				matrix_[i][ones[j]] = 0;
 				zeros.clear();				
 				count += 1;
