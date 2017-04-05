@@ -249,3 +249,24 @@ Finished Report of Week 3 & 4
 	- two network are both rewired with 0.1 probability;
 2. Labeled each neuron with the clustering coefficienct as well as mean path of its belonged sub neuron clusters. Investigate the change of signal-noise ratio respect to different network structures;
 3. Start to write the introductory part of my thesis paper;
+
+# 2017-04-05 10:53:04
+
+## Review for previous progress
+
+1. Run programs for 200 neurons in three different cases:
+    - Both networks are regular;
+    - Both networks are rewired;
+    - Pre network is rewired;
+    - Post network is rewired;
+2. Data analysis;
+    - calculate the mutual information for one degree LFP;
+    - record the signal-noise ratio for each case; (signal represents for the maximum value of MI peak)
+    - calculate the clustering coefficient and the mean path of the neuorns in their own network as well as across networks; **The basic found is that in the current simulation test, neurons contribute to the local field potential have no self clustered effect, which means that each neuron locate in its own neuron cluster in post network**
+    - One strange problem is that neurons with indices close to 200 all have low signal-noise ratio;
+3. Orignal thoughts:
+    1. Comparing neural signal with identical initial condition and different network structure, to see whether the effect of MI are dominant by cross-network signals or localized dynamics;
+    2. To find parameters that can quantify the network structures;
+4. TO DO:
+    1. why two neurons in the post network connected with the same neuron in pre network have completely different behavior in TDMI signal; *To analysis the phase different between the potential and firing sequency of these two neurons*
+    2. Not all excitatory neurons have effective MI peak with their one-degree LFP,

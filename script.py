@@ -238,11 +238,11 @@ def SaveInfo(loading_dir, neuron_index, classification):
 
 def main():
 	# Update to newest code version;
-	compile_updated = False;
+	compile_updated = True;
 	if compile_updated == False:
 		Compile()
 	# setting preliminary parameters
-	loading_dir = "/media/kyle/Drive/ResearchData/Mar28/post-rewire/"
+	loading_dir = "/media/kyle/Drive/ResearchData/Apr05/seed200/"
 	total_neuron_number = 200
 	simulation_accomplish = False
 	time_lb = 1000
@@ -298,7 +298,7 @@ def main():
 					print '=================================================='
 	data_2d = np.array(data_2d)
 	# print data_2d
-	np.savetxt("test.txt", data_2d, delimiter = '\t', newline = '\n', fmt = '%.4f')
+	np.savetxt(loading_dir + "pre-net-data.txt", data_2d, delimiter = '\t', newline = '\n', fmt = '%.4f')
 
 
 main()
