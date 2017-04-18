@@ -512,7 +512,13 @@ void Neuron::Fire(double t, double dt) {
 }
 
 void Neuron::InSpike(Spike x) {
-	synaptic_driven_.push_back(x);	
+	// synaptic_driven_.push_back(x);
+	if ((synaptic_driven_.back()).t < x.t) {
+		synaptic_driven_.push_back(x);
+	} else {
+		synaptic_driven_.push_back(x);
+		sort(synaptic_driven_.begin(),synaptic_driven_.end(),compPoisson);
+	}
 }
 
 void Neuron::SetFeedforwardConductance(bool function, double F) {

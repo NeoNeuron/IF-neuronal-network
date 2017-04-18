@@ -120,11 +120,11 @@ int main(int argc, const char* argv[]) {
 	// string excitatory_conductance_filename = loading_dir + "postGE.txt";
 	// string inhibitory_conductance_filename = loading_dir + "postGI.txt";
 	string current_filename = loading_dir + "postI.txt";
-	
+	  
 	cout << ">> Calculating LFP ..." << endl;
 	int total_neuron_number = atoi(argv[8]);
 	vector<double> lfp;
-	//LFP(t_range, total_neuron_number, connected_neurons, potential_filename, excitatory_conductance_filename, inhibitory_conductance_filename, lfp);
+	// LFP(t_range, total_neuron_number, connected_neurons, potential_filename, excitatory_conductance_filename, inhibitory_conductance_filename, lfp);
 	LFP(t_range, total_neuron_number, connected_neurons, current_filename, lfp);
 
 	//	Output data:

@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random
 from scipy.optimize	import curve_fit 
+import pandas as pd
 
 # compile *.cpp files
 def Compile():
@@ -139,8 +140,8 @@ def tdmi_parameters():
 	signal_order = np.loadtxt("./tdmi/file-dat/tdmi_ordered.dat")
 	signal_rand =  np.loadtxt("./tdmi/file-dat/tdmi_rand.dat")
 	# calculate noise level
-	noise_mean = np.mean(signal_rand[:,1])
-	noise_std = np.std(signal_rand[:,1])
+	noise_mean = signal_rand[:,1].mean()
+	noise_std = signal_rand[:,1].std()
 	# allocate maximum mutual information signal
 	signal_max_ind = np.argmax(signal_order[:,1])
 	signal_max = signal_order[signal_max_ind,1]
@@ -178,13 +179,13 @@ def tdmi_parameters():
 		decay_tau = -1
 	return sn_ratio, signal_max_time, decay_tau
 
-def pre_neuron_analysis(loading_dir, index, tmax):
+def pre_neuron_analysis(loading_dir, index, index_max, tmax):
 	# loading_dir: directory that neuronal data locate;
 	# index: index of pre-network neuron;
 	# tmax: maximum simulating time, unit in second;
 
 	# load raster data;
-	data_raster = np.genfromtxt(loading_dir + "rasterPre.txt", skip_header =  index, skip_footer =  199 - index)
+	data_raster = np.genfromtxt(loading_dir + "rasterPre.txt", skip_header =  index, skip_footer =  index_max - index)
 	mean_rate = (len(data_raster) - 1)*1.0 / tmax
 
 	# # loading membrane potential;
@@ -195,7 +196,7 @@ def pre_neuron_analysis(loading_dir, index, tmax):
 	# plt.show()
 	return mean_rate
 
-def SaveInfo(loading_dir, neuron_index, classification):
+def SaveInfo(loading_dir, neuron_index, index_max, classification):
 	"""
 	Output format:
 	info[0] = neuronal index
@@ -212,10 +213,10 @@ def SaveInfo(loading_dir, neuron_index, classification):
 	info[0] = neuron_index
 	pre_net_types = np.genfromtxt(loading_dir + 'preNeuron.txt', dtype = int, usecols = 0)
 	info[1] = pre_net_types[neuron_index]
-	info[2] = pre_neuron_analysis(loading_dir, neuron_index, 10)
+	info[2] = pre_neuron_analysis(loading_dir, neuron_index, index_max, 10)
 	conMat = np.genfromtxt(loading_dir + 'conMat.txt', dtype = int)
 	post_net_types = np.genfromtxt(loading_dir + 'postNeuron.txt', dtype = int, usecols = 0)
-	connected_neurons = [ind for ind in range(0, 200) if conMat[neuron_index, ind] == 1]
+	connected_neurons = [ind for ind in range(0, index_max - 1) if conMat[neuron_index, ind] == 1]
 
 	if classification == 'all':
 		pass
@@ -229,7 +230,7 @@ def SaveInfo(loading_dir, neuron_index, classification):
 	neuron_numbers = DivideNeuronalFunction(post_net_types, connected_neurons)
 	info[4] = neuron_numbers[0]
 	info[5] = neuron_numbers[1]
-	signal_noise_ratio, signal_max_time, time_const = tdmi_parameters()
+	[signal_noise_ratio, signal_max_time, time_const] = tdmi_parameters()
 	info[6] = signal_noise_ratio
 	info[7] = signal_max_time 
 	info[8] = time_const
@@ -238,12 +239,12 @@ def SaveInfo(loading_dir, neuron_index, classification):
 
 def main():
 	# Update to newest code version;
-	compile_updated = True;
+	compile_updated = False;
 	if compile_updated == False:
 		Compile()
 	# setting preliminary parameters
-	loading_dir = "/media/kyle/Drive/ResearchData/Apr05/seed200/"
-	total_neuron_number = 200
+	loading_dir = "/media/kyle/Drive/ResearchData/Apr18/test1/"
+	total_neuron_number = 100
 	simulation_accomplish = False
 	time_lb = 1000
 	time_ub = 10000
@@ -254,6 +255,7 @@ def main():
 	# Generating neruonal data based on settings above;
 	if simulation_accomplish == False:
 		subprocess.call(["./multi-network/two-network-system.out", loading_dir])
+		os.system("cp ./multi-network/config.ini " + loading_dir)
 	# Setting loops for local field potentials;
 	# all_neuron = range(0, 100)
 	# target_neuron_indice_list = random.sample(all_neuron, 1)
@@ -266,8 +268,9 @@ def main():
 	# Setting loops for time-delayed mutual information;
 	timing_step_list = [0.25]
 	# preparing storage for data;
+	data_dic = {'neuronal index':np.zeros(total_neuron_number),'neuronal type':np.zeros(total_neuron_number), 'mean firing rate':np.zeros(total_neuron_number), 'number of neuron connected':np.zeros(total_neuron_number), 'number of excitatory connected neurons':np.zeros(total_neuron_number), 'number of inhibitory connected neurons':np.zeros(total_neuron_number), 'signal noise ratio':np.zeros(total_neuron_number), 'time point for maximum MI':np.zeros(total_neuron_number), 'time constant for tdmi decay':np.zeros(total_neuron_number)}
+	data_out = pd.DataFrame(data_dic) 
 
-	loop_counter = 0
 	# Start loops
 	for ind in target_neuron_indice_list:
 		for order in order_options:
@@ -287,18 +290,11 @@ def main():
 					# figure_text = CreateText(loading_dir = loading_dir, neuron_index = int(ind), order = order, classification = classification, num = num)
 					# print figure_text
 					# PlotTdmi(saving_filename = saving_filename, figure_text = figure_text)
-
-					loop_counter += 1
-					if loop_counter == 1:
-						data_2d = SaveInfo(loading_dir = loading_dir, neuron_index = ind, classification = classification)
-					elif loop_counter == 2:
-						data_2d = [data_2d, SaveInfo(loading_dir = loading_dir, neuron_index = ind, classification = classification)]
-					else:
-						data_2d = data_2d + [SaveInfo(loading_dir = loading_dir, neuron_index = ind, classification = classification)]
+					data_out.ix[ind] = SaveInfo(loading_dir = loading_dir, neuron_index = ind, index_max = total_neuron_number - 1, classification = classification)
 					print '=================================================='
-	data_2d = np.array(data_2d)
+
 	# print data_2d
-	np.savetxt(loading_dir + "pre-net-data.txt", data_2d, delimiter = '\t', newline = '\n', fmt = '%.4f')
+	data_out.to_csv(loading_dir + "pre-net-data.csv", float_format = '%.4f')
 
 
 main()

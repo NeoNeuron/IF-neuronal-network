@@ -1,15 +1,14 @@
-ll# 2017-02-19 13:14:14
-Local field potential can be inferred from LFPs; [Rasch et al., 2008]
-Origin of local field potential; [Buzsaki et al., 2012]
-spike-LFP coherence; [Mechanisms of Gamma Oscillations]
-{Tried calculate power spectra of LFP}
-	it seems that all LFP signal in my network stays at a noise level
+# 2017-02-19 13:14:14
+- Local field potential can be inferred from LFPs; [Rasch et al., 2008]
+- Origin of local field potential; [Buzsaki et al., 2012]
+- spike-LFP coherence; [Mechanisms of Gamma Oscillations]
+- {Tried calculate power spectra of LFP}: it seems that all LFP signal in my network stays at a noise level
 ***
 # 2017-02-21 13:14:10
-Rename all existing files; [done]
-Construct a path dependent network program; run and check the result; [not yet]
-write the current situation in my project proposal; [not yet]
-summarize the results got since last time met with Douglas, make a ppt; [not yet]
+- Rename all existing files; [done]
+- Construct a path dependent network program; run and check the result; [not yet]
+- write the current situation in my project proposal; [not yet]
+- summarize the results got since last time met with Douglas, make a ppt; [not yet]
 
 ***
 # 2017-02-22 15:27:33
@@ -270,3 +269,48 @@ Finished Report of Week 3 & 4
 4. TO DO:
     1. why two neurons in the post network connected with the same neuron in pre network have completely different behavior in TDMI signal; *To analysis the phase different between the potential and firing sequency of these two neurons*
     2. Not all excitatory neurons have effective MI peak with their one-degree LFP,
+
+## Done:
+	# Standard simulation configuration;
+	# [PreNet Section]
+	PreNetNeuronNumber = 200
+	PreNetConnectingDensity = 6
+	PreNetTypeProbability = 0.8
+	PreNetTypeSeed = 1
+	PreNetDrivingType = true
+	PreNetDrivingRate = 1.5
+	PreNetExternalDrivingSeed = 3
+	PreNetRewiringProbability = 0
+	PreNetRewiringSeed = 5
+	# [PostNet Section]
+	PostNetNeuronNumber = 200
+	PostNetConnectingDensity = 6
+	PostNetTypeProbability = 0.8
+	PostNetTypeSeed = 2
+	PostNetDrivingType = true
+	PostNetDrivingRate = 1.5
+	PostNetExternalDrivingSeed = 4
+	PostNetRewiringProbability = 0
+	PostNetRewiringSeed = 6
+	# [Internetwork Section]
+	ConnectingProbability = 0.1
+	ConnectingSeed = 100
+	# [Time Section]
+	MaximumTime = 10000
+	TimingStep = 0.03125
+1. Run simulation with Poisson driving seed is 30 (for pre network) and 40 (for post network);
+2. Run simulation with cross-network configuration genrerating seed 200;
+
+*The results shows that the pattern of maximum signal-noise is independent to initial condition. On the other hand, the pattern of signal-noise ratio for the whole network has a spectial pattern.*
+
+# 2017-04-07 14:26:07
+
+**More Tests**
+
+1. simulation based on network with pure excitatory neurons;
+2. Fixed the bug that the program cannot adapte the right order of synaptic input, and run test based on all-excitatory-neuron networks;
+
+# 2017-04-18 10:59:22
+
+1. Run new test, which is stored in .../ResearchData/Apr18/test1/
+2. Write python program to anaylze new data;

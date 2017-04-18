@@ -15,9 +15,6 @@
 
 using namespace std;
 
-void UpdateSystemState(NeuronalNetwork & pre_network, 
-												NeuronalNetwork & post_network, 
-												vector<vector<bool> > &connectivity_matrix, 
-												double t, double dt);
+void UpdateSystemState(NeuronalNetwork & pre_network, NeuronalNetwork & post_network, vector<vector<bool> > &connectivity_matrix, double t, double dt);
 
 #endif // _MULTI_NETWORK_H_

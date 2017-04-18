@@ -162,13 +162,13 @@ void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
 			Spike ADD_mutual;
 			ADD_mutual.mode = false;
 			ADD_mutual.function = (T.front()).type;
+			ADD_mutual.t = newt;
 			for (int j = 0; j < neuron_number_; j++) {
 				if (j == IND) {
 					neurons_[j].Fire(t, newt - t);
 				} else {
 					neurons_[j].UpdateNeuronalState(t, newt - t, external_excitatory_inputs_[j], external_inhibitory_inputs_[j]);
 					if (connectivity_matrix_.ReadMatrix(IND,j) != 0) {
-						ADD_mutual.t = newt;
 						neurons_[j].InSpike(ADD_mutual);
 					}
 				}
