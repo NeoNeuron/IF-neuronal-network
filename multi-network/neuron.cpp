@@ -358,11 +358,14 @@ void Neuron::OutNewSpikes(double t, vector<Spike>& x) {
 	Spike add_spike;
 	add_spike.mode = false;
 	add_spike.function = type_;
+	x.clear();
 	for (vector<double>::reverse_iterator iter = spike_train_.rbegin(); iter != spike_train_.rend(); iter++) {
 		if (*iter >= t) {
 			add_spike.t = *iter;
 			x.push_back(add_spike);
+			// cout << *iter << '\t';
 		} else break;
+		// cout << endl;
 	}
 }
 
@@ -519,6 +522,7 @@ void Neuron::InSpike(Spike x) {
 		synaptic_driven_.push_back(x);
 		sort(synaptic_driven_.begin(),synaptic_driven_.end(),compPoisson);
 	}
+	// cout << x.t << endl;
 }
 
 void Neuron::SetFeedforwardConductance(bool function, double F) {

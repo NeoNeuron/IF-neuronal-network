@@ -16,7 +16,7 @@ void UpdateSystemState(NeuronalNetwork & pre_network, NeuronalNetwork & post_net
 	vector<vector<Spike> > tempPreSpikes, tempPostSpikes;
 	pre_network.OutNewSpikes(t, tempPreSpikes);
 	tempPostSpikes.resize(connectivity_matrix[1].size());
-	for (int i = 0; i < connectivity_matrix.size(); i++) {		
+	for (int i = 0; i < connectivity_matrix.size(); i++) {	
 		if (tempPreSpikes[i].size() != 0) {
 			for (int j = 0; j < connectivity_matrix.size(); j++) {
 				if (connectivity_matrix[i][j] == true) {

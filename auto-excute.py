@@ -243,7 +243,7 @@ def main():
 	if compile_updated == False:
 		Compile()
 	# setting preliminary parameters
-	loading_dir = "/media/kyle/Drive/ResearchData/Apr18/test1/"
+	loading_dir = "/media/kyle/Drive/ResearchData/Apr22/t6/"
 	total_neuron_number = 100
 	simulation_accomplish = False
 	time_lb = 1000
@@ -268,7 +268,7 @@ def main():
 	# Setting loops for time-delayed mutual information;
 	timing_step_list = [0.25]
 	# preparing storage for data;
-	data_dic = {'neuronal index':np.zeros(total_neuron_number),'neuronal type':np.zeros(total_neuron_number), 'mean firing rate':np.zeros(total_neuron_number), 'number of neuron connected':np.zeros(total_neuron_number), 'number of excitatory connected neurons':np.zeros(total_neuron_number), 'number of inhibitory connected neurons':np.zeros(total_neuron_number), 'signal noise ratio':np.zeros(total_neuron_number), 'time point for maximum MI':np.zeros(total_neuron_number), 'time constant for tdmi decay':np.zeros(total_neuron_number)}
+	data_dic = {'index':np.zeros(total_neuron_number),'type':np.zeros(total_neuron_number), 'mean firing rate':np.zeros(total_neuron_number), 'number of connection':np.zeros(total_neuron_number), 'number of excitatory connection':np.zeros(total_neuron_number), 'number of inhibitory connection':np.zeros(total_neuron_number), 'signal noise ratio':np.zeros(total_neuron_number), 'peak time':np.zeros(total_neuron_number), 'decay constant':np.zeros(total_neuron_number)}
 	data_out = pd.DataFrame(data_dic) 
 
 	# Start loops
