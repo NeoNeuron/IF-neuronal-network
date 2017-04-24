@@ -99,13 +99,13 @@ int main(int argc, const char* argv[]) {
 		}
 	}
 	KeySelect(classification, types, connected_neurons);
-	vector<int> temp_neurons;
-	Sample(connected_neurons, temp_neurons, num);
-	connected_neurons.clear();
-	connected_neurons = temp_neurons;	
-	// int target = connected_neurons[num];
+	// vector<int> temp_neurons;
+	// Sample(connected_neurons, temp_neurons, num);
 	// connected_neurons.clear();
-	// connected_neurons.push_back(target);
+	// connected_neurons = temp_neurons;	
+	int target = connected_neurons[num];
+	connected_neurons.clear();
+	connected_neurons.push_back(target);
 	//connected_neurons.erase(connected_neurons.begin() + num, connected_neurons.begin() + num + 1);
 	// for (int i = 0; i < num; i ++) cout << connected_neurons[i] << '\t';
 	// cout << endl; 

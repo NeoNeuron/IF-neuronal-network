@@ -4,7 +4,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import random
-from scipy.optimize	import curve_fit 
+from scipy.optimize	import curve_fit
 import pandas as pd
 
 # compile *.cpp files
@@ -268,7 +268,7 @@ def main():
 	# Setting loops for time-delayed mutual information;
 	timing_step_list = [0.25]
 	# preparing storage for data;
-	data_dic = {'index':np.zeros(total_neuron_number),'type':np.zeros(total_neuron_number), 'mean firing rate':np.zeros(total_neuron_number), 'number of connection':np.zeros(total_neuron_number), 'number of excitatory connection':np.zeros(total_neuron_number), 'number of inhibitory connection':np.zeros(total_neuron_number), 'signal noise ratio':np.zeros(total_neuron_number), 'peak time':np.zeros(total_neuron_number), 'decay constant':np.zeros(total_neuron_number)}
+	data_dic = {'index':np.zeros(total_neuron_number),'type':np.zeros(total_neuron_number), 'mean firing rate':np.zeros(total_neuron_number), 'number of connection':np.zeros(total_neuron_number), 'number of excitatory connection':np.zeros(total_neuron_number), 'number of inhibitory connection':np.zeros(total_neuron_number), 'signal noise ratio':np.zeros(total_neuron_number), 'peak time':np.zeros(total_neuron_number), 'time constant':np.zeros(total_neuron_number)}
 	data_out = pd.DataFrame(data_dic) 
 
 	# Start loops
@@ -290,7 +290,16 @@ def main():
 					# figure_text = CreateText(loading_dir = loading_dir, neuron_index = int(ind), order = order, classification = classification, num = num)
 					# print figure_text
 					# PlotTdmi(saving_filename = saving_filename, figure_text = figure_text)
-					data_out.ix[ind] = SaveInfo(loading_dir = loading_dir, neuron_index = ind, index_max = total_neuron_number - 1, classification = classification)
+					info = SaveInfo(loading_dir = loading_dir, neuron_index = ind, index_max = total_neuron_number - 1, classification = classification)
+					data_out.ix[ind]['index'] = info[0]
+					data_out.ix[ind]['type'] = info[1]
+					data_out.ix[ind]['mean firing rate'] = info[2]
+					data_out.ix[ind]['number of connection'] = info[3]
+					data_out.ix[ind]['number of excitatory connection'] = info[4]
+					data_out.ix[ind]['number of inhibitory connection'] = info[5]
+					data_out.ix[ind]['signal noise ratio'] = info[6]
+					data_out.ix[ind]['peak time'] = info[7]
+					data_out.ix[ind]['time constant'] = info[8]
 					print '=================================================='
 
 	# print data_2d
