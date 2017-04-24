@@ -314,3 +314,10 @@ Finished Report of Week 3 & 4
 
 1. Run new test, which is stored in .../ResearchData/Apr18/test1/
 2. Write python program to anaylze new data;
+
+# 2017-04-23 23:47:43
+## TO DO:
+
+1. Reading material for cross-correlation, p-value, Pearson-correlation;
+2. Modified the data system;
+3. finish ana1.py

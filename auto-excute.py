@@ -239,11 +239,11 @@ def SaveInfo(loading_dir, neuron_index, index_max, classification):
 
 def main():
 	# Update to newest code version;
-	compile_updated = False;
+	compile_updated = True;
 	if compile_updated == False:
 		Compile()
 	# setting preliminary parameters
-	loading_dir = "/media/kyle/Drive/ResearchData/Apr22/t6/"
+	loading_dir = "/media/kyle/Drive/ResearchData/Apr22/t7/"
 	total_neuron_number = 100
 	simulation_accomplish = False
 	time_lb = 1000
@@ -294,7 +294,7 @@ def main():
 					print '=================================================='
 
 	# print data_2d
-	data_out.to_csv(loading_dir + "pre-net-data.csv", float_format = '%.4f')
+	data_out.to_csv(loading_dir + "pre-net-data.csv", float_format = '%.4f', index  = False)
 
 
 main()
