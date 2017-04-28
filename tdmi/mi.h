@@ -39,15 +39,19 @@ void FindMaxMin(vector<double> &data, double* max_and_min, double bin_width);
 
 //	Read 2D data from *.txt files; Data type: (double);
 //	Return: none;
-void ReadData(string file_name, vector<vector<double> > & data);
+void ReadData(string filename, vector<vector<double> > & data);
 
 //	Read 2D data from *.txt files; Data type: (int);
 //	Return: none;
-void ReadData(string file_name, vector<vector<int> > & data);
+void ReadData(string filename, vector<vector<int> > & data);
 
 //	Read 1D data from *.txt files; Data type: (double);
 //	Return: none;
-void ReadData(string file_name, vector<double> & data);
+void ReadData(string filename, vector<double> & data);
+
+//	Read 1D data from the last line in *.txt files; Data type: (double);
+//	Return: none;
+void ReadNewData(string filename, vector<double> & data);
 
 //	Convert double spike train to binary sequence;
 //	VECTOR<DOUBLE> spikes: original spike train;

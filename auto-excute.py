@@ -6,6 +6,7 @@ import numpy as np
 import random
 from scipy.optimize	import curve_fit
 import pandas as pd
+import mylib
 
 # compile *.cpp files
 def Compile():

@@ -226,7 +226,7 @@ void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, st
 	string s_potential, s_e_conductance, s_i_conductance;
 	string ss;
 	// For t = [0, t_begin];
-	cout << ">> Loading ... " << endl;
+	// cout << ">> Loading ... " << endl;
 	ifstream potential_in_file, excitatory_conductance_in_file, inhibitory_conductance_in_file;
 	potential_in_file.open(char_potential_filename);
 	excitatory_conductance_in_file.open(char_excitatory_conductance_filename);
@@ -300,7 +300,7 @@ void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, st
 	string s_current;
 	string ss;
 	// For t = [0, t_begin];
-	cout << ">> Loading ... " << endl;
+	// cout << ">> Loading ... " << endl;
 	ifstream current_in_file;
 	current_in_file.open(current_filename.c_str());
 	for (int i = 0; i < t_begin; i ++) {
@@ -341,24 +341,21 @@ void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, st
 
 void OutputLFP(vector<double> &lfp, string filename) {
 	ofstream output;
-	 const char* char_filename = filename.c_str();
-	output.open(char_filename);
+	output.open(filename.c_str());
 	for (vector<double>::iterator it = lfp.begin(); it != lfp.end(); it++) {
-		output << setprecision(20) << (double)*it;
-		if (it != lfp.end() - 1) output << endl;
+		output << setprecision(20) << (double)*it << endl;
 	}
-	output.close();
+	output.close();	
 }
 
 void OutputSpikeTrain(double* t_range, vector<double> &spikes, string filename) {
 	ofstream output;
-	 const char* char_filename = filename.c_str();
-	output.open(char_filename);
+	output.open(filename.c_str());		
 	for (vector<double>::iterator it = spikes.begin(); it != spikes.end(); it++) {
 		if (*it > t_range[0] and *it <= t_range[1]) {
 			output << (double)*it - t_range[0] << endl;
 		}
 		if (*it > t_range[1]) break;
-	}
+	}	
 	output.close();
 }

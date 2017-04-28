@@ -1,4 +1,5 @@
 #!/usr/bin/python
+#coding:utf-8
 import numpy as np 
 import matplotlib.pyplot as plt 
 import time
@@ -79,36 +80,51 @@ def mean_rate(loading_dir, filename, index, tmax):
 	mean_rate = len(raster)*1.0 / tmax
 	return mean_rate
 
-def tdmi_parameters():
+def import_tdmi():
+	f_order = open("./tdmi/file-txt/tdmi_ordered.txt", 'r')
+	f_rand = open("./tdmi/file-txt/tdmi_rand.txt", 'r')
+	time_series = []
+	signal_order = []
+	signal_rand = []
+	for line in f_order:
+		line = line.split('\t')
+		time_series.append(float(line[0]))
+		signal_order.append(float(line[1]))
+	for line in f_rand:
+		line = line.split('\t')
+		signal_rand.append(float(line[1]))
+	time_series = np.array(time_series)
+	signal_order = np.array(signal_order)
+	signal_rand = np.array(signal_rand)
+	return time_series, signal_order, signal_rand
+
+def tdmi_parameters(time_series, signal_order, signal_rand):
 	"""
 	Returns:
 	sn_ratio: signal-noise ratio
 	peak_time: time point of maximum mutual information
 	time_constant: time constant for signal decay;
-	"""
-	# load signals
-	signal_order = np.loadtxt("./tdmi/file-dat/tdmi_ordered.dat")
-	signal_rand =  np.loadtxt("./tdmi/file-dat/tdmi_rand.dat")
+	"""	
 	# calculate noise level
-	noise_mean = signal_rand[:,1].mean()
-	noise_std = signal_rand[:,1].std()
+	noise_mean = signal_rand.mean()
+	noise_std = signal_rand.std()
 	# allocate maximum mutual information signal
-	signal_max_ind = np.argmax(signal_order[:,1])
-	signal_max = signal_order[signal_max_ind,1]
-	peak_time = signal_order[signal_max_ind,0]
+	signal_max_ind = np.argmax(signal_order)
+	signal_max = signal_order[signal_max_ind]
+	peak_time = time_series[signal_max_ind]
 
 	# calculate the signal-noise ratio in TDMI data;
 	sn_ratio = signal_max / noise_mean
 	# find the duriation of sufficient signal
 	#if type(signal_max_ind) == int:
 	ind = signal_max_ind
-	while signal_order[ind, 1] >= noise_mean + noise_std:
+	while signal_order[ind] >= noise_mean + noise_std:
 		ind -= 1
 		if ind == 0:
 			break
 	signal_front_ind = ind
 	ind = signal_max_ind
-	while signal_order[ind, 1] >= noise_mean + noise_std:
+	while signal_order[ind] >= noise_mean + noise_std:
 		ind += 1
 		if ind == len(signal_order): 
 			break
@@ -117,7 +133,7 @@ def tdmi_parameters():
 	if  signal_back_ind - signal_max_ind > 3:
 		fexp = lambda x, a, b, c: a*np.exp(-b * x) + c
 		try:
-			popt, pcov = curve_fit(fexp, signal_order[signal_max_ind:signal_back_ind, 0], signal_order[signal_max_ind:signal_back_ind, 1], p0 = (1, 1, 0))
+			popt, pcov = curve_fit(fexp, time_series[signal_max_ind:signal_back_ind], signal_order[signal_max_ind:signal_back_ind], p0 = (1, 1, 0))
 		except RuntimeError:
 			popt = [0, 0, 0]
 		# decayed time constant
@@ -208,24 +224,22 @@ def CreateText(loading_dir, neuron_index, order, classification, num):
 	text += 'including ' + str(neuron_numbers[0]) + ' excitatroy and ' + str(neuron_numbers[1]) + ' inhibitory neurons'
 	return text
 
-def PlotTdmi(saving_filename, figure_text):
-	data_ordered = np.loadtxt("./tdmi/file-dat/tdmi_ordered.dat")
-	data_rand = np.loadtxt("./tdmi/file-dat/tdmi_rand.dat")
+def PlotTdmi(time_series, signal_order, signal_rand, saving_filename, figure_text = None):
 	# basic plot
 	fig = plt.figure(0, figsize=(10,8), dpi=60)
-	plt.plot(data_ordered[:,0], data_ordered[:,1], label = "tdmi-original")
-	plt.plot(data_rand[:,0], data_rand[:,1], label = "tdmi-swapped")
+	plt.plot(time_series, signal_order, label = "TDMI-original")
+	plt.plot(time_series, signal_rand, label = "TDMI-swapped")
 	# setting axis range;
-	x_max = np.max(data_ordered[:,0])
-	x_min = np.min(data_ordered[:,0])
-	if np.max(data_ordered[:,1]) > np.max(data_rand[:,1]):
-		y_max = np.max(data_ordered[:,1])
+	x_max = np.max(time_series)
+	x_min = np.min(time_series)
+	if np.max(signal_order) > np.max(signal_rand):
+		y_max = np.max(signal_order)
 	else:
-		y_max = np.max(data_rand[:,1])
-	if np.min(data_ordered[:,1] < np.min(data_rand[:,1])):
-		y_min = np.min(data_ordered[:,1])
+		y_max = np.max(signal_rand)
+	if np.min(signal_order < np.min(signal_rand)):
+		y_min = np.min(signal_order)
 	else:
-		y_min = np.min(data_rand[:,1])
+		y_min = np.min(signal_rand)
 	abs_diff = y_max - y_min;
 	y_min -= abs_diff * 0.1
 	y_max += abs_diff * 0.1
@@ -233,20 +247,19 @@ def PlotTdmi(saving_filename, figure_text):
 	# setting labels and title
 	plt.xlabel("Time-delay(ms)")
 	plt.ylabel("Mutual Information(bits)")
-	title = MakeTitle(saving_filename = saving_filename)
-	# title = saving_filename
+	#title = MakeTitle(saving_filename = saving_filename)
+	title = saving_filename
 	plt.title(title)
 	plt.legend()
 	plt.grid(True)
 	# add text
 	x_text_pos = (x_max - x_min) * 0.05 + x_min
 	y_text_pos = (y_max - y_min) * 0.9 + y_min
-	plt.text(x_text_pos, y_text_pos, figure_text, weight = 'light')
+	if figure_text != None:
+		plt.text(x_text_pos, y_text_pos, figure_text, weight = 'light')
 	saving_dir = "./tdmi/figure-eps/"
 	plt.savefig(saving_dir + saving_filename + '.eps')
 	plt.close(0)
-	del data_rand
-	del data_ordered
 
 # start = time.clock()
 # load current data:

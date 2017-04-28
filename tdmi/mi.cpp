@@ -67,22 +67,19 @@ void FindMaxMin(vector<double>& data, double *max_and_min, double bin_width) {
 	*(max_and_min + 1) = min;
 }
 
-void ReadData(string file_name, vector<vector<double> >& data) {
+void ReadData(string filename, vector<vector<double> >& data) {
 	data.clear();
-	const char* char_file_name = file_name.c_str();
 	ifstream ifile;
-	ifile.open(char_file_name);
+	ifile.open(filename.c_str());
 	string s;
 	vector<double> add_double;
 	while (getline(ifile, s)) {
 		add_double.clear();
 		string::size_type pos = s.find_first_of('\t', 0);
 		string ss;
-		const char *sss;
 		while (pos != s.npos) {
 			ss = s.substr(0, pos);
-			sss = ss.c_str();
-			add_double.push_back(atof(sss));
+			add_double.push_back(atof(ss.c_str()));
 			s.erase(0, pos + 1);
 			ss.clear();
 			pos = s.find_first_of('\t', 0);
@@ -91,8 +88,7 @@ void ReadData(string file_name, vector<vector<double> >& data) {
 		if (pos == 0) continue;
 		else {
 			ss = s.substr(0, pos);
-			sss = ss.c_str();
-			add_double.push_back(atof(sss));
+			add_double.push_back(atof(ss.c_str()));
 		}
 		data.push_back(add_double);
 		s.clear();
@@ -100,11 +96,10 @@ void ReadData(string file_name, vector<vector<double> >& data) {
 	ifile.close();
 }
 
-void ReadData(string file_name, vector<vector<int> >& data) {
+void ReadData(string filename, vector<vector<int> >& data) {
 	data.clear();
-	const char* char_file_name = file_name.c_str();
 	ifstream ifile;
-	ifile.open(char_file_name);
+	ifile.open(filename.c_str());
 	string s;
 	vector<int> add_int;
 	while (getline(ifile, s)) {
@@ -112,8 +107,7 @@ void ReadData(string file_name, vector<vector<int> >& data) {
 		string::size_type pos = s.find_first_of('\t', 0);
 		while (pos != s.npos) {
 			string ss = s.substr(0, pos);
-			const char *sss = ss.c_str();
-			add_int.push_back(atof(sss));
+			add_int.push_back(atof(ss.c_str()));
 			s.erase(0, pos + 1);
 			ss.clear();
 			pos = s.find_first_of('\t', 0);
@@ -124,18 +118,18 @@ void ReadData(string file_name, vector<vector<int> >& data) {
 	ifile.close();
 }
 
-void ReadData(string file_name, vector<double> & data) {
+void ReadData(string filename, vector<double> & data) {
 	data.clear();
-	const char* char_file_name = file_name.c_str();
 	ifstream ifile;
-	ifile.open(char_file_name);
+	ifile.open(filename.c_str());
 	string s;
 	double add_double;
+	string::size_type pos;
+	string ss;
 	while (getline(ifile, s)) {
-		string::size_type pos = s.find_first_of('\n', 0);
-		string ss = s.substr(0, pos);
-		const char *sss = ss.c_str();
-		add_double = atof(sss);
+		pos = s.find_first_of('\n', 0);
+		ss = s.substr(0, pos);
+		add_double = atof(ss.c_str());
 		data.push_back(add_double);
 	}
 	ifile.close();
@@ -558,7 +552,6 @@ void TDMI(vector<double>& spikes, vector<double>& LFP, double dt, double samplin
 
 
 void TDMI(vector<double>& spikes, vector<double>& LFP, int expected_occupancy, double dt, double sampling_dt, int negative_time_delay, int positive_time_delay, vector<double>& tdmi, bool random_switch) {
-	cout << ">> Loading ... " << endl;
 	int dn = dt / sampling_dt; // number of LFP data points within single time step;
 	int time_bin_number = floor(LFP.size() / dn); // number of reduced LFP data point;
 	
@@ -620,5 +613,5 @@ void TDMI(vector<double>& spikes, vector<double>& LFP, int expected_occupancy, d
 		printf("%6.2f",progress);
 		cout << "%";
 	}
-	cout << endl << ">> Done. " << endl;
+	cout << endl;
 }

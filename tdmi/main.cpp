@@ -20,23 +20,23 @@ using namespace std;
 //	argv[3] = lower bond of time-delay range;
 //	argv[4] = upper bond of time-delay range;
 int main(int argc, const char* argv[]) {
-	if (argc != 5) throw runtime_error("wrong number of args");
+	if (argc != 5) {
+		throw runtime_error("wrong number of args");
+	}
 	clock_t start, finish;	
 	start = clock();
 	// INPUT NEURONAL DATA:
 	ifstream data;
-	vector<double> raster_test;
-	vector<double> LFP_test;
+	vector<double> raster;
+	vector<double> lfp;
 	string file_dir = "./lfp/file-txt/";
 
 	// DATA OF PRELAYER NEURON:
-
-	string file_name;
-	file_name = file_dir + "lfp_test.txt";
-	ReadData(file_name, LFP_test);
-	file_name = file_dir + "raster_test.txt";
-	ReadData(file_name, raster_test);
-
+	string filename;
+	filename = file_dir + "raster.txt";
+	ReadData(filename, raster);
+	filename = file_dir + "lfp.txt";
+	ReadData(filename, lfp);
 	// Preparing input args;
 	int expected_occupancy = atoi(argv[1]);
 	double dt = atof(argv[2]);
@@ -50,31 +50,31 @@ int main(int argc, const char* argv[]) {
 
 
 	double sampling_dt = 0.03125;	
-	cout << ">> Calculate TDMI based on ordered spike train ... " << endl;	
+	cout << ">> Calculating ordered TDMI ... " << endl;	
 	vector<double> tdmi_ordered;
-	TDMI(raster_test, LFP_test, expected_occupancy, dt, sampling_dt, negative_time_delay, positive_time_delay, tdmi_ordered, false);
-	cout << ">> Calculate TDMI based on swapped spike train ... " << endl;	
+	TDMI(raster, lfp, expected_occupancy, dt, sampling_dt, negative_time_delay, positive_time_delay, tdmi_ordered, false);
+	cout << ">> Calculating swapped TDMI ... " << endl;	
 	vector<double> tdmi_random;
-	TDMI(raster_test, LFP_test, expected_occupancy, dt, sampling_dt, negative_time_delay, positive_time_delay, tdmi_random, true);
+	TDMI(raster, lfp, expected_occupancy, dt, sampling_dt, negative_time_delay, positive_time_delay, tdmi_random, true);
 
 	//	Output data:
 	ofstream data_out;
 	cout << ">> Outputing data ... " << endl;
-	data_out.open("./tdmi/file-dat/tdmi_ordered.dat");
+	data_out.open("./tdmi/file-txt/tdmi_ordered.txt");
 	for (int i = 0; i < negative_time_delay + positive_time_delay + 1; i++) {
-		data_out << (double)dt*(i - negative_time_delay) << "\t" << (double)tdmi_ordered[i];
-		if (i < positive_time_delay + negative_time_delay) data_out << endl;
-	}
-	data_out.close();
-	data_out.open("./tdmi/file-dat/tdmi_rand.dat");
-	for (int i = 0; i < negative_time_delay + positive_time_delay + 1; i++) {
-		data_out << (double)dt*(i - negative_time_delay) << "\t" << (double)tdmi_random[i];
+		data_out << (double)dt*(i - negative_time_delay) << '\t' << (double)tdmi_ordered[i];
 		if (i < positive_time_delay + negative_time_delay) data_out << endl;
 	}
 	data_out.close();
 
+	data_out.open("./tdmi/file-txt/tdmi_rand.txt");
+	for (int i = 0; i < negative_time_delay + positive_time_delay + 1; i++) {
+		data_out << (double)dt*(i - negative_time_delay) << '\t' << (double)tdmi_random[i];
+		if (i < positive_time_delay + negative_time_delay) data_out << endl;
+	}
+	data_out.close();
+	
 	finish = clock();
-
 	// Time counting:
 	double ToTtime;
 	ToTtime = (finish - start) / CLOCKS_PER_SEC;
