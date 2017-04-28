@@ -7,6 +7,15 @@ from scipy.optimize	import curve_fit
 import random
 
 
+def Compile():
+	"""
+	compile *.cpp files
+	"""
+	os.system("g++ ./multi-network/*.cpp -o ./multi-network/two-network-system.out")
+	os.system("g++ ./lfp/*.cpp -o ./lfp/calculate-lfp.out")
+	os.system("g++ ./tdmi/*.cpp -o ./tdmi/calculate-tdmi.out")
+
+
 def load_raster(loading_dir, filename, index): 
 	"""
 	convert raster data for certain neuron;
@@ -46,6 +55,10 @@ def lfp(loading_dir, filename, index_list):
 	return current
 
 def load_matrix(loading_dir, filename):
+	"""
+	Return:
+	matrix: an ndarray-typed data;
+	"""
 	conMat = open(loading_dir + filename)
 	matrix = []
 	for line in conMat:
@@ -147,16 +160,18 @@ def tdmi_parameters(time_series, signal_order, signal_rand):
 	return sn_ratio, peak_time, time_constant
 
 def MakeTitle(saving_filename):
-	# split filename into subunit and reassumble them into acceptable title string;
-	# sub_unit[0] = 'tdmi'
-	# sub_unit[1] = index of neuron
-	# sub_unit[2] = connecting order
-	# sub_unit[3] = time range
-	# sub_unit[4] = str labels of classification
-	# sub_unit[5] = expected occupancy for historgram in mutual information calculation
-	# sub_unit[6] = timing step for MI
-	# sub_unit[7] = maximum negative time delay
-	# sub_unit[8] = maximum positive time delay
+	"""
+	Split filename into subunit and reassumble them into acceptable title string;
+	sub_unit[0] = 'tdmi'
+	sub_unit[1] = index of neuron
+	sub_unit[2] = connecting order
+	sub_unit[3] = time range
+	sub_unit[4] = str labels of classification
+	sub_unit[5] = expected occupancy for historgram in mutual information calculation
+	sub_unit[6] = timing step for MI
+	sub_unit[7] = maximum negative time delay
+	sub_unit[8] = maximum positive time delay
+	"""
 	sub_unit = saving_filename.split('-')
 	title = sub_unit[0].upper()
 	title += ' #' + sub_unit[1]
@@ -179,11 +194,14 @@ def DivideNeuronalFunction(neuron_types, neuron_list):
 	for i in neuron_list:
 		if neuron_types[i] == 1:
 			counter += 1 
-	neuron_numbers = [counter, len(neuron_list) - counter]
-	return neuron_numbers
+	num_exc = counter
+	num_inh = len(neuron_list) - counter
+	return num_exc, num_inh
 
-# Create text in TDMI plot, including type of target neuron and the number of neuron it connected as well as their type;
 def CreateText(loading_dir, neuron_index, order, classification, num):
+	"""
+	Create text in TDMI plot, including type of target neuron and the number of neuron it connected as well as their type;
+	"""
 	# loading files;
 	pre_net_types = np.genfromtxt(loading_dir + 'preNeuron.txt', dtype = int, usecols = 0)
 	post_net_types = np.genfromtxt(loading_dir + 'postNeuron.txt', dtype = int, usecols = 0)
