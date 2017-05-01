@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import time
 from scipy.optimize	import curve_fit
 import random
+import os
 
 
 def Compile():
@@ -189,7 +190,7 @@ def MakeTitle(saving_filename):
 	title += ' PTD = ' + sub_unit[8]
 	return title
 
-def DivideNeuronalFunction(neuron_types, neuron_list):
+def DivideNeuronalTypes(neuron_types, neuron_list):
 	counter = 0
 	for i in neuron_list:
 		if neuron_types[i] == 1:

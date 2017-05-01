@@ -103,9 +103,9 @@
 		\footnotesize{According to the tabular in previous slide, for most of cases, there is no effective TDMI signal. Here, we show the TDMI graphs from \#5, \#43 and \#45 neuron.}
 		\begin{figure}[h]
 			\centering
-			\subfigure[\#5 neuron]{\includegraphics[width = 3.5cm]{/t3-0/tdmi-5-1-1000_10000-all-50-0_25-60-100.eps}}
-			\subfigure[\#43 neuron]{\includegraphics[width = 3.5cm]{/t3-0/tdmi-43-1-1000_10000-all-50-0_25-60-100.eps}}
-			\subfigure[\#45 neuron]{\includegraphics[width = 3.5cm]{/t3-0/tdmi-45-1-1000_10000-all-50-0_25-60-100.eps}}
+			\subfigure[\#5 neuron]{\includegraphics[width = 3.5cm]{/t3-0/tdmi-1/tdmi-5-1-1000_10000-all-50-0_25-60-100.eps}}
+			\subfigure[\#43 neuron]{\includegraphics[width = 3.5cm]{/t3-0/tdmi-1/tdmi-43-1-1000_10000-all-50-0_25-60-100.eps}}
+			\subfigure[\#45 neuron]{\includegraphics[width = 3.5cm]{/t3-0/tdmi-1/tdmi-45-1-1000_10000-all-50-0_25-60-100.eps}}
 			\label{fig:tdmi1}
 		\end{figure}
 		ANALYSIS: Based on this comparsion, we can observe weak MI signals in \#5 neuron and \#43 neuron cases, while find nothing in \#45 neuron case. Since all these three neurons are connected with identical neuron in loop-1, we make an assumption that such a difference results from different dynamical states that neurons have.
@@ -128,24 +128,168 @@
 		\caption{Cross correlation between single neuronal states}
 		\label{fig:corr-1}
 	\end{figure}
-
+	\end{frame}
+	
+	\begin{frame}
+	\frametitle{Multi-neuron case}
+	\small{For multi-neuron case, here, we take \#0, \#40 and \#80 neurons as examples.
+	Brief summary of properties of these neurons are listed below.}
+	\begin{table}[h]
+	\footnotesize
+	\centering
+	\begin{tabular}{l l l l}
+		\hline
+		Index & Type & No. of direct connection & Mean firing rate (Hz)\\
+		\hline
+		0			& exc  & 9 	& 14.50\\
+		40		& exc  & 11 & 13.80\\
+		80		& exc  & 5 	& 14.00\\
+		\hline
+	\end{tabular}
+	\end{table}
+	\small{We calculate the signal-noise ratio of TDMI signal for all possible sub-clusters in their directly connecting neuronal cluster, and make a few plot to show their dependence towards some parameters.}
 	\end{frame}
 
-	\frametitle{Two neuron case}
-	%% TODO
-
+	\begin{frame}
+	\frametitle{Signal-Noise Ratio vs. Neuronal Number in Clusters}
+	\begin{figure}[h]
+		\centering
+		\begin{minipage}[ht]{0.49\linewidth}
+			\centering
+			\includegraphics[width = 1\linewidth]{/t3-0/snr-boxplot.png}
+			\caption{\#0 neuron}
+		\end{minipage}
+		\begin{minipage}[ht]{0.49\linewidth}
+			\centering
+			\includegraphics[width = 1\linewidth]{/t3-40/snr-boxplot.png}
+			\caption{\#40 neuron}
+		\end{minipage}
+		\label{fig:snr_box}
+	\end{figure}
 	\end{frame}
 
-	\section{Comparison between TDMI signal of spike trains of excitatory pre-network neurons and their one-degree LFP and inhibitory neuronal spike trains and theirs.}
+	\begin{frame}
+	\frametitle{Signal-Noise Ratio vs. Mean Firing Rate of Clusters}
+	\begin{figure}[h]
+		\centering
+		\begin{minipage}[ht]{0.49\linewidth}
+			\centering
+			\includegraphics[width = 1\linewidth]{/t3-0/mrate-snr.png}
+			\caption{\#0 neuron}
+		\end{minipage}
+		\begin{minipage}[ht]{0.49\linewidth}
+			\centering
+			\includegraphics[width = 1\linewidth]{/t3-40/mrate-snr.png}
+			\caption{\#40 neuron}
+		\end{minipage}
+		\label{fig:mrate_snr}
+	\end{figure}
+	\end{frame}
 
+	\section{Comparison between TDMI signal of spike trains from excitatory neurons and inhibitory ones}
+	\subsection{General Views}
+	\begin{frame}
+	\frametitle{General Views}
+		\footnotesize{Neurons in pre-network are 80\% excitatory and 20\% inhibitory. All neurons in post-network are identical excitatory neurons.} 
+		\begin{figure}
+			\centering
+			\includegraphics[height = 5cm, width = 9cm]{snr-all-t7.eps}
+			\caption{\footnotesize{Signal-noise ratio of TDMI signal for all neurons with their one-degree LFP.}}
+			\label{fig:snr_all_2}
+		\end{figure}
+	\end{frame}
 
+	\subsection{TDMI signal depends on neuronal type}
+	\begin{frame}
+	\frametitle{Neuronal Type vs. No.of Connection vs. Signal-noise Ratio}
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width = 8cm]{snr-scatter-t7.png}
+			\label{fig:type_snr_all}
+		\end{figure}
+		\footnotesize{Number of connection is not an essential factor that leads TDMI signal pattern of inhibitory neuron.}
+	\end{frame}
+
+	\begin{frame}
+	\frametitle{Neuronal Type vs. Mean Firing Rate vs. Signal-noise Ratio}
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width = 8cm]{mrate-snr-all-t7.png}
+			\label{fig:mrate_snr_2}
+		\end{figure}
+		\footnotesize{Mean Firing Rate is not an essential factor that leads to TDMI signal pattern of inhibitory neuron.}
+	\end{frame}
+
+	% \section{Averaging theory for TDMI behavior based on weightless point current source LFP model}
+	% \begin{frame}
+	% \frametitle{Summary}
+
+	% \end{frame}
 
 	\section{Contribution of excitatory and inhibitory neuron to LFP in post-network based on point current source model of local field potential.}
+	\subsection{General Views}
+	\begin{frame}
+	\frametitle{General Views}
+		\footnotesize{All neurons in pre-network are identical excitatory neurons. Neurons in post-network are 80\% excitatory and 20\% inhibitory. } 
+		\begin{figure}
+			\centering
+			\includegraphics[height = 5cm, width = 9cm]{snr-all-t6.png}
+			\caption{\footnotesize{Signal-noise ratio of TDMI signal for all neurons with their one-degree LFP.}}
+			\label{fig:snr_all_2}
+		\end{figure}
+	\end{frame}
 
+	\begin{frame}
+	\frametitle{Signal-noise ratio vs. Neuronal Type}
+	\small{\#0 neuron: Connects with 5 excitatory neurons and 4 inhibitory neurons}
+		\begin{figure}[h]
+			\centering
+			\begin{minipage}[ht]{0.49\linewidth}
+				\centering
+				\includegraphics[width = 1\linewidth]{t6-0/mrate-snr1.png}
+				\caption{Colorbar represents number of connections}
+			\end{minipage}
+			\begin{minipage}[ht]{0.49\linewidth}
+				\centering
+				\includegraphics[width = 1\linewidth]{t6-0/mrate-snr.png}
+				\caption{Colorbar represents portion of excitatory neurons in cluster}
+			\end{minipage}
+			\label{fig:mrate_snr_t6-0}
+		\end{figure}
+		\footnotesize{Neuron type in post-network clusters is not an essential factor that leads to effective TDMI signal pattern.}
+	\end{frame}
 
+	\begin{frame}
+	\frametitle{Signal-noise ratio vs. Neuronal Type}
+	\small{\#92 neuron: Connects with 5 excitatory neurons and 5 inhibitory neurons}
+		\begin{figure}[h]
+			\centering
+			\begin{minipage}[ht]{0.49\linewidth}
+				\centering
+				\includegraphics[width = 1\linewidth]{t6-91/mrate-snr2.png}
+				\caption{Colorbar represents number of connections}
+			\end{minipage}
+			\begin{minipage}[ht]{0.49\linewidth}
+				\centering
+				\includegraphics[width = 1\linewidth]{t6-91/mrate-snr1.png}
+				\caption{Colorbar represents portion of excitatory neurons in cluster}
+			\end{minipage}
+			\label{fig:mrate_snr_t6-0}
+		\end{figure}
+		\footnotesize{Neuron type in post-network clusters is not an essential factor that leads to effective TDMI signal pattern.}
+	\end{frame}
 
 	\section{Study of two-degree LFPs and their TDMI signals.}
-
+	\begin{frame}
+		\frametitle{General Views}
+		\footnotesize{All neurons in system are identical excitatory neurons.} 
+		\begin{figure}
+			\centering
+			\includegraphics[height = 5cm, width = 9cm]{snr-all-2-t3.png}
+			\caption{\footnotesize{Signal-noise ratio of TDMI signal for all neurons with their two-degree LFP.}}
+			\label{fig:snr_all_2}
+		\end{figure}
+	\end{frame}
 
 
 	\subsection{excitatory neurons}
@@ -325,5 +469,6 @@
 	% 	\item Try to run test on networks with different network structures, to see whether there is any different TDMI pattern;
 	% \end{enumerate}
 	% \end{frame}
+
 \end{document}
 

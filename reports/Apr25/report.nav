@@ -31,8 +31,40 @@
 \headcommand {\beamer@framepages {8}{8}}
 \headcommand {\slideentry {3}{2}{3}{9/9}{Sub-clustering cases}{0}}
 \headcommand {\beamer@framepages {9}{9}}
-\headcommand {\beamer@partpages {1}{9}}
-\headcommand {\beamer@subsectionpages {10}{9}}
-\headcommand {\beamer@sectionpages {10}{9}}
-\headcommand {\beamer@documentpages {9}}
-\headcommand {\def \inserttotalframenumber {9}}
+\headcommand {\slideentry {3}{2}{4}{10/10}{Sub-clustering cases}{0}}
+\headcommand {\beamer@framepages {10}{10}}
+\headcommand {\slideentry {3}{2}{5}{11/11}{Sub-clustering cases}{0}}
+\headcommand {\beamer@framepages {11}{11}}
+\headcommand {\slideentry {3}{2}{6}{12/12}{Sub-clustering cases}{0}}
+\headcommand {\beamer@framepages {12}{12}}
+\headcommand {\sectionentry {4}{Comparison between TDMI signal of spike trains from excitatory neurons and inhibitory ones}{13}{Comparison between TDMI signal of spike trains from excitatory neurons and inhibitory ones}{0}}
+\headcommand {\beamer@sectionpages {6}{12}}
+\headcommand {\beamer@subsectionpages {7}{12}}
+\headcommand {\beamer@subsectionentry {0}{4}{1}{13}{General Views}}\headcommand {\beamer@subsectionpages {13}{12}}
+\headcommand {\slideentry {4}{1}{1}{13/13}{General Views}{0}}
+\headcommand {\beamer@framepages {13}{13}}
+\headcommand {\beamer@subsectionentry {0}{4}{2}{14}{TDMI signal depends on neuronal type}}\headcommand {\beamer@subsectionpages {13}{13}}
+\headcommand {\slideentry {4}{2}{1}{14/14}{TDMI signal depends on neuronal type}{0}}
+\headcommand {\beamer@framepages {14}{14}}
+\headcommand {\slideentry {4}{2}{2}{15/15}{TDMI signal depends on neuronal type}{0}}
+\headcommand {\beamer@framepages {15}{15}}
+\headcommand {\sectionentry {5}{Contribution of excitatory and inhibitory neuron to LFP in post-network based on point current source model of local field potential.}{16}{Contribution of excitatory and inhibitory neuron to LFP in post-network based on point current source model of local field potential.}{0}}
+\headcommand {\beamer@sectionpages {13}{15}}
+\headcommand {\beamer@subsectionpages {14}{15}}
+\headcommand {\beamer@subsectionentry {0}{5}{1}{16}{General Views}}\headcommand {\beamer@subsectionpages {16}{15}}
+\headcommand {\slideentry {5}{1}{1}{16/16}{General Views}{0}}
+\headcommand {\beamer@framepages {16}{16}}
+\headcommand {\slideentry {5}{1}{2}{17/17}{General Views}{0}}
+\headcommand {\beamer@framepages {17}{17}}
+\headcommand {\slideentry {5}{1}{3}{18/18}{General Views}{0}}
+\headcommand {\beamer@framepages {18}{18}}
+\headcommand {\sectionentry {6}{Study of two-degree LFPs and their TDMI signals.}{19}{Study of two-degree LFPs and their TDMI signals.}{0}}
+\headcommand {\beamer@sectionpages {16}{18}}
+\headcommand {\beamer@subsectionpages {16}{18}}
+\headcommand {\slideentry {6}{0}{1}{19/19}{}{0}}
+\headcommand {\beamer@framepages {19}{19}}
+\headcommand {\beamer@partpages {1}{19}}
+\headcommand {\beamer@subsectionpages {20}{19}}
+\headcommand {\beamer@sectionpages {19}{19}}
+\headcommand {\beamer@documentpages {19}}
+\headcommand {\def \inserttotalframenumber {19}}

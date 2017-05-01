@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99992 (TeX Live 2015/Debian) (preloaded format=xelatex 2017.2.25)  27 APR 2017 15:02
+This is XeTeX, Version 3.14159265-2.6-0.99992 (TeX Live 2015/Debian) (preloaded format=xelatex 2017.2.25)  1 MAY 2017 11:01
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -767,7 +767,17 @@ Package: subfigure 2002/03/15 v2.1.5 subfigure package
 \subfig@top=\skip61
 \subfig@bottom=\skip62
 )
-(./report.aux)
+(./report.aux
+
+LaTeX Warning: Label `fig:snr_all_2' multiply defined.
+
+
+LaTeX Warning: Label `fig:mrate_snr_t6-0' multiply defined.
+
+
+LaTeX Warning: Label `fig:snr_all_2' multiply defined.
+
+)
 \openout1 = `report.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 15.
@@ -975,21 +985,21 @@ thkerncmss.
 [7
 
 ]
-File: /home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24//t3-0/tdmi-5-
-1-1000_10000-all-50-0_25-60-100.eps Graphic file (type eps)
+File: /home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24//t3-0/tdmi-1/
+tdmi-5-1-1000_10000-all-50-0_25-60-100.eps Graphic file (type eps)
 
-</home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24//t3-0/tdmi-5-1-100
-0_10000-all-50-0_25-60-100.eps>
-File: /home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24//t3-0/tdmi-43
--1-1000_10000-all-50-0_25-60-100.eps Graphic file (type eps)
+</home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24//t3-0/tdmi-1/tdmi-
+5-1-1000_10000-all-50-0_25-60-100.eps>
+File: /home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24//t3-0/tdmi-1/
+tdmi-43-1-1000_10000-all-50-0_25-60-100.eps Graphic file (type eps)
 
-</home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24//t3-0/tdmi-43-1-10
-00_10000-all-50-0_25-60-100.eps>
-File: /home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24//t3-0/tdmi-45
--1-1000_10000-all-50-0_25-60-100.eps Graphic file (type eps)
+</home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24//t3-0/tdmi-1/tdmi-
+43-1-1000_10000-all-50-0_25-60-100.eps>
+File: /home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24//t3-0/tdmi-1/
+tdmi-45-1-1000_10000-all-50-0_25-60-100.eps Graphic file (type eps)
 
-</home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24//t3-0/tdmi-45-1-10
-00_10000-all-50-0_25-60-100.eps> [8
+</home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24//t3-0/tdmi-1/tdmi-
+45-1-1000_10000-all-50-0_25-60-100.eps> [8
 
 ]
 File: /home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24/corr-1.eps Gr
@@ -1002,13 +1012,99 @@ raphic file (type eps)
 </home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24/corrV-1.eps>
 [9
 
+] [10
+
 ]
-! Too many }'s.
-\endframe ->\egroup 
-                    \begingroup \def \@currenvir {frame}
-l.137 ^^I\end{frame}
-                    
-? 
+File: /home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24//t3-0/snr-box
+plot.png Graphic file (type QTm)
+
+<use  "/home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24//t3-0/snr-bo
+xplot.png" >
+File: /home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24//t3-40/snr-bo
+xplot.png Graphic file (type QTm)
+
+<use  "/home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24//t3-40/snr-b
+oxplot.png" > [11
+
+]
+File: /home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24//t3-0/mrate-s
+nr.png Graphic file (type QTm)
+
+<use  "/home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24//t3-0/mrate-
+snr.png" >
+File: /home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24//t3-40/mrate-
+snr.png Graphic file (type QTm)
+
+<use  "/home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24//t3-40/mrate
+-snr.png" > [12
+
+]
+File: /home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24/snr-all-t7.ep
+s Graphic file (type eps)
+
+</home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24/snr-all-t7.eps>
+Overfull \vbox (5.27657pt too high) detected at line 200
+ []
+
+[13
+
+]
+File: /home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24/snr-scatter-t
+7.png Graphic file (type QTm)
+
+<use  "/home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24/snr-scatter-
+t7.png" > [14
+
+]
+File: /home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24/mrate-snr-all
+-t7.png Graphic file (type QTm)
+
+<use  "/home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24/mrate-snr-al
+l-t7.png" > [15
+
+]
+File: /home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24/snr-all-t6.pn
+g Graphic file (type QTm)
+
+<use  "/home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24/snr-all-t6.p
+ng" >
+Overfull \vbox (5.2765pt too high) detected at line 240
+ []
+
+[16
+
+]
+File: /home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24/t6-0/mrate-sn
+r1.png Graphic file (type QTm)
+
+<use  "/home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24/t6-0/mrate-s
+nr1.png" >
+File: /home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24/t6-0/mrate-sn
+r.png Graphic file (type QTm)
+
+<use  "/home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24/t6-0/mrate-s
+nr.png" > [17
+
+]
+File: /home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24/t6-91/mrate-s
+nr2.png Graphic file (type QTm)
+
+<use  "/home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24/t6-91/mrate-
+snr2.png" >
+File: /home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24/t6-91/mrate-s
+nr1.png Graphic file (type QTm)
+
+<use  "/home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24/t6-91/mrate-
+snr1.png" > [18
+
+]
+File: /home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24/snr-all-2-t3.
+png Graphic file (type QTm)
+
+<use  "/home/kyle/github/IF-neuronal-network/tdmi/figure-eps/Apr24/snr-all-2-t3
+.png" > [19
+
+]
 \tf@nav=\write6
 \openout6 = `report.nav'.
 
@@ -1018,28 +1114,28 @@ l.137 ^^I\end{frame}
 \tf@snm=\write8
 \openout8 = `report.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 328.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 328.
-(./report.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 328.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 328.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 473.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 473.
+ (./report.aux)
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 473.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 473.
 
 
 LaTeX Font Warning: Size substitutions with differences
 (Font)              up to 1.0pt have occurred.
 
 
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+LaTeX Warning: There were multiply-defined labels.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 328.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 473.
  ) 
 Here is how much of TeX's memory you used:
- 19952 strings out of 493638
- 363761 string characters out of 6146796
- 431825 words of memory out of 5000000
- 22935 multiletter control sequences out of 15000+600000
- 13114 words of font info for 47 fonts, out of 8000000 for 9000
+ 20050 strings out of 493638
+ 366529 string characters out of 6146796
+ 433661 words of memory out of 5000000
+ 23005 multiletter control sequences out of 15000+600000
+ 16910 words of font info for 61 fonts, out of 8000000 for 9000
  1328 hyphenation exceptions out of 8191
  56i,15n,55p,731b,586s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on report.pdf (9 pages).
+Output written on report.pdf (19 pages).

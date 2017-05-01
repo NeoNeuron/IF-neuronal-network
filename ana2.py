@@ -7,7 +7,7 @@ import sys
 import mylib
 import itertools
 
-num_in_lfp = 8
+num_in_lfp = 2
 loading_dir = '/media/kyle/Drive/ResearchData/Apr22/t3/'
 
 target_index = 0
@@ -39,10 +39,11 @@ positive_time_delay = 100
 total_neuron_number = 100
 dt = 0.25
 # preparing storage for data;
-data_dic = {'mean firing rate':np.zeros(num_in_pool), 'signal noise ratio':np.zeros(num_in_pool), 'peak time':np.zeros(num_in_pool), 'time constant':np.zeros(num_in_pool)}
+data_dic = {'mean firing rate':[], 'signal noise ratio':[], 'peak time':[], 'time constant':[]}
 data_out = pd.DataFrame(data_dic) 	
 
 for i in range(num_of_trials):
+	print i
 	rate = 0
 	for j in range(num_in_lfp):
 		rate += mylib.mean_rate(loading_dir = loading_dir, filename = 'rasterPost.txt', index = trials[i][j], tmax = 10)
@@ -63,5 +64,6 @@ for i in range(num_of_trials):
 	# saving_filename = 'tdmi-20-' + str(num)
 	# print figure_text
 	mylib.PlotTdmi(time_series, signal_order, signal_rand, saving_filename = saving_filename)
+	print '================================================'
 
 data_out.to_csv("./tdmi/figure-eps/ana1.csv", sep = '\t', float_format = '%.6f', index  = False, columns = ['mean firing rate', 'signal noise ratio', 'peak time', 'time constant'])
