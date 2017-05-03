@@ -15,8 +15,18 @@ void UpdateSystemState(NeuronalNetwork & pre_network, NeuronalNetwork & post_net
 	//	Transmit spiking information from pre_network to post_network;
 	vector<vector<Spike> > tempPreSpikes, tempPostSpikes;
 	pre_network.OutNewSpikes(t, tempPreSpikes);
+	// Set transmit time:
+	// double transmit_time = 2;
+	// for (vector<vector<Spike> >::iterator it = tempPreSpikes.begin(); it != tempPreSpikes.end(); it ++) {
+	// 	if (it -> size() > 0) {
+	// 		for (vector<Spike>::iterator itt = it -> begin(); itt != it -> end(); itt ++) {
+	// 			itt -> t += transmit_time;
+	// 		}
+	// 	}
+	// }
+	// find temporal spiking sequence for post network;
 	tempPostSpikes.resize(connectivity_matrix[1].size());
-	for (int i = 0; i < connectivity_matrix.size(); i++) {	
+	for (int i = 0; i < connectivity_matrix.size(); i++) {
 		if (tempPreSpikes[i].size() != 0) {
 			for (int j = 0; j < connectivity_matrix.size(); j++) {
 				if (connectivity_matrix[i][j] == true) {
@@ -24,7 +34,7 @@ void UpdateSystemState(NeuronalNetwork & pre_network, NeuronalNetwork & post_net
 				}
 			}
 		}
-	}	
+	}
 	post_network.InNewSpikes(tempPostSpikes);
 	//	Update post_network in two network system;
 	post_network.UpdateNetworkState(t, dt);

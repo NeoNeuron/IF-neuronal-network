@@ -38,7 +38,7 @@ double NeuronalNetwork::SortSpikes(double t, double dt, vector<SpikeElement>& T)
 	} else {
 		sort(T.begin(), T.end(), Compare);
 		return (T.front()).t;
-	}	
+	}
 }
 
 void NeuronalNetwork::InitializeNeuronalType(double p, int seed) {
@@ -61,41 +61,47 @@ void NeuronalNetwork::InitializeInternalPoissonRate(bool function, double rate) 
 	}
 }
 
-void NeuronalNetwork::InitializeExternalPoissonProcess(bool function, double rate, double tmax, int seed) {
+void NeuronalNetwork::InitializeExternalPoissonProcess(bool function, double rate_excitatory, double rate_inhibitory, double tmax, int seed) {
 	vector<double> ADD;
-	ADD.push_back(0);	
+	ADD.push_back(0);
 	srand(seed);
 	double x; // temp random number;
 	double tLast; // last existing data point;
 	if (function == true) {
 		//ofstream external_poisson;
 		//external_poisson.open("external_poisson_new.txt");
+		external_excitatory_inputs_.resize(neuron_number_, ADD);
+		// for (int i = 0; i < neuron_number_; i++) {
+		// 	external_excitatory_inputs_.push_back(ADD);
+		// }
+		double rate;
 		for (int i = 0; i < neuron_number_; i++) {
-			external_excitatory_inputs_.push_back(ADD);
-		}
-		for (vector<vector<double> >::iterator it = external_excitatory_inputs_.begin(); it != external_excitatory_inputs_.end(); it++) {
-			tLast = it->front();
-			//external_poisson << (double)tLast << "\t";
+			tLast = external_excitatory_inputs_[i].front();
+			if (neurons_[i].GetNeuronalType() == true) rate = rate_excitatory;
+			else rate = rate_inhibitory;
 			while (tLast < tmax) {
 				x = rand() / (RAND_MAX + 1.0);
 				while (log(x) < -1e12) x = rand() / (RAND_MAX + 1.0);
 				tLast -= log(x) / rate;
-				it->push_back(tLast);
+				external_excitatory_inputs_[i].push_back(tLast);
 				//external_poisson << (double)tLast << "\t";
 			}
 			//external_poisson << endl;
 		}
-		//external_poisson.close();
 	} else {
+		external_inhibitory_inputs_.resize(neuron_number_, ADD);
+		// for (int i = 0; i < neuron_number_; i++) {
+		// 	external_inhibitory_inputs_.push_back(ADD);
+		// }
+		double rate;
 		for (int i = 0; i < neuron_number_; i++) {
-			external_inhibitory_inputs_.push_back(ADD);
-		}
-		for (vector<vector<double> >::iterator it = external_inhibitory_inputs_.begin(); it != external_inhibitory_inputs_.end(); it++) {
-			tLast = it->front();
+			if (neurons_[i].GetNeuronalType() == true) rate = rate_excitatory;
+			else rate = rate_inhibitory;
+			tLast = external_inhibitory_inputs_[i].front();
 			while (tLast < tmax) {
 				x = rand() / (RAND_MAX + 1.0);
 				tLast -= log(x) / rate;
-				it->push_back(tLast);
+				external_inhibitory_inputs_[i].push_back(tLast);
 			}
 		}
 	}
@@ -106,8 +112,8 @@ void NeuronalNetwork::InNewSpikes(vector<vector<Spike> > & data) {
 		if (data[i].size() != 0) {
 			for (vector<Spike>::iterator it = data[i].begin(); it != data[i].end(); it++) {
 				neurons_[i].InSpike(*it);
-			}			
-		}		
+			}
+		}
 	}
 }
 
@@ -181,7 +187,7 @@ void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
 		for (int i = 0; i < neuron_number_; i++) {
 			neurons_[i].UpdateNeuronalState(t, dt, external_excitatory_inputs_[i], external_inhibitory_inputs_[i]);
 		}
-	}	
+	}
 }
 
 void NeuronalNetwork::OutPotential(vector<double>& potential) {
@@ -192,14 +198,13 @@ void NeuronalNetwork::OutPotential(vector<double>& potential) {
 	}
 }
 
-void NeuronalNetwork::OutTemporalParameters(vector<vector<double> > &x) {
+void NeuronalNetwork::OutConductance(vector<vector<double> > &x) {
   x.clear();
-  vector<double> add(3);
+  vector<double> add(2);
   x.resize(neuron_number_, add);
   for (int i = 0; i < neuron_number_; i++) {
-  	x[i][0] = neurons_[i].GetPotential();
-  	x[i][1] = neurons_[i].GetConductance(true);
-  	x[i][2] = neurons_[i].GetConductance(false);  
+  	x[i][0] = neurons_[i].GetConductance(true);
+  	x[i][1] = neurons_[i].GetConductance(false);
   }
 }
 
@@ -221,7 +226,7 @@ void NeuronalNetwork::Save(string neuron_file, string connecting_matrix_file) {
 		data << (bool)add.type << '\t';
 		data << (int)add.index << '\t';
 		data << (double)add.membrane_potential_ << '\t';
-		data << (double)add.ge << '\t'; 
+		data << (double)add.ge << '\t';
 		data << (double)add.gi << '\t';
 		data << (double)add.remaining_refractory_time << endl;
 	}
@@ -236,7 +241,7 @@ void NeuronalNetwork::OutSpikeTrains(vector<vector<double> > & data) {
 	data.clear();
 	data.resize(neuron_number_);
 	vector<double> add_spike_train;
-	for (int i = 0; i < neuron_number_; i++) {		
+	for (int i = 0; i < neuron_number_; i++) {
 		neurons_[i].OutSpikeTrain(add_spike_train);
 		data[i] = add_spike_train;
 	}

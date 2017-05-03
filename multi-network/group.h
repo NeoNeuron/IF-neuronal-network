@@ -19,15 +19,15 @@ using namespace std;
 
 struct SpikeElement {
 	int index;	// The sequence order of spikes within single time interval;
-	double t;	// exact spiking time; 
+	double t;	// exact spiking time;
 	bool type;	// The type of neuron that fired;
 };
 
 class NeuronalNetwork {
 private:
-	Neuron *neurons_;	
+	Neuron *neurons_;
 	int neuron_number_;	// number of the neurons in the group;
-	int connecting_density_;	
+	int connecting_density_;
 	ConnectivityMatrix connectivity_matrix_;
 	vector<vector<double> > external_excitatory_inputs_; // temp storage of external Poisson input;
 	vector<vector<double> > external_inhibitory_inputs_;
@@ -36,7 +36,7 @@ private:
 
 	// Sort Spikes:
 	// Description: Sort spikes within single time interval, and return the time of first spike;
-	double SortSpikes(double t, double dt, vector<SpikeElement> &T);	
+	double SortSpikes(double t, double dt, vector<SpikeElement> &T);
 
 public:
 	//	Neuronal network initialization:
@@ -46,29 +46,29 @@ public:
 		for (int i = 0; i < neuron_number_; i++) neurons_[i].SetNeuronIndex(i);
 		connectivity_matrix_.SetNeuronNumber(neuron_number_);
 		connecting_density_ = density;
-		connectivity_matrix_.SetConnectingDensity(connecting_density_);	
+		connectivity_matrix_.SetConnectingDensity(connecting_density_);
 	}
 	// INPUTS:
 
 	// 	Initialize neuronal types in the network;
 	//	DOUBLE p: the probability of the presence of excitatory neuron;
 	//	DOUBLE seed: seed for random number generator;
-	void InitializeNeuronalType(double p, int seed); 
+	void InitializeNeuronalType(double p, int seed);
 
 	//	Set driving type: true for external Poisson driven, false for internal ones;
-	void SetDrivingType(bool driving_type); 
+	void SetDrivingType(bool driving_type);
 
 	//	Initialize internal homogeneous feedforward Poisson rate;
 	//	BOOL function: types of Poisson drive: true for excitatory, false for inhibitory;
 	//	DOUBLE rate: Poisson rate;
-	void InitializeInternalPoissonRate(bool function, double rate); 
+	void InitializeInternalPoissonRate(bool function, double rate);
 
 	//	Initialize external homogeneous feedforward Poisson process;
 	//	BOOL function: types of Poisson drive: true for excitatory, false for inhibitory;
 	//	DOUBLE rate: Poisson rate;
 	//	DOUBLE tmax: maximum time range for Poisson process;
 	//	INT seed: seed for built-in random generator;
-	void InitializeExternalPoissonProcess(bool function, double rate, double tmax, int seed);
+	void InitializeExternalPoissonProcess(bool function, double rate_excitatory, double rate_inhibitory, double tmax, int seed);
 
 	// 	Input new spikes for neurons all together;
 	void InNewSpikes(vector<vector<Spike> > &data);
@@ -103,10 +103,9 @@ public:
 	void OutPotential(vector<double> & potential);
 
   //	Read all Temporal Parameters:
-  //		Panel x[0]: Voltage;
-  //		Panel x[1]: Excitatory synaptic conductance;
-  //		Panel x[2]: Inhibitory synaptic conductance;
-  void OutTemporalParameters(vector<vector<double> > &x);
+  //		Panel x[0]: Excitatory synaptic conductance;
+  //		Panel x[1]: Inhibitory synaptic conductance;
+  void OutConductance(vector<vector<double> > &x);
 
   //	Output the total membrane ionic current of each neuron:
   void OutCurrent(vector<double> & current);
@@ -133,7 +132,7 @@ public:
 
 	void GetConductance(int i, bool function);
 
-	void GetMatrix(ofstream & matrix_file);	
+	void GetMatrix(ofstream & matrix_file);
 
 };
 

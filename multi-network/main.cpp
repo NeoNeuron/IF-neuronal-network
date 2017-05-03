@@ -29,12 +29,12 @@ int main(int argc, const char* argv[]) {
 
 	// Loading config.ini:
 	string net_config_path = "./multi-network/config.ini";
-  map<string, string> m_map_config;  
+  map<string, string> m_map_config;
   ReadConfig(net_config_path,m_map_config);
   cout << ">> [Config.ini]:" << endl;
-	PrintConfig(m_map_config);  
+	PrintConfig(m_map_config);
 	cout << endl;
-	
+
 	int preNetNum, postNetNum, preNetDensity, postNetDensity;
 	double pre_rewiring_probability, post_rewiring_probability;
 	int pre_rewiring_seed, post_rewiring_seed;
@@ -66,13 +66,13 @@ int main(int argc, const char* argv[]) {
 	bool type;
 	istringstream(m_map_config["PreNetDrivingType"]) >> boolalpha >> type;
 	preNet.SetDrivingType(type);
-	preNet.InitializeExternalPoissonProcess(true, atof(m_map_config["PreNetDrivingRate"].c_str()), maximum_time, atoi(m_map_config["PreNetExternalDrivingSeed"].c_str()));
-	preNet.InitializeExternalPoissonProcess(false, 0, maximum_time, 0);
+	preNet.InitializeExternalPoissonProcess(true, atof(m_map_config["PreNetDrivingRateExcitatory"].c_str()), atof(m_map_config["PreNetDrivingRateInhibitory"].c_str()), maximum_time, atoi(m_map_config["PreNetExternalDrivingSeed"].c_str()));
+	preNet.InitializeExternalPoissonProcess(false, 0, 0, maximum_time, 0);
 
 	istringstream(m_map_config["PostNetDrivingType"]) >> boolalpha >> type;
 	postNet.SetDrivingType(type);
-	postNet.InitializeExternalPoissonProcess(true, atof(m_map_config["PostNetDrivingRate"].c_str()), maximum_time, atoi(m_map_config["PostNetExternalDrivingSeed"].c_str()));
-	postNet.InitializeExternalPoissonProcess(false, 0, maximum_time, 0);
+	postNet.InitializeExternalPoissonProcess(true, atof(m_map_config["PostNetDrivingRateExcitatory"].c_str()), atof(m_map_config["PostNetDrivingRateInhibitory"].c_str()), maximum_time, atoi(m_map_config["PostNetExternalDrivingSeed"].c_str()));
+	postNet.InitializeExternalPoissonProcess(false, 0, 0, maximum_time, 0);
 
 	// SETUP CONNECTIVITY MAT
 	vector<vector<bool> > conMat(preNetNum);
@@ -98,60 +98,62 @@ int main(int argc, const char* argv[]) {
 
 	// SETUP DYNAMICS:
 	double t = 0, dt = atof(m_map_config["TimingStep"].c_str()), tmax = maximum_time;
-	ofstream preV, preGE, preGI, postV, postGE, postGI;
+	ofstream preV,  postV;
+	// ofstream preGE, preGI, postGE, postGI;
 	ofstream preI, postI;
 	string preV_filename = dir + "preV.txt";
-	string preGE_filename = dir + "preGE.txt";
-	string preGI_filename = dir + "preGI.txt";
+	// string preGE_filename = dir + "preGE.txt";
+	// string preGI_filename = dir + "preGI.txt";
 	string postV_filename = dir + "postV.txt";
-	string postGE_filename = dir + "postGE.txt";
-	string postGI_filename = dir + "postGI.txt";
+	// string postGE_filename = dir + "postGE.txt";
+	// string postGI_filename = dir + "postGI.txt";
 	string preI_filename = dir + "preI.txt";
 	string postI_filename = dir + "postI.txt";
 	preV.open(preV_filename.c_str());
-	preGE.open(preGE_filename.c_str());
-	preGI.open(preGI_filename.c_str());
-	postV.open(postV_filename.c_str());	
-	postGE.open(postGE_filename.c_str());
-	postGI.open(postGI_filename.c_str());
+	// preGE.open(preGE_filename.c_str());
+	// preGI.open(preGI_filename.c_str());
+	postV.open(postV_filename.c_str());
+	// postGE.open(postGE_filename.c_str());
+	// postGI.open(postGI_filename.c_str());
 	preI.open(preI_filename.c_str());
 	postI.open(postI_filename.c_str());
 
-	vector<vector<double> > readme;
+	// vector<vector<double> > readme;
+	vector<double> potential;
 	vector<double> current;
 	char cr = (char)13;
 	double progress;
 	while (t < tmax) {
 		UpdateSystemState(preNet, postNet, conMat, t, dt);
 		t += dt;
-		readme.clear();
+		potential.clear();
 		current.clear();
-		preNet.OutTemporalParameters(readme);
+		preNet.OutPotential(potential);
 		preNet.OutCurrent(current);
 		for (int i = 0; i < preNetNum; i++) {
-			preV << setprecision(15) << (double)readme[i][0] << '\t';
-			preGE << setprecision(15) << (double)readme[i][1] << '\t';
-			preGI << setprecision(15) << (double)readme[i][2] << '\t';
+			preV << setprecision(15) << (double)potential[i] << '\t';
+			// preGE << setprecision(15) << (double)readme[i][1] << '\t';
+			// preGI << setprecision(15) << (double)readme[i][2] << '\t';
 			preI << setprecision(15) << (double)current[i] << '\t';
 		}
 		preV << endl;
-		preGE << endl;
-		preGI << endl;
+		// preGE << endl;
+		// preGI << endl;
 		preI << endl;
 
-		readme.clear();
+		potential.clear();
 		current.clear();
-		postNet.OutTemporalParameters(readme);
+		postNet.OutPotential(potential);
 		postNet.OutCurrent(current);
 		for (int i = 0; i < postNetNum; i++) {
-			postV << setprecision(15) << (double)readme[i][0] << '\t';
-			postGE << setprecision(15) << (double)readme[i][1] << '\t';
-			postGI << setprecision(15) << (double)readme[i][2] << '\t';
+			postV << setprecision(15) << (double)potential[i] << '\t';
+			// postGE << setprecision(15) << (double)readme[i][1] << '\t';
+			// postGI << setprecision(15) << (double)readme[i][2] << '\t';
 			postI << setprecision(15) << (double)current[i] << '\t';
 		}
 		postV << endl;
-		postGE << endl;
-		postGI << endl;
+		// postGE << endl;
+		// postGI << endl;
 		postI << endl;
 		progress = t * 100.0 / tmax;
 		cout << cr;
@@ -161,11 +163,11 @@ int main(int argc, const char* argv[]) {
 	cout << endl;
 
 	preV.close();
-	preGE.close();
-	postGE.close();
+	// preGE.close();
+	// postGE.close();
 	postV.close();
-	preGI.close();
-	postGI.close();
+	// preGI.close();
+	// postGI.close();
 	preI.close();
 	postI.close();
 
