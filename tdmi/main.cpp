@@ -23,7 +23,7 @@ int main(int argc, const char* argv[]) {
 	if (argc != 5) {
 		throw runtime_error("wrong number of args");
 	}
-	clock_t start, finish;	
+	clock_t start, finish;
 	start = clock();
 	// INPUT NEURONAL DATA:
 	ifstream data;
@@ -42,18 +42,18 @@ int main(int argc, const char* argv[]) {
 	double dt = atof(argv[2]);
 	int negative_time_delay = atoi(argv[3]);
 	int positive_time_delay = atoi(argv[4]);
-	
+
 	printf(">> expected occupancy = %d\n", expected_occupancy);
 	printf(">> dt = %f ms\n", dt);
 	printf(">> maximum negative time delay = %d\n", negative_time_delay);
 	printf(">> maximum positive time delay = %d\n", positive_time_delay);
 
 
-	double sampling_dt = 0.03125;	
-	cout << ">> Calculating ordered TDMI ... " << endl;	
+	double sampling_dt = 0.03125;
+	cout << ">> Calculating ordered TDMI ... " << endl;
 	vector<double> tdmi_ordered;
 	TDMI(raster, lfp, expected_occupancy, dt, sampling_dt, negative_time_delay, positive_time_delay, tdmi_ordered, false);
-	cout << ">> Calculating swapped TDMI ... " << endl;	
+	cout << ">> Calculating swapped TDMI ... " << endl;
 	vector<double> tdmi_random;
 	TDMI(raster, lfp, expected_occupancy, dt, sampling_dt, negative_time_delay, positive_time_delay, tdmi_random, true);
 
@@ -73,11 +73,11 @@ int main(int argc, const char* argv[]) {
 		if (i < positive_time_delay + negative_time_delay) data_out << endl;
 	}
 	data_out.close();
-	
+
 	finish = clock();
 	// Time counting:
 	double ToTtime;
 	ToTtime = (finish - start) / CLOCKS_PER_SEC;
-	cout << "It takes " << (double)ToTtime << "s" << endl;	
+	cout << "It takes " << (double)ToTtime << "s" << endl;
 	return 0;
 }

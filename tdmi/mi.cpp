@@ -30,9 +30,9 @@ double GaussKernel() {
 	return number;
 }
 
-double PoissonGenerator(double rate, double t_last) {				
+double PoissonGenerator(double rate, double t_last) {
 	double x;
-	x = rand() / (RAND_MAX + 1.0);		
+	x = rand() / (RAND_MAX + 1.0);
 	while (abs(x) > 1e10) x = rand() / (RAND_MAX + 1.0);
 	return t_last - log(x) / rate;
 }
@@ -142,7 +142,7 @@ void ConvertSpikeToBinary(vector<double>& spikes, vector<bool> & binary_spikes, 
 		int index = floor(*it / dt);
 		if (index < T - 1) {
 			binary_spikes[index] = true;
-		}		
+		}
 	}
 }
 
@@ -214,7 +214,7 @@ double MI(vector<bool>& x, vector<bool>& y, int bin_size) {
 		vector<double> Px, Py;
 		IntHistogram(x_int, Px, 0, max_value - 1);
 		IntHistogram(y_int, Py, 0, max_value - 1);
-		
+
 		vector<int> add(max_value, 0);
 		vector<vector<int> > count_xy(max_value, add);
 		for (int i = 0; i < x_int.size(); i++) {
@@ -230,14 +230,14 @@ double MI(vector<bool>& x, vector<bool>& y, int bin_size) {
 				}
 				else continue;
 			}
-		}			
+		}
 		if (mi<0) {
 			cout << mi << endl;
 			cout << "Press ENTER to continue:" << endl;
 			cin.get();
 		}
 		return mi;
-	}	
+	}
 }
 
 double MI(vector<double>& x, vector<double>& y, double* x_max_and_min, double* y_max_and_min, double x_bin_size, double y_bin_size) {
@@ -250,7 +250,7 @@ double MI(vector<double>& x, vector<double>& y, double* x_max_and_min, double* y
 		vector<double> Px, Py;
 		DoubleHistogram(x, Px, x_max_and_min[1], x_max_and_min[0], x_bin_size);
 		DoubleHistogram(y, Py, y_max_and_min[1], y_max_and_min[0], y_bin_size);
-		
+
 		// 	Calculate conditional probability;
 		int time_bin_number = x.size(); // number of bins of time series;
 		vector<int> add(Py.size(), 0);
@@ -274,7 +274,7 @@ double MI(vector<double>& x, vector<double>& y, double* x_max_and_min, double* y
 			}
 		}
 		if (mi<0) {
-			cout << mi << endl;			
+			cout << mi << endl;
 			cout << "Press ENTER to continue:" << endl;
 			cin.get();
 		}
@@ -327,7 +327,7 @@ double MI(vector<double>& x, vector<double>& y, double expected_occupancy) {
 		}
 	}
 	if (mi<0) {
-		cout << mi << endl;			
+		cout << mi << endl;
 		cout << "Press ENTER to continue:" << endl;
 		cin.get();
 	}
@@ -365,7 +365,7 @@ double MI(vector<bool>& binary_spikes, vector<double>& LFP, int time_bin_number,
 			if (count_xy_false[i] != 0) {
 				mi += count_xy_false[i] * 1.0 / time_bin_number*log2(count_xy_false[i] * 1.0 / time_bin_number / (1 - p_spike) / LFP_histogram[i]);
 			}
-		}		
+		}
 	}
 	if (mi > 10000 or mi < 0) {
 		cout << mi << endl;
@@ -376,7 +376,7 @@ double MI(vector<bool>& binary_spikes, vector<double>& LFP, int time_bin_number,
 }
 
 double MI(vector<bool>& binary_spikes, vector<double>& LFP, int expected_occupancy) {
-	// calculate the occupancy;	
+	// calculate the occupancy;
 	int bin_number = floor(sqrt(LFP.size() / expected_occupancy)); // bin_number: numberber of non-uniform bins;
 	int occupancy = LFP.size() / bin_number, residue = LFP.size() % bin_number; // residue: remaining number of data that not used.
 	int data_size = LFP.size() - residue;
@@ -390,7 +390,7 @@ double MI(vector<bool>& binary_spikes, vector<double>& LFP, int expected_occupan
 	// Calculate conditional probability;
 	vector<int> count_xy_true(bin_number, 0);
 	vector<int> count_xy_false(bin_number, 0);
-	
+
 	int ind;
 	for (int i = 0; i < data_size; i++) {
 		ind = -1;
@@ -405,7 +405,7 @@ double MI(vector<bool>& binary_spikes, vector<double>& LFP, int expected_occupan
 	// Calculate mutual information;
 
 	double mi = 0, Pxy = 0; // Pxy = P(x,y);
-	for (int i = 0; i < bin_number; i++) {	
+	for (int i = 0; i < bin_number; i++) {
 		if (count_xy_true[i] != 0) {
 			Pxy = count_xy_true[i] * 1.0 / data_size;
 			mi += Pxy *log2(bin_number*Pxy / p_spike);
@@ -462,7 +462,7 @@ void TDMI(vector<double>& x, vector<double>& y, double x_bin_size, double y_bin_
 
 	// No shift;
 	tdmi[negative_time_delay] = MI(x, y, x_max_and_min, y_max_and_min, x_bin_size, y_bin_size);
-	
+
 	// Negative shift;
 	vector<double> x_copy = x, y_copy = y;
 	for (int i = 0; i < negative_time_delay; i++) {
@@ -476,7 +476,7 @@ void TDMI(vector<double>& x, vector<double>& y, double x_bin_size, double y_bin_
 	y_copy = y;
 	for (int i = 0; i < positive_time_delay; i++) {
 		x_copy.erase(x_copy.end() - 1, x_copy.end());
-		y_copy.erase(y_copy.begin(), y_copy.begin() + 1);		
+		y_copy.erase(y_copy.begin(), y_copy.begin() + 1);
 		tdmi[negative_time_delay + i + 1] = MI(x_copy, y_copy, x_max_and_min, y_max_and_min, x_bin_size, y_bin_size);
 	}
 }
@@ -487,7 +487,7 @@ void TDMI(vector<double>& x, vector<double>& y, int expected_occupancy, int nega
 
 	// No shift;
 	tdmi[negative_time_delay] = MI(x, y, expected_occupancy);
-	
+
 	// Negative shift;
 	vector<double> x_copy = x, y_copy = y;
 	for (int i = 0; i < negative_time_delay; i++) {
@@ -501,7 +501,7 @@ void TDMI(vector<double>& x, vector<double>& y, int expected_occupancy, int nega
 	y_copy = y;
 	for (int i = 0; i < positive_time_delay; i++) {
 		x_copy.erase(x_copy.end() - 1, x_copy.end());
-		y_copy.erase(y_copy.begin(), y_copy.begin() + 1);		
+		y_copy.erase(y_copy.begin(), y_copy.begin() + 1);
 		tdmi[negative_time_delay + i + 1] = MI(x_copy, y_copy, expected_occupancy);
 	}
 }
@@ -512,7 +512,7 @@ void TDMI(vector<double>& spikes, vector<double>& LFP, double dt, double samplin
 	double tmax = LFP.size()*sampling_dt;
 	vector<bool> binary_spikes;
 	ConvertSpikeToBinary(spikes, binary_spikes, tmax, dt);
-	
+
 	//random_shuffle(binary_spikes.begin(), binary_spikes.end());
 
 	//	Calculate the mean local field potential;
@@ -527,7 +527,7 @@ void TDMI(vector<double>& spikes, vector<double>& LFP, double dt, double samplin
 	// Measure Range of data;
 	double LFP_max_and_min[2];
 	FindMaxMin(mean_LFP, LFP_max_and_min, bin_width);
-		
+
 	// No shift;
 	tdmi[negative_time_delay] = MI(binary_spikes, mean_LFP, time_bin_number, LFP_max_and_min[0], LFP_max_and_min[1], bin_width);
 
@@ -554,7 +554,7 @@ void TDMI(vector<double>& spikes, vector<double>& LFP, double dt, double samplin
 void TDMI(vector<double>& spikes, vector<double>& LFP, int expected_occupancy, double dt, double sampling_dt, int negative_time_delay, int positive_time_delay, vector<double>& tdmi, bool random_switch) {
 	int dn = dt / sampling_dt; // number of LFP data points within single time step;
 	int time_bin_number = floor(LFP.size() / dn); // number of reduced LFP data point;
-	
+
 	// rearrange LFP data;
 	vector<double> mean_LFP(time_bin_number, 0);
 	double mean;
@@ -571,7 +571,7 @@ void TDMI(vector<double>& spikes, vector<double>& LFP, int expected_occupancy, d
 	if (random_switch == true) {
 		random_shuffle(binary_spikes.begin(), binary_spikes.end());
 	}
-	
+
 	int repeat_number = negative_time_delay + positive_time_delay + 1;
 	tdmi.resize(repeat_number, 0);
 	int progress_counter = 0;
