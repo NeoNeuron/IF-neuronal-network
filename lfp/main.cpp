@@ -17,9 +17,9 @@ using namespace std;
 //	arguments:
 //	argv[1] = loading directory for neural data;
 //	argv[2] = neuronal index for target neuron in pre network;
-//	argv[3] = list of indices of connected neurons that contribute to LFP;
-//	argv[4] = lower bond of time range;
-//	argv[5] = upper bond of time range;
+//	argv[3] = list of indices of connected neurons, seperated by comma, that contribute to LFP;
+//	argv[4] = lower bond of time range, with unit in milliseconds;
+//	argv[5] = upper bond of time range, with unit in milliseconds;
 //	argv[6] = total neuron number;
 int main(int argc, const char* argv[]) {
 	if (argc != 7) {
@@ -40,7 +40,7 @@ int main(int argc, const char* argv[]) {
 		cout << "#" << objective_neuron_index << " neuron is an inhibitory neuron." << endl;
 	}
 
-	string list_str =  argv[3]; 
+	string list_str =  argv[3];
 	vector<int> list;
 	string ss;
 	string::size_type pos = list_str.find_first_of(',', 0);

@@ -12,14 +12,12 @@ void ReadData(string filename, vector<double> & data) {
 	ifstream ifile;
 	ifile.open(filename.c_str());
 	string s;
-	double add_double;
 	string::size_type pos;
 	string ss;
 	while (getline(ifile, s)) {
 		pos = s.find_first_of('\n', 0);
 		ss = s.substr(0, pos);
-		add_double = atof(ss.c_str());
-		data.push_back(add_double);
+		data.push_back(atof(ss.c_str()));
 	}
 	ifile.close();
 }
@@ -75,8 +73,8 @@ void TDLC(vector<int>& raster, vector<double>& lfp, int negative_time_delay, int
   raster_copy = raster;
   lfp_copy = lfp;
   for (int i = negative_time_delay + 1; i < negative_time_delay + positive_time_delay + 1; i++) {
-    raster_copy.erase(raster_copy.end() - 1, raster_copy.end());
-    lfp_copy.erase(lfp_copy.begin(), lfp_copy.begin() + 1);
+    raster_copy.erase(raster_copy.end() - 1);
+    lfp_copy.erase(lfp_copy.begin());
     tdlc[i] = LC(raster_copy, lfp_copy);
   }
 }

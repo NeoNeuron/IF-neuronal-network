@@ -29,6 +29,7 @@ def load_raster(loading_dir, filename, index):
 			raster = line
 			break
 		counter += 1
+	f.close()
 	raster = raster.replace('\n', '').split('\t')
 	for s in raster:
 		if s == '':

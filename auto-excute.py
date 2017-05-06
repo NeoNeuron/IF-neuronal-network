@@ -14,8 +14,8 @@ if compile_updated == False:
 	mylib.Compile()
 
 # Define loading directory and figure saving directory:
-loading_dir = "/media/kyle/Drive/ResearchData/May03/t4/"
-saving_dir = 'tdmi/figure-eps/May03/t4/'
+loading_dir = "/media/kyle/Drive/ResearchData/May03/t5/"
+saving_dir = 'tdmi/figure-eps/May03/t5/'
 
 # setting preliminary parameters
 total_neuron_number = 100
