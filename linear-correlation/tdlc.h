@@ -8,7 +8,7 @@ using namespace std;
 
 //	Read 1D data from *.txt files; Data type: (double);
 //	Return: none;
-void ReadData(string filename, vector<double> & data);
+// void ReadData(string filename, vector<double> & data);
 
 // Return mean value of elements of x;
 double Mean(vector<int>& x);
@@ -22,5 +22,7 @@ double Std(vector<double>& x);
 double LC(vector<int>& raster, vector<double>& lfp);
 
 void TDLC(vector<int>& raster, vector<double>& lfp, int negative_time_delay, int positive_time_delay, vector<double>& tdlc);
+
+void TDLC(vector<double>& first, vector<double>& second, int negative_time_delay, int positive_time_delay, vector<double>& tdlc);
 
 #endif // _TDLC_H_

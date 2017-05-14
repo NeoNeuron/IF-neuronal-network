@@ -4,6 +4,7 @@
 #include<iomanip>
 #include<cmath>
 #include"tdlc.h"
+#include"../tdmi/mi.h"
 using namespace std;
 
 int main(int argc, const char* argv[]) {

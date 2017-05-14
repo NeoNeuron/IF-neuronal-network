@@ -7,20 +7,20 @@
 
 using namespace std;
 
-void ReadData(string filename, vector<double> & data) {
-	data.clear();
-	ifstream ifile;
-	ifile.open(filename.c_str());
-	string s;
-	string::size_type pos;
-	string ss;
-	while (getline(ifile, s)) {
-		pos = s.find_first_of('\n', 0);
-		ss = s.substr(0, pos);
-		data.push_back(atof(ss.c_str()));
-	}
-	ifile.close();
-}
+// void ReadData(string filename, vector<double> & data) {
+// 	data.clear();
+// 	ifstream ifile;
+// 	ifile.open(filename.c_str());
+// 	string s;
+// 	string::size_type pos;
+// 	string ss;
+// 	while (getline(ifile, s)) {
+// 		pos = s.find_first_of('\n', 0);
+// 		ss = s.substr(0, pos);
+// 		data.push_back(atof(ss.c_str()));
+// 	}
+// 	ifile.close();
+// }
 
 double Mean(vector<int>& x) {
   double sum = accumulate(x.begin(), x.end(), 0.0);
@@ -76,5 +76,24 @@ void TDLC(vector<int>& raster, vector<double>& lfp, int negative_time_delay, int
     raster_copy.erase(raster_copy.end() - 1);
     lfp_copy.erase(lfp_copy.begin());
     tdlc[i] = LC(raster_copy, lfp_copy);
+  }
+}
+
+void TDLC(vector<double>& first, vector<double>& second, int negative_time_delay, int positive_time_delay, vector<double>& tdlc) {
+  tdlc.resize(positive_time_delay + negative_time_delay + 1);
+  vector<double> first_copy = first;
+  vector<double> second_copy = second;
+  for (int i = 0; i < negative_time_delay; i++) {
+    first_copy.erase(first_copy.begin());
+    second_copy.erase(second_copy.end() - 1);
+    tdlc[i] = LC(first_copy, second_copy);
+  }
+  tdlc[negative_time_delay] = LC(first, second);
+  first_copy = first;
+  second_copy = second;
+  for (int i = negative_time_delay + 1; i < negative_time_delay + positive_time_delay + 1; i++) {
+    first_copy.erase(first_copy.end() - 1);
+    second_copy.erase(second_copy.begin());
+    tdlc[i] = LC(first_copy, second_copy);
   }
 }

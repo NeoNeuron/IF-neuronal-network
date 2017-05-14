@@ -12,7 +12,7 @@
 
 using namespace std;
 
-const double PI=3.1415926;
+const double PI = 3.1415926;
 
 bool comp(const double &a, const double &b) {
 	return a < b;
@@ -123,14 +123,12 @@ void ReadData(string filename, vector<double> & data) {
 	ifstream ifile;
 	ifile.open(filename.c_str());
 	string s;
-	double add_double;
 	string::size_type pos;
 	string ss;
 	while (getline(ifile, s)) {
 		pos = s.find_first_of('\n', 0);
 		ss = s.substr(0, pos);
-		add_double = atof(ss.c_str());
-		data.push_back(add_double);
+		data.push_back(atof(ss.c_str()));
 	}
 	ifile.close();
 }

@@ -1,6 +1,6 @@
-import numpy as np 
-import pandas as pd 
-import matplotlib.pyplot as plt 
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 import seaborn
 
 num = 10
@@ -32,7 +32,7 @@ for i in range(num - 1):
 if all_data[-1][1] > 0:
 	plt.scatter(num,all_data[-1][0],c='g', alpha = 0.8)
 else:
-	plt.scatter(num,all_data[-1][0],c='r',alpha = 0.8) 
+	plt.scatter(num,all_data[-1][0],c='r',alpha = 0.8)
 
 all_data_box = [line[:,0].copy() for line in all_data[:-1]]
 plt.boxplot(all_data_box)
@@ -41,4 +41,4 @@ plt.xlabel('neuronal number', fontsize = 16)
 plt.ylabel('signal-noise ratio', fontsize = 16)
 plt.legend(loc = 2)
 plt.savefig(loading_dir + 'snr-boxplot.png')
-plt.show() 
+plt.show()
