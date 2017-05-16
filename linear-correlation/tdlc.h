@@ -21,6 +21,8 @@ double Std(vector<double>& x);
 // Pearson's product-moment coefficient: Linear correlated coefficient;
 double LC(vector<int>& raster, vector<double>& lfp);
 
+double LC(vector<double>& first, vector<double>& second);
+
 void TDLC(vector<int>& raster, vector<double>& lfp, int negative_time_delay, int positive_time_delay, vector<double>& tdlc);
 
 void TDLC(vector<double>& first, vector<double>& second, int negative_time_delay, int positive_time_delay, vector<double>& tdlc);

@@ -35,7 +35,7 @@ int main(int argc, const char* argv[]) {
   double addition = 0;
   for (int i = 0; i < lfp_length; i ++) {
     for (int j = 0; j < n; j ++) {
-      addition += lfp[i + j];
+      addition += lfp[i * n + j];
     }
     addition /= n;
     mean_lfp[i] = addition;

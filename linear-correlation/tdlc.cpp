@@ -38,7 +38,7 @@ double Std(vector<int>& x) {
   for (vector<int>::iterator it = x.begin(); it != x.end(); it ++) {
     std += pow(*it - x_mean, 2);
   }
-  return sqrt(std);
+  return sqrt(std / x.size());
 }
 
 double Std(vector<double>& x) {
@@ -47,7 +47,7 @@ double Std(vector<double>& x) {
   for (vector<double>::iterator it = x.begin(); it != x.end(); it ++) {
     std += pow(*it - x_mean, 2);
   }
-  return sqrt(std);
+  return sqrt(std / x.size());
 }
 
 double LC(vector<int>& raster, vector<double>& lfp) {
@@ -58,6 +58,16 @@ double LC(vector<int>& raster, vector<double>& lfp) {
     products[i] = (raster[i] - raster_mean) * (lfp[i] - lfp_mean);
   }
   return Mean(products) / (Std(raster) * Std(lfp));
+}
+
+double LC(vector<double>& first, vector<double>& second) {
+  double first_mean = Mean(first);
+  double second_mean = Mean(second);
+  vector<double> products(first.size());
+  for (int i = 0; i < first.size(); i ++) {
+    products[i] = (first[i] - first_mean) * (second[i] - second_mean);
+  }
+  return Mean(products) / (Std(first) * Std(second));
 }
 
 void TDLC(vector<int>& raster, vector<double>& lfp, int negative_time_delay, int positive_time_delay, vector<double>& tdlc) {

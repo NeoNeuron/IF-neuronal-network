@@ -77,9 +77,9 @@ def load_matrix(loading_dir, filename):
 def isi_stat(raster, bins = 50, hist_plot = False):
 	raster_temp = np.delete(np.insert(raster, 0, 0), -1)
 	isi = raster - raster_temp
-	[n, bins] = np.histogram(isi, bins = bins, normed = True)
+	n, bins = np.histogram(isi, bins = bins)
 	if hist_plot == True:
-		plt.hist(isi, bins = bins, normed = 1)
+		plt.hist(isi, bins = bins)
 		plt.show()
 	return n, bins
 
