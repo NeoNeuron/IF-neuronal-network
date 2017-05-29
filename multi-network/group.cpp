@@ -4,11 +4,11 @@
 //	Description: Define class Neuron, structure Spike and NeuronState;
 //	Date: 2017-02-21 16:06:30
 //******************************
-#include"group.h"
-#include<iostream>
-#include<algorithm>
-#include<ctime>
-#include<cmath>
+#include "group.h"
+#include <iostream>
+#include <algorithm>
+#include <ctime>
+#include <cmath>
 
 using namespace std;
 
@@ -213,6 +213,14 @@ void NeuronalNetwork::OutCurrent(vector<double> & current) {
 	current.resize(neuron_number_);
 	for (int i = 0; i < neuron_number_; i++) {
 		current[i] = neurons_[i].OutTotalCurrent();
+	}
+}
+
+void NeuronalNetwork::OutPartialCurrent(bool type, vector<double> & current) {
+	current.clear();
+	current.resize(neuron_number_);
+	for (int i = 0; i < neuron_number_; i++) {
+		current[i] = neurons_[i].OutLeakyCurrent() + neurons_[i].OutSynapticCurrent(type);
 	}
 }
 

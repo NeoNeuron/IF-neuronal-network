@@ -17,7 +17,7 @@ bool compPoisson(const Spike & x, const Spike & y) {
 	return x.t < y.t;
 }
 
-void Neuron::GenerateInternalPoisson(bool function, double tmax, bool outSet) {				
+void Neuron::GenerateInternalPoisson(bool function, double tmax, bool outSet) {
 	double temp, rate;
 	if (function == true) {
 		temp = latest_excitatory_poisson_time_;
@@ -45,12 +45,12 @@ void Neuron::GenerateInternalPoisson(bool function, double tmax, bool outSet) {
 			if (outSet == true) cout << ADD.t << '\t';
 		}
 		if (function == true) {
-			latest_excitatory_poisson_time_ = tLast;				
+			latest_excitatory_poisson_time_ = tLast;
 		} else {
 			latest_inhibitory_poisson_time_ = tLast;
 		}
 	}
-	sort(synaptic_driven_.begin(), synaptic_driven_.end(), compPoisson);		
+	sort(synaptic_driven_.begin(), synaptic_driven_.end(), compPoisson);
 }
 
 void Neuron::InputExternalPoisson(bool function, double tmax, vector<double>& x) {
@@ -113,7 +113,7 @@ void Neuron::UpdateInhibitoryConductance(bool mode, bool function, double t, dou
 			inhibitory_conductance_1_ = inhibitory_conductance_1_;
 			inhibitory_conductance_2_ = inhibitory_conductance_1_ * exp(-dt / tau_i_ / 2);
 			inhibitory_conductance_3_ = inhibitory_conductance_1_ * exp(-dt / tau_i_);
-		}		
+		}
 	}
 }
 
@@ -186,7 +186,7 @@ void Neuron::CheckFire(double voltage, double t, double dt) {
 }
 
 double Neuron::TempCheckFire(double voltage, double t, double dt) {
-	if (voltage < threshold_potential_) {  
+	if (voltage < threshold_potential_) {
 		membrane_potential_temp_ = voltage;
 		return -1;
 	} else {
@@ -221,18 +221,18 @@ double Neuron::OffRefractoryPeriod(double dt) {
 	p2 = 3 * pow(t_spike / dt, 2) - 2 * pow(t_spike / dt, 3);
 	p3 = t_spike - 2 * pow(t_spike, 2) / dt + pow(t_spike, 3) / pow(dt, 2);
 	p4 = -pow(t_spike, 2) / dt + pow(t_spike, 3) / pow(dt, 2);
-	numerator = resting_potential_ - p3*beta1 - p4*beta3 - (p2 - p4*alpha3)*dt / 6 * (beta1 + 4 * beta2 + beta3 
-		- (alpha2*beta1 + alpha2*beta2 + alpha3*beta2)*dt + (pow(alpha2, 2)*beta1 / 2 + alpha2*alpha3*beta2 / 2)*pow(dt, 2) 
+	numerator = resting_potential_ - p3*beta1 - p4*beta3 - (p2 - p4*alpha3)*dt / 6 * (beta1 + 4 * beta2 + beta3
+		- (alpha2*beta1 + alpha2*beta2 + alpha3*beta2)*dt + (pow(alpha2, 2)*beta1 / 2 + alpha2*alpha3*beta2 / 2)*pow(dt, 2)
 		- pow(alpha2, 2)*alpha3*beta1*pow(dt, 3) / 4);
-	denominator = (p1 + p2 - p3*alpha1 - p4*alpha3) + (p2 - p4*alpha3)*dt / 6 * (-(alpha1 + 4 * alpha2 + alpha3) 
-		+ (alpha1*alpha2 + pow(alpha2, 2) + alpha2*alpha3)*dt- (alpha1*pow(alpha2, 2) / 2 + pow(alpha2, 2)*alpha3 / 2)*pow(dt, 2) 
+	denominator = (p1 + p2 - p3*alpha1 - p4*alpha3) + (p2 - p4*alpha3)*dt / 6 * (-(alpha1 + 4 * alpha2 + alpha3)
+		+ (alpha1*alpha2 + pow(alpha2, 2) + alpha2*alpha3)*dt- (alpha1*pow(alpha2, 2) / 2 + pow(alpha2, 2)*alpha3 / 2)*pow(dt, 2)
 		+ alpha1*pow(alpha2, 2)*alpha3 / 4 * pow(dt, 3));
 	membrane_potential_temp_ = numerator / denominator;
 	voltage = UpdatePotential(dt);
 	return voltage;
 }
 
-double Neuron::PrimelyUpdateState(bool is_fire, bool mode, bool function, double t, double dt, bool temp_switch) {	
+double Neuron::PrimelyUpdateState(bool is_fire, bool mode, bool function, double t, double dt, bool temp_switch) {
 	if (is_fire == false) {
 		UpdateExcitatoryConductance(mode, false, t, dt);
 		UpdateInhibitoryConductance(mode, true, t, dt);
@@ -260,13 +260,13 @@ double Neuron::PrimelyUpdateState(bool is_fire, bool mode, bool function, double
 		} else {
 			if (remaining_refractory_period_temp_ < dt) {
 				voltage = OffRefractoryPeriod(dt);
-				spike_value = TempCheckFire(voltage, t + remaining_refractory_period_temp_, dt - remaining_refractory_period_temp_); 
+				spike_value = TempCheckFire(voltage, t + remaining_refractory_period_temp_, dt - remaining_refractory_period_temp_);
 			}
 			remaining_refractory_period_temp_ -= dt;
 		}
 	}
 	excitatory_conductance_1_ = excitatory_conductance_3_;
-	inhibitory_conductance_1_ = inhibitory_conductance_3_;	
+	inhibitory_conductance_1_ = inhibitory_conductance_3_;
 	return spike_value;
 }
 
@@ -279,7 +279,7 @@ void Neuron::UpdateConductanceOfFiredNeuron(bool is_fire, bool mode, bool functi
 		UpdateInhibitoryConductance(mode, function, t, dt);
 	}
 	excitatory_conductance_1_ = excitatory_conductance_3_;
-	inhibitory_conductance_1_ = inhibitory_conductance_3_;	
+	inhibitory_conductance_1_ = inhibitory_conductance_3_;
 }
 
 void Neuron::SetDrivingType(bool x) {
@@ -300,7 +300,7 @@ void Neuron::LoadNeuronalState(NeuronalState & data) {
 	membrane_potential_ = data.membrane_potential_;
 	excitatory_conductance_ = data.ge;
 	inhibitory_conductance_ = data.gi;
-	remaining_refractory_period_ = data.remaining_refractory_time;	
+	remaining_refractory_period_ = data.remaining_refractory_time;
 }
 
 void Neuron::Reset() {
@@ -407,7 +407,7 @@ double Neuron::UpdateNeuronalState(double t, double dt, vector<double> & inPE, v
 				}
 			}
 		}
-	}	
+	}
 	excitatory_conductance_ = excitatory_conductance_3_;
 	inhibitory_conductance_ = inhibitory_conductance_3_;
 	membrane_potential_ = membrane_potential_temp_;
@@ -466,7 +466,7 @@ double Neuron::TemporallyUpdateNeuronalState(double t, double dt, vector<double>
 				}
 			}
 		}
-	}	
+	}
 	return SET;
 }
 
@@ -499,7 +499,7 @@ void Neuron::Fire(double t, double dt) {
 				}
 			}
 		}
-	}	
+	}
 	spike_train_.push_back(t + dt);
 	excitatory_conductance_ = excitatory_conductance_3_;
 	inhibitory_conductance_ = inhibitory_conductance_3_;
@@ -535,6 +535,18 @@ void Neuron::SetFeedforwardConductance(bool function, double F) {
 
 double Neuron::OutTotalCurrent() {
 	return -Alpha(3)*membrane_potential_ + Beta(3);
+}
+
+double Neuron::OutLeakyCurrent() {
+	return -g_m_ * (membrane_potential_ - resting_potential_);
+}
+
+double Neuron::OutSynapticCurrent(bool type) {
+	if (type == true) {
+		return - excitatory_conductance_ * (membrane_potential_ - excitatory_reversal_potential_);
+	} else {
+		return - inhibitory_conductance_ * (membrane_potential_ - inhibitory_reversal_potential_);
+	}
 }
 
 double Neuron::GetConductance(bool x) {

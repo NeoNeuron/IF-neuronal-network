@@ -271,6 +271,12 @@ public:
 	// Total membrane current;
 	double OutTotalCurrent();
 
+	// Leaky current;
+	double OutLeakyCurrent();
+
+	// Excitatory or inhibitory membrane current;
+	double OutSynapticCurrent(bool type);
+
 	// True return excitatory conductance, false return inhibitory conductance;
 	double GetConductance(bool x);
 

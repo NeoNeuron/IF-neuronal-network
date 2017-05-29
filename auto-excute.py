@@ -4,7 +4,6 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import random
-from scipy.optimize	import curve_fit
 import pandas as pd
 import mylib
 
@@ -14,12 +13,12 @@ if compile_updated == False:
 	mylib.Compile()
 
 # Define loading directory and figure saving directory:
-loading_dir = "/media/kyle/Drive/ResearchData/May03/t5/"
-saving_dir = 'tdmi/figure-eps/May03/t5/'
+loading_dir = "/media/kyle/Drive/ResearchData/May23/t1/"
+saving_dir = 'tdmi/figure-eps/May23/t1i/'
 
 # setting preliminary parameters
 total_neuron_number = 100
-simulation_accomplish = False
+simulation_accomplish = True
 time_lb = 1000
 time_ub = 10000
 expected_occupancy = 50

@@ -110,6 +110,9 @@ public:
   //	Output the total membrane ionic current of each neuron:
   void OutCurrent(vector<double> & current);
 
+  //	Output the partial membrane ionic current of each neuron:
+  void OutPartialCurrent(bool type, vector<double> & current);
+
 	//	Save corrent neuronal States and connectivity matrix:
 	//	Define a 'neuronFile' type to store neuronal condition;
 	//	A ROW VECTOR:

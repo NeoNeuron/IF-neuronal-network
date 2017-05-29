@@ -20,7 +20,7 @@ def Compile():
 def load_raster(loading_dir, filename, index):
 	"""
 	convert raster data for certain neuron;
-	Return an 1d array of spiking time points
+	Return an 1 d array of spiking time points
 	"""
 	f = open(loading_dir + filename)
 	counter = 0

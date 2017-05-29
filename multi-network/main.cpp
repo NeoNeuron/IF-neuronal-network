@@ -101,6 +101,7 @@ int main(int argc, const char* argv[]) {
 	ofstream preV,  postV;
 	// ofstream preGE, preGI, postGE, postGI;
 	ofstream preI, postI;
+	ofstream preEI, preII, postEI, postII;
 	string preV_filename = dir + "preV.txt";
 	// string preGE_filename = dir + "preGE.txt";
 	// string preGI_filename = dir + "preGI.txt";
@@ -109,6 +110,10 @@ int main(int argc, const char* argv[]) {
 	// string postGI_filename = dir + "postGI.txt";
 	string preI_filename = dir + "preI.txt";
 	string postI_filename = dir + "postI.txt";
+	string preEI_filename = dir + "preEI.txt";
+	string preII_filename = dir + "preII.txt";
+	string postEI_filename = dir + "postEI.txt";
+	string postII_filename = dir + "postII.txt";
 	preV.open(preV_filename.c_str());
 	// preGE.open(preGE_filename.c_str());
 	// preGI.open(preGI_filename.c_str());
@@ -117,10 +122,14 @@ int main(int argc, const char* argv[]) {
 	// postGI.open(postGI_filename.c_str());
 	preI.open(preI_filename.c_str());
 	postI.open(postI_filename.c_str());
-
+	preEI.open(preEI_filename.c_str());
+	preII.open(preII_filename.c_str());
+	postEI.open(postEI_filename.c_str());
+	postII.open(postII_filename.c_str());
 	// vector<vector<double> > readme;
 	vector<double> potential;
 	vector<double> current;
+	vector<double> currentE, currentI;
 	char cr = (char)13;
 	double progress;
 	while (t < tmax) {
@@ -128,33 +137,50 @@ int main(int argc, const char* argv[]) {
 		t += dt;
 		potential.clear();
 		current.clear();
+		currentE.clear();
+		currentI.clear();
 		preNet.OutPotential(potential);
 		preNet.OutCurrent(current);
+		preNet.OutPartialCurrent(true, currentE);
+		preNet.OutPartialCurrent(false, currentI);
 		for (int i = 0; i < preNetNum; i++) {
 			preV << setprecision(15) << (double)potential[i] << '\t';
 			// preGE << setprecision(15) << (double)readme[i][1] << '\t';
 			// preGI << setprecision(15) << (double)readme[i][2] << '\t';
 			preI << setprecision(15) << (double)current[i] << '\t';
+			preEI << setprecision(15) << (double)currentE[i] << '\t';
+			preII << setprecision(15) << (double)currentI[i] << '\t';
 		}
 		preV << endl;
 		// preGE << endl;
 		// preGI << endl;
 		preI << endl;
+		preEI << endl;
+		preII << endl;
 
 		potential.clear();
 		current.clear();
+		currentE.clear();
+		currentI.clear();
 		postNet.OutPotential(potential);
 		postNet.OutCurrent(current);
+		postNet.OutPartialCurrent(true, currentE);
+		postNet.OutPartialCurrent(false, currentI);
 		for (int i = 0; i < postNetNum; i++) {
 			postV << setprecision(15) << (double)potential[i] << '\t';
 			// postGE << setprecision(15) << (double)readme[i][1] << '\t';
 			// postGI << setprecision(15) << (double)readme[i][2] << '\t';
 			postI << setprecision(15) << (double)current[i] << '\t';
+			postEI << setprecision(15) << (double)currentE[i] << '\t';
+			postII << setprecision(15) << (double)currentI[i] << '\t';
 		}
 		postV << endl;
 		// postGE << endl;
 		// postGI << endl;
 		postI << endl;
+		postEI << endl;
+		postII << endl;
+
 		progress = t * 100.0 / tmax;
 		cout << cr;
 		printf(">> Processing ... %6.2f", progress);
@@ -170,6 +196,8 @@ int main(int argc, const char* argv[]) {
 	// postGI.close();
 	preI.close();
 	postI.close();
+	postEI.close();
+	postII.close();
 
 	neuronFileName = dir + "preNeuron.txt";
 	conMatFileName = dir + "preMat.txt";
