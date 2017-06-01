@@ -373,11 +373,12 @@ double MI(vector<bool>& binary_spikes, vector<double>& LFP, int time_bin_number,
 	return mi;
 }
 
-double MI(vector<bool>& binary_spikes, vector<double>& LFP, int expected_occupancy) {
+double MI(vector<bool>& binary_spikes, vector<double>& LFP, int bin_number) {
 	// calculate the occupancy;
-	int bin_number = floor(sqrt(LFP.size() / expected_occupancy)); // bin_number: numberber of non-uniform bins;
+	// int bin_number = floor(sqrt(LFP.size() / expected_occupancy)); // bin_number: numberber of non-uniform bins;
 	int occupancy = LFP.size() / bin_number, residue = LFP.size() % bin_number; // residue: remaining number of data that not used.
 	int data_size = LFP.size() - residue;
+
 
 	// calculate histogram;
 	vector<double> edges;
@@ -549,9 +550,12 @@ void TDMI(vector<double>& spikes, vector<double>& LFP, double dt, double samplin
 }
 
 
-void TDMI(vector<double>& spikes, vector<double>& LFP, int expected_occupancy, double dt, double sampling_dt, int negative_time_delay, int positive_time_delay, vector<double>& tdmi, bool random_switch) {
+void TDMI(vector<double>& spikes, vector<double>& LFP, double dt, double sampling_dt, int negative_time_delay, int positive_time_delay, vector<double>& tdmi, bool random_switch) {
 	int dn = dt / sampling_dt; // number of LFP data points within single time step;
 	int time_bin_number = floor(LFP.size() / dn); // number of reduced LFP data point;
+
+	int bin_number = floor(spikes.size() / 5); // expected_occupancy = 5;
+	// int bin_number = floor(time_bin_number / expected_occupancy / 2);
 
 	// rearrange LFP data;
 	vector<double> mean_LFP(time_bin_number, 0);
@@ -576,7 +580,7 @@ void TDMI(vector<double>& spikes, vector<double>& LFP, int expected_occupancy, d
 	double progress;
 	char cr = (char)13;
 	// No shift;
-	tdmi[negative_time_delay] = MI(binary_spikes, mean_LFP, expected_occupancy);
+	tdmi[negative_time_delay] = MI(binary_spikes, mean_LFP, bin_number);
 	progress_counter ++;
 	progress = progress_counter*100.0/repeat_number;
 	cout << cr << ">> Processing ... ";
@@ -590,7 +594,7 @@ void TDMI(vector<double>& spikes, vector<double>& LFP, int expected_occupancy, d
 	for (int i = 0; i < negative_time_delay; i++) {
 		spikes_copy.erase(spikes_copy.begin());
 		LFP_copy.erase(LFP_copy.end() - 1);
-		tdmi[negative_time_delay - i - 1] = MI(spikes_copy, LFP_copy, expected_occupancy);
+		tdmi[negative_time_delay - i - 1] = MI(spikes_copy, LFP_copy, bin_number);
 		progress_counter ++;
 		progress = progress_counter*100.0/repeat_number;
 		cout << cr << ">> Processing ... ";
@@ -604,7 +608,7 @@ void TDMI(vector<double>& spikes, vector<double>& LFP, int expected_occupancy, d
 	for (int i = 0; i < positive_time_delay; i++) {
 		spikes_copy.erase(spikes_copy.end() - 1);
 		LFP_copy.erase(LFP_copy.begin());
-		tdmi[negative_time_delay + i + 1] = MI(spikes_copy, LFP_copy, expected_occupancy);
+		tdmi[negative_time_delay + i + 1] = MI(spikes_copy, LFP_copy, bin_number);
 		progress_counter ++;
 		progress = progress_counter*100.0/repeat_number;
 		cout << cr << ">> Processing ... ";

@@ -64,7 +64,7 @@ void ConvertSpikeToBinary(vector<double> & spikes, vector<bool> & binary_spikes,
 // 	Convert binary sequence to ints;
 // 	VECTOR<BOOL> binary_spikes: original binary spikes;
 //	VECTOR<INT> int_spikes: int representation of spike's data;
-//	INT bin_size: number of bool value contained in single int; 
+//	INT bin_size: number of bool value contained in single int;
 void ConvertBinaryToInt(vector<bool> & binary_spikes, vector<int> & int_spikes, int bin_size);
 
 // 	Histogram of discrete bools;
@@ -121,21 +121,21 @@ double MI(vector<bool> &binary_spikes, vector<double> &LFP, int time_bin_number,
 //	VECTOR<DOUBLE> LFP: local field potential;
 //	INT expected_occupancy: expected occupancy;
 //	Return: valude of Mutual information;
-double MI(vector<bool> &binary_spikes, vector<double> &LFP, int expected_occupancy);
+double MI(vector<bool> &binary_spikes, vector<double> &LFP, int bin_number);
 
 // Time-delayed mutual information between two spike trains;
 void TDMI(vector<double>& x, vector<double>& y, double dt, double tmax, int bin_size, int negative_time_delay, int positive_time_delay, vector<double> & tdmi);
 
 // Delayed mutual information of two double vector, by applying histogram scheme with equal bin size;
-void TDMI(vector<double>& x, vector<double>& y, double x_bin_size, double y_bin_size, int negative_time_delay, int positive_time_delay, vector<double> & tdmi); 
+void TDMI(vector<double>& x, vector<double>& y, double x_bin_size, double y_bin_size, int negative_time_delay, int positive_time_delay, vector<double> & tdmi);
 
 // Delayed mutual information of two double vector;
-void TDMI(vector<double>& x, vector<double>& y, int expected_occupancy, int negative_time_delay, int positive_time_delay, vector<double> & tdmi); 
+void TDMI(vector<double>& x, vector<double>& y, int expected_occupancy, int negative_time_delay, int positive_time_delay, vector<double> & tdmi);
 
 // Delayed mutual information of spiking train and LFP;
 void TDMI(vector<double>& spikes, vector<double>& LFP, double dt, double sampling_dt, double bin_width, int negative_time_delay, int positive_time_delay, vector<double> & tdmi);
 
 // Delayed mutual information of spiking train and LFP;
-void TDMI(vector<double>& spikes, vector<double>& LFP, int expected_occupancy, double dt, double sampling_dt, int negative_time_delay, int positive_time_delay, vector<double> & tdmi, bool random_switch); 
+void TDMI(vector<double>& spikes, vector<double>& LFP, double dt, double sampling_dt, int negative_time_delay, int positive_time_delay, vector<double> & tdmi, bool random_switch);
 
 #endif // _DATA_ANALYSIS_MI_H_

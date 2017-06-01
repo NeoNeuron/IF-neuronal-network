@@ -2,7 +2,7 @@
 //	Copyright: Kyle Chen
 //	Author: Kyle Chen
 //	Date: 2017-03-13 15:07:34
-//	Description: test file for lfp.h and lfp.cpp
+//	Description: main file for lfp.h and lfp.cpp
 //***************
 #include "lfp.h"
 #include <iostream>
