@@ -30,6 +30,14 @@ double PoissonGenerator(double rate, double t_last);
 //	Return: none;
 void FindEdges(vector<double>& data, vector<double>& edges, int occupancy, int residue);
 
+// Find maximum value in data;
+// Return max;
+double Max(vector<double>& data);
+
+// Find minimum value in data;
+// Return min;
+double Min(vector<double>& data);
+
 //	Find Max and Min;
 //	VECTOR<DOUBLE> data: original data;
 //	DOUBLE* max_and_min: number set of maximun and minimum. max_and_min[0] = maximum; max_and_min[1] = minimum;
@@ -103,9 +111,8 @@ double MI(vector<double>& x, vector<double>& y, double* x_max_and_min, double* y
 
 // 	Mutual information of two double sequences;
 //	VECTOR<DOUBLE> x, y: two original double sequences;
-//	DOUBLE expected_occupancy;
 //	Return: value of mutual information;
-double MI(vector<double>& x, vector<double>& y, double expected_occupancy);
+double MI(vector<double>& x, vector<double>& y);
 
 //	Mutual information between binary spike train and local field potential; the scheme of histogram is those with equally sized bins;
 //	VECTOR<BOOL> binary_spikes: spike train with binary format;
@@ -119,7 +126,7 @@ double MI(vector<bool> &binary_spikes, vector<double> &LFP, int time_bin_number,
 // 	Mutual information between binary spiking train and LFP; [Based on histogram scheme which has identical occupancy for each bin;
 //	VECTOR<BOOL> binary_spikes: original spike train with binary version;
 //	VECTOR<DOUBLE> LFP: local field potential;
-//	INT expected_occupancy: expected occupancy;
+//	INT bin_number: number of bins of historgram of LFP;
 //	Return: valude of Mutual information;
 double MI(vector<bool> &binary_spikes, vector<double> &LFP, int bin_number);
 
@@ -127,10 +134,10 @@ double MI(vector<bool> &binary_spikes, vector<double> &LFP, int bin_number);
 void TDMI(vector<double>& x, vector<double>& y, double dt, double tmax, int bin_size, int negative_time_delay, int positive_time_delay, vector<double> & tdmi);
 
 // Delayed mutual information of two double vector, by applying histogram scheme with equal bin size;
-void TDMI(vector<double>& x, vector<double>& y, double x_bin_size, double y_bin_size, int negative_time_delay, int positive_time_delay, vector<double> & tdmi);
+void TDMI_uniform(vector<double>& x, vector<double>& y, int negative_time_delay, int positive_time_delay, vector<double> & tdmi);
 
-// Delayed mutual information of two double vector;
-void TDMI(vector<double>& x, vector<double>& y, int expected_occupancy, int negative_time_delay, int positive_time_delay, vector<double> & tdmi);
+// Delayed mutual information of two double vector, wiht adaptive partition;
+void TDMI_adaptive(vector<double>& x, vector<double>& y, int negative_time_delay, int positive_time_delay, vector<double> & tdmi);
 
 // Delayed mutual information of spiking train and LFP;
 void TDMI(vector<double>& spikes, vector<double>& LFP, double dt, double sampling_dt, double bin_width, int negative_time_delay, int positive_time_delay, vector<double> & tdmi);

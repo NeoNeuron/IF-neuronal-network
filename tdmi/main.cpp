@@ -1,7 +1,7 @@
 //***************
 //	Copyright: Kyle Chen
 //	Author: Kyle Chen
-//	Date: 2017-03-13 15:06:40
+//	Date: 2017-06-03
 //	Description: Mutual information analysis program; version 1.0
 //***************
 #include "mi.h"
@@ -15,12 +15,11 @@
 using namespace std;
 //	Function of calculating time-delayed mutual information with point;
 //	arguments:
-//	argv[1] = expected occupancy for histogram;
-//	argv[2] = timing step for TDMI;
-//	argv[3] = lower bond of time-delay range;
-//	argv[4] = upper bond of time-delay range;
+//	argv[1] = timing step for TDMI;
+//	argv[2] = lower bond of time-delay range;
+//	argv[3] = upper bond of time-delay range;
 int main(int argc, const char* argv[]) {
-	if (argc != 5) {
+	if (argc != 4) {
 		throw runtime_error("wrong number of args");
 	}
 	clock_t start, finish;
@@ -38,12 +37,10 @@ int main(int argc, const char* argv[]) {
 	filename = file_dir + "lfp.txt";
 	ReadData(filename, lfp);
 	// Preparing input args;
-	int expected_occupancy = atoi(argv[1]);
-	double dt = atof(argv[2]);
-	int negative_time_delay = atoi(argv[3]);
-	int positive_time_delay = atoi(argv[4]);
+	double dt = atof(argv[1]);
+	int negative_time_delay = atoi(argv[2]);
+	int positive_time_delay = atoi(argv[3]);
 
-	printf(">> expected occupancy = %d\n", expected_occupancy);
 	printf(">> dt = %f ms\n", dt);
 	printf(">> maximum negative time delay = %d\n", negative_time_delay);
 	printf(">> maximum positive time delay = %d\n", positive_time_delay);
@@ -52,10 +49,10 @@ int main(int argc, const char* argv[]) {
 	double sampling_dt = 0.03125;
 	cout << ">> Calculating ordered TDMI ... " << endl;
 	vector<double> tdmi_ordered;
-	TDMI(raster, lfp, expected_occupancy, dt, sampling_dt, negative_time_delay, positive_time_delay, tdmi_ordered, false);
+	TDMI(raster, lfp, dt, sampling_dt, negative_time_delay, positive_time_delay, tdmi_ordered, false);
 	cout << ">> Calculating swapped TDMI ... " << endl;
 	vector<double> tdmi_random;
-	TDMI(raster, lfp, expected_occupancy, dt, sampling_dt, negative_time_delay, positive_time_delay, tdmi_random, true);
+	TDMI(raster, lfp, dt, sampling_dt, negative_time_delay, positive_time_delay, tdmi_random, true);
 
 	//	Output data:
 	ofstream data_out;

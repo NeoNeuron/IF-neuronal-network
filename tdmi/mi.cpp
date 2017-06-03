@@ -49,6 +49,18 @@ void FindEdges(vector<double>& data, vector<double>& edges, int occupancy, int r
 	data_copy.clear();
 }
 
+double Max(vector<double>& data) {
+	vector<double>::iterator it;
+	it = max_element(data.begin(), data.end());
+	return *it;
+}
+
+double Min(vector<double>& data) {
+	vector<double>::iterator it;
+	it = min_element(data.begin(), data.end());
+	return *it;
+}
+
 void FindMaxMin(vector<double>& data, double *max_and_min, double bin_width) {
 	double min, max;
 	for (vector<double>::iterator it = data.begin(); it != data.end(); it++) {
@@ -188,11 +200,12 @@ void DoubleHistogram(vector<double> & data, vector<double> & histogram, double m
 	int IND;
 	for (vector<double>::iterator it = data.begin(); it != data.end(); it++) {
 		IND = floor((*it - min) / bin_width);
+		if (IND == number) IND --;
 		count[IND] ++;
 	}
-	histogram.clear();
+	histogram.resize(number);
 	for (int i = 0; i < number; i++) {
-		histogram.push_back(count[i] * 1.0 / data.size());
+		histogram[i] = count[i] * 1.0 / data.size();
 	}
 }
 
@@ -257,6 +270,8 @@ double MI(vector<double>& x, vector<double>& y, double* x_max_and_min, double* y
 		for (int i = 0; i < time_bin_number; i++) {
 			indx = floor((x[i] - x_max_and_min[1]) / x_bin_size);
 			indy = floor((y[i] - y_max_and_min[1]) / y_bin_size);
+			if (indx == Px.size()) indx --;
+			if (indy == Py.size()) indy --;
 			count_xy[indx][indy]++;
 		}
 
@@ -280,13 +295,13 @@ double MI(vector<double>& x, vector<double>& y, double* x_max_and_min, double* y
 	}
 }
 
-double MI(vector<double>& x, vector<double>& y, double expected_occupancy) {
+double MI(vector<double>& x, vector<double>& y) {
 	//	Compare the length of x & y;
 	int length;
 	if (x.size() > y.size()) length = y.size();
 	else length = x.size();
 	// Calculate actual occupancy;
-	int bin_number = floor(sqrt(length / expected_occupancy)); // bin_number: numberber of non-uniform bins;
+	int bin_number = floor(sqrt(length / 5)); // bin_number: numberber of non-uniform bins;
 	int occupancy = floor(length / bin_number);
 	int x_residue = x.size() - bin_number*occupancy; // residue: remaining number of data that not used.
 	int y_residue = y.size() - bin_number*occupancy;
@@ -450,14 +465,19 @@ void TDMI(vector<double>& x, vector<double>& y, double dt, double tmax, int bin_
 	}
 }
 
-void TDMI(vector<double>& x, vector<double>& y, double x_bin_size, double y_bin_size, int negative_time_delay, int positive_time_delay, vector<double> & tdmi) {
+void TDMI_uniform(vector<double>& x, vector<double>& y, int negative_time_delay, int positive_time_delay, vector<double> & tdmi) {
 	int repeat_number = positive_time_delay + negative_time_delay + 1;
 	tdmi.resize(repeat_number, 0);
 	// Measure the boundaries;
-
+	int length = x.size();
+	int numofpart = floor(sqrt(length));
 	double x_max_and_min[2], y_max_and_min[2];
-	FindMaxMin(x, x_max_and_min, x_bin_size);
-	FindMaxMin(y, y_max_and_min, y_bin_size);
+	x_max_and_min[0] = Max(x);
+	x_max_and_min[1] = Min(x);
+	y_max_and_min[0] = Max(y);
+	y_max_and_min[1] = Min(y);
+	double x_bin_size = (x_max_and_min[0] - x_max_and_min[1]) / numofpart;
+	double y_bin_size = (y_max_and_min[0] - y_max_and_min[1]) / numofpart;
 
 	// No shift;
 	tdmi[negative_time_delay] = MI(x, y, x_max_and_min, y_max_and_min, x_bin_size, y_bin_size);
@@ -480,19 +500,19 @@ void TDMI(vector<double>& x, vector<double>& y, double x_bin_size, double y_bin_
 	}
 }
 
-void TDMI(vector<double>& x, vector<double>& y, int expected_occupancy, int negative_time_delay, int positive_time_delay, vector<double> & tdmi) {
+void TDMI_adaptive(vector<double>& x, vector<double>& y, int negative_time_delay, int positive_time_delay, vector<double> & tdmi) {
 	int repeat_number = positive_time_delay + negative_time_delay + 1;
 	tdmi.resize(repeat_number, 0);
 
 	// No shift;
-	tdmi[negative_time_delay] = MI(x, y, expected_occupancy);
+	tdmi[negative_time_delay] = MI(x, y);
 
 	// Negative shift;
 	vector<double> x_copy = x, y_copy = y;
 	for (int i = 0; i < negative_time_delay; i++) {
 		x_copy.erase(x_copy.begin(), x_copy.begin() + 1);
 		y_copy.erase(y_copy.end() - 1, y_copy.end());
-		tdmi[negative_time_delay - i - 1] = MI(x_copy, y_copy, expected_occupancy);
+		tdmi[negative_time_delay - i - 1] = MI(x_copy, y_copy);
 	}
 
 	// Positive shift;
@@ -501,7 +521,7 @@ void TDMI(vector<double>& x, vector<double>& y, int expected_occupancy, int nega
 	for (int i = 0; i < positive_time_delay; i++) {
 		x_copy.erase(x_copy.end() - 1, x_copy.end());
 		y_copy.erase(y_copy.begin(), y_copy.begin() + 1);
-		tdmi[negative_time_delay + i + 1] = MI(x_copy, y_copy, expected_occupancy);
+		tdmi[negative_time_delay + i + 1] = MI(x_copy, y_copy);
 	}
 }
 

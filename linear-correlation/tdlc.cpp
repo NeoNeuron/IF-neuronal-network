@@ -77,7 +77,7 @@ void TDLC(vector<int>& raster, vector<double>& lfp, int negative_time_delay, int
   for (int i = 0; i < negative_time_delay; i++) {
     raster_copy.erase(raster_copy.begin());
     lfp_copy.erase(lfp_copy.end() - 1);
-    tdlc[i] = LC(raster_copy, lfp_copy);
+    tdlc[negative_time_delay - i - 1] = LC(raster_copy, lfp_copy);
   }
   tdlc[negative_time_delay] = LC(raster, lfp);
   raster_copy = raster;
@@ -96,7 +96,7 @@ void TDLC(vector<double>& first, vector<double>& second, int negative_time_delay
   for (int i = 0; i < negative_time_delay; i++) {
     first_copy.erase(first_copy.begin());
     second_copy.erase(second_copy.end() - 1);
-    tdlc[i] = LC(first_copy, second_copy);
+    tdlc[negative_time_delay - i - 1] = LC(first_copy, second_copy);
   }
   tdlc[negative_time_delay] = LC(first, second);
   first_copy = first;
