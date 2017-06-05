@@ -13,15 +13,14 @@ if compile_updated == False:
 	mylib.Compile()
 
 # Define loading directory and figure saving directory:
-loading_dir = "/media/kyle/Drive/ResearchData/May23/t1/"
-saving_dir = 'tdmi/figure-eps/May23/t1i/'
+loading_dir = "/media/kyle/Drive/ResearchData/Apr22/t7/"
+saving_dir = './results/Apr22/t7/'
 
 # setting preliminary parameters
 total_neuron_number = 100
 simulation_accomplish = True
 time_lb = 1000
 time_ub = 10000
-expected_occupancy = 50
 negative_time_delay = 60
 positive_time_delay = 100
 
@@ -76,10 +75,10 @@ for i in range(total_neuron_number):
 	# for num in num_list:
 	subprocess.call(["./lfp/calculate-lfp.out", loading_dir, str(int(ind)), list_str, str(time_lb), str(time_ub), str(total_neuron_number)])
 	for dt in timing_step_list:
-		subprocess.call(['./tdmi/calculate-tdmi.out', str(expected_occupancy), str(dt), str(negative_time_delay), str(positive_time_delay)])
-		# # create a saving filename
-		saving_filename = 'tdmi-' + str(int(ind)) + '-' + str(order) + '-' + str(time_lb) + '-' + str(time_ub) + '-' + str(expected_occupancy) + '-' + str(dt).replace('.', '') + '-' + str(negative_time_delay) + '-' + str(positive_time_delay)
-		# saving_filename = 'tdmi-20-' + str(num)
+		subprocess.call(['./tdmi/calculate-tdmi.out', str(dt), str(negative_time_delay), str(positive_time_delay)])
+		# create a saving filename
+		saving_filename = 'tdmi-' + str(int(ind)) + '-' + str(order) + '-' + str(time_lb) + '-' + str(time_ub) + '-' + str(dt).replace('.', '') + '-' + str(negative_time_delay) + '-' + str(positive_time_delay)
+
 		# create figure_text
 		figure_text = mylib.CreateText(loading_dir = loading_dir, neuron_index = int(ind), connecting_list = ll)
 
@@ -99,4 +98,4 @@ for i in range(total_neuron_number):
 		print '=================================================='
 
 # print data_2d
-data_out.to_csv(saving_dir + "pre-net-data.csv", float_format = '%.4f', index  = False, columns = ['index','type', 'mean firing rate', 'number of connection', 'number of excitatory connection', 'number of inhibitory connection', 'signal noise ratio', 'peak time', 'time constant'])
+data_out.to_csv(saving_dir + "pre-net-data"+str(order)+".csv", float_format = '%.4f', index  = False, columns = ['index','type', 'mean firing rate', 'number of connection', 'number of excitatory connection', 'number of inhibitory connection', 'signal noise ratio', 'peak time', 'time constant'])

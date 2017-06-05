@@ -1,6 +1,6 @@
 import numpy as np
-import pandas as pd 
-import matplotlib.pyplot as plt 
+import pandas as pd
+import matplotlib.pyplot as plt
 import os
 import subprocess
 import mylib
@@ -33,7 +33,7 @@ num = 0
 dt = 0.25
 # preparing storage for data;
 data_dic = {'index':np.zeros(num_in_pool),'type':np.zeros(num_in_pool), 'mean firing rate':np.zeros(num_in_pool), 'signal noise ratio':np.zeros(num_in_pool), 'peak time':np.zeros(num_in_pool), 'time constant':np.zeros(num_in_pool)}
-data_out = pd.DataFrame(data_dic) 	
+data_out = pd.DataFrame(data_dic)
 
 for i in range(num_in_pool):
 	data_out.ix[i]['index'] = int(connecting_pool[i])

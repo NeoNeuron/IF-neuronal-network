@@ -241,8 +241,8 @@ def PlotTdmi(time_series, signal_order, signal_rand, saving_dir, saving_filename
 	# setting labels and title
 	plt.xlabel("Time-delay(ms)")
 	plt.ylabel("Mutual Information(bits)")
-	title = MakeTitle(saving_filename = saving_filename)
-	#title = saving_filename
+	# title = MakeTitle(saving_filename = saving_filename)
+	title = saving_filename
 	plt.title(title)
 	plt.legend()
 	plt.grid(True)

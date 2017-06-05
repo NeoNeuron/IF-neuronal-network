@@ -7,8 +7,6 @@
 #include"../../tdmi/mi.h"
 using namespace std;
 
-const double PI = 3.1415926;
-
 int main(int argc, const char* argv[]) {
   if (argc != 2) throw runtime_error("wrong number of args");
 	int length = atoi(argv[1]);

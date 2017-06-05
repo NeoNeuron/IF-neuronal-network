@@ -1,6 +1,6 @@
 import numpy as np
-import pandas as pd 
-import matplotlib.pyplot as plt 
+import pandas as pd
+import matplotlib.pyplot as plt
 import os
 import subprocess
 import sys
@@ -10,7 +10,7 @@ import itertools
 NN = 10
 target_index = 91
 loading_dir = '/media/kyle/Drive/ResearchData/Apr22/t6/'
-for i in range(NN):	
+for i in range(NN):
 	num_in_lfp = i + 1
 	# all neurons in the pool
 	conMat = mylib.load_matrix(loading_dir = loading_dir, filename = 'conMat.txt')
@@ -41,7 +41,7 @@ for i in range(NN):
 	dt = 0.25
 	# preparing storage for data;
 	data_dic = {'connecting portion':[], 'mean firing rate':[], 'signal noise ratio':[], 'peak time':[], 'time constant':[]}
-	data_out = pd.DataFrame(data_dic) 	
+	data_out = pd.DataFrame(data_dic)
 
 	for i in range(num_of_trials):
 		print i
