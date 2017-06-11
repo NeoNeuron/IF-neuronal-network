@@ -42,11 +42,50 @@ void FindEdges(vector<double>& data, vector<double>& edges, int occupancy, int r
 	data_copy.erase(data_copy.end() - residue, data_copy.end());
 	sort(data_copy.begin(), data_copy.end(), comp);
 	int N = floor(data_copy.size() / occupancy);
-	edges.clear();
+	edges.resize(N);
 	for (int i = 0; i < N; i++) {
-		edges.push_back(data_copy[i*occupancy]);
+		edges[i] = data_copy[i*occupancy];
 	}
 	data_copy.clear();
+}
+
+void JointPDF(vector<double>& x, vector<double>& y, vector<double>& x_edges, vector<double>& y_edges, vector<vector<double> >& jointpdf) {
+	int num_pairs = x.size();
+	int x_bin_number = x_edges.size();
+	int y_bin_number = y_edges.size();
+	vector<double> add(y_bin_number, 0);
+	jointpdf.resize(x_bin_number, add);
+	int indx, indy;
+	for (int i = 0; i < num_pairs; i++) {
+		indx = floor(x_bin_number / 2);
+		if (x[i] < x_edges[indx]) {
+			for (int j = indx - 1; j > -1; j--) {
+				if (x[i] >= x_edges[j]) {indx = j; break;}
+			}
+		} else {
+			for (int j = indx + 1; j < x_bin_number; j++) {
+				if (x[i] < x_edges[j]) {indx = j - 1; break;}
+			}
+			if (indx == floor(x_bin_number / 2)) indx = x_bin_number - 1;
+		}
+		indy = floor(y_bin_number / 2);
+		if (y[i] < y_edges[indy]) {
+			for (int j = indy - 1; j > -1; j--) {
+				if (y[i] >= y_edges[j]) {indy = j; break;}
+			}
+		} else {
+			for (int j = indy + 1; j < y_bin_number; j++) {
+				if (y[i] < y_edges[j]) {indy = j - 1; break;}
+			}
+			if (indy == floor(y_bin_number / 2)) indy = y_bin_number - 1;
+		}
+		jointpdf[indx][indy] ++;
+	}
+	for (vector<vector<double> >::iterator it = jointpdf.begin(); it != jointpdf.end(); it++) {
+		for (vector<double>::iterator itt = it->begin(); itt != it->end(); itt++) {
+			*itt /= num_pairs;
+		}
+	}
 }
 
 double Max(vector<double>& data) {
@@ -313,29 +352,15 @@ double MI(vector<double>& x, vector<double>& y) {
 	FindEdges(y, y_edges, occupancy, y_residue);
 
 	// 	Calculate conditional probability;
-	vector<int> add(bin_number, 0);
-	vector<vector<int> > count_xy(bin_number, add);
-	int indx, indy;
-	for (int i = 0; i < data_size; i++) {
-		indx = -1, indy = -1;
-		for (int j = 0; j < bin_number; j++) {
-			if (x[i] < x_edges[j]) {indx = j - 1; break;}
-			if (indx == -1) indx = bin_number - 1;
-		}
-		for (int j = 0; j < bin_number; j++) {
-			if (y[i] < y_edges[j]) {indy = j - 1; break;}
-			if (indy == -1) indy = bin_number - 1;
-		}
-		count_xy[indx][indy]++;
-	}
+	vector<vector<double> > jointpdf;
+	JointPDF(x, y, x_edges, y_edges, jointpdf);
 
 	// Calculate mutual information;
-	double mi = 0, Pxy;
+	double mi = 0;
 	for (int i = 0; i < bin_number; i++) {
 		for (int j = 0; j < bin_number; j++) {
-			if (count_xy[i][j] != 0) {
-				Pxy = count_xy[i][j] * 1.0 / data_size;
-				mi += Pxy * log2(pow(bin_number, 2)*Pxy);
+			if (jointpdf[i][j] != 0) {
+				mi += jointpdf[i][j] * log2(pow(bin_number, 2)*jointpdf[i][j]);
 			}
 		}
 	}

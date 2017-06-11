@@ -23,7 +23,7 @@ int main(int argc, const char* argv[]) {
       X[i] = GaussKernel();
       Y[i] = GaussKernel();
     } else {
-      X[i] = -0.2 * Y[i - 1] + GaussKernel();
+      X[i] = -0.2 * X[i - 1] + GaussKernel();
       Y[i] = -0.2 * X[i - 1] + GaussKernel();
     }
     U[i] = pow(X[i], 3);

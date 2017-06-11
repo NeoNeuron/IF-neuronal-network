@@ -22,13 +22,21 @@ double GaussKernel();
 //	Return: time point for next Poisson events;
 double PoissonGenerator(double rate, double t_last);
 
-//	Find Edges: Find edges of bins of uniform histogram. In this histogram, each bin is equally occupied;
+//	Find Edges: Find edges of bins with adaptive partition, ie. each bin is equally occupied;
 //	VECTOR<DOUBLE> data: original data;
 //	VECTOR<DOUBLE> edges: edges of bins of histogram;
 //	INT occupancy: number of data points occupied in each bin;
 //	INT residue: number of data points at the end of the vector which is not considered into histogram;
 //	Return: none;
 void FindEdges(vector<double>& data, vector<double>& edges, int occupancy, int residue);
+
+//  Joint probability function with adaptive partition of x and y; Iteration starts from the middle of the sorted sequence;
+//  VECTOR<DOUBLE> x: variable x;
+//  VECTOR<DOUBLE> y: variable y;
+//  VECTOR<DOUBLE> x_edges: edges for adaptive partition of x;
+//  VECTOR<DOUBLE> y_edges: edges for adaptive partition of y;
+//  VECTOR<VECTOR<DOUBLE> jointpdf: joint probability distribution function of x and y;
+void JointPDF(vector<double>& x, vector<double>& y, vector<double>& x_edges, vector<double>& y_edges, vector<vector<double> >& jointpdf);
 
 // Find maximum value in data;
 // Return max;
@@ -56,10 +64,6 @@ void ReadData(string filename, vector<vector<int> > & data);
 //	Read 1D data from *.txt files; Data type: (double);
 //	Return: none;
 void ReadData(string filename, vector<double> & data);
-
-//	Read 1D data from the last line in *.txt files; Data type: (double);
-//	Return: none;
-void ReadNewData(string filename, vector<double> & data);
 
 //	Convert double spike train to binary sequence;
 //	VECTOR<DOUBLE> spikes: original spike train;
