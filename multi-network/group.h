@@ -100,18 +100,18 @@ public:
 
 	// OUTPUTS:
 
-	void OutPotential(vector<double> & potential);
+	//	Output potential to *.csv file;
+	void OutPotential(string path);
 
-  //	Read all Temporal Parameters:
-  //		Panel x[0]: Excitatory synaptic conductance;
-  //		Panel x[1]: Inhibitory synaptic conductance;
-  void OutConductance(vector<vector<double> > &x);
+  //	Output synaptic conductance to *.csv files:
+  //		BOOL function: function of synaptic conductance, true for excitation, false for inhibition;
+  void OutConductance(string path, bool function);
 
   //	Output the total membrane ionic current of each neuron:
-  void OutCurrent(vector<double> & current);
+  void OutCurrent(string path);
 
   //	Output the partial membrane ionic current of each neuron:
-  void OutPartialCurrent(bool type, vector<double> & current);
+  void OutPartialCurrent(string path, bool type);
 
 	//	Save corrent neuronal States and connectivity matrix:
 	//	Define a 'neuronFile' type to store neuronal condition;
@@ -124,25 +124,16 @@ public:
 	//		5: remaining refractory period;
 	void Save(string neuron_file, string connecting_matrix_file);
 
-	void OutSpikeTrains(vector<vector<double> > & data);
+	void OutSpikeTrains(string path);
 
   //  Output spikes before t, including their modes and functions;
-	void OutNewSpikes(double t, vector<vector<Spike> > &data);
+	void GetNewSpikes(double t, vector<vector<Spike> >& data);
 
-	void OutNeuronType(vector<bool> & x);
+	void GetNeuronType(vector<bool> & x);
 
 	int GetNeuronNumber();
 
 	void GetConductance(int i, bool function);
-
-	void GetMatrix(ofstream & matrix_file);
-
 };
-
-//	Read 2 dimensional information;
-	//	Read 2-D data from text files; data type can be int or double;
-	//	Return: none;
-void Read2DInfo(string filename, vector<vector<int> > & data);
-void Read2DInfo(string filename, vector<vector<double> > & data);
 
 #endif // _MULTI_NETWORK_SIMULATION_GROUP_H_

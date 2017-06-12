@@ -264,7 +264,7 @@ public:
 	void OutSpikeTrain(vector<double> & spikes);
 
   //  Output Spikes before t;
-	void OutNewSpikes(double t, vector<Spike> &x);
+	void GetNewSpikes(double t, vector<Spike> &x);
 
 	void SetFeedforwardConductance(bool function, double F);
 

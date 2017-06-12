@@ -5,6 +5,7 @@
 //	Description: Source code of connectivity_matrix.cpp;
 //***************
 #include "connectivity_matrix.h"
+#include "../io/io.h"
 
 void ConnectivityMatrix::Scan(int target_value, int row_index, vector<int> &output_indices) {
 	for (int s = 0; s < neuron_number_; s++) {
@@ -36,7 +37,7 @@ void ConnectivityMatrix::FindLeastPath() {
 						mediate_mode_matrix_[i][j] = k;
 					}
 				}
-			}			
+			}
 		}
 	}
 }
@@ -92,14 +93,14 @@ void ConnectivityMatrix::LoadMatrix(vector<vector<int> >& matrix) {
 	for (int i = 0; i < neuron_number_; i++) {
 		for (int j = 0; j < neuron_number_; j++) {
 			if (i == j) { continue; }
-			else {				
+			else {
 				matrix_[i][j] = matrix[i][j];
 				if (matrix_[i][j] == 1) {
 					path_matrix_[i][j] = 1;
 				} else {
 					path_matrix_[i][j] = 1000000;
-				}				
-			}			
+				}
+			}
 		}
 	}
 }
@@ -126,7 +127,7 @@ void ConnectivityMatrix::Rewire(double p, int seed, bool OutputOption) {
 				ind = rand() % empty_connection;
 				matrix_[i][zeros[ind]] = 1;
 				matrix_[i][ones[j]] = 0;
-				zeros.clear();				
+				zeros.clear();
 				count += 1;
 			}
 		}
@@ -136,14 +137,14 @@ void ConnectivityMatrix::Rewire(double p, int seed, bool OutputOption) {
 	if (OutputOption == true) {
 		FindLeastPath();
 		CalculateClusteringCoefficient();
-	}	
+	}
 }
 
 int ConnectivityMatrix::ReadMatrix(int i, int j) {
 	return matrix_[i][j];
 }
 
-double ConnectivityMatrix::OutputMeanPath() {
+double ConnectivityMatrix::GetMeanPath() {
 	double counter = 0;
 	for (int i = 0; i < neuron_number_; i++) {
 		for (int j = 0; j < neuron_number_; j++) {
@@ -153,7 +154,7 @@ double ConnectivityMatrix::OutputMeanPath() {
 	return counter / (neuron_number_*(neuron_number_ - 1));
 }
 
-double ConnectivityMatrix::OutputMeanClusteringCoefficient() {
+double ConnectivityMatrix::GetMeanClusteringCoefficient() {
 	double counter = 0;
 	for (int i = 0; i < neuron_number_; i++) {
 		counter += clustering_coefficient_[i];
@@ -161,11 +162,6 @@ double ConnectivityMatrix::OutputMeanClusteringCoefficient() {
 	return counter / neuron_number_;
 }
 
-void ConnectivityMatrix::OutputMatrix(ofstream & file) {
-	for (vector<vector<int> >::iterator it = matrix_.begin(); it != matrix_.end(); it++) {
-		for (vector<int>::iterator itt = it->begin(); itt != it->end(); itt++) {
-			file << *itt << '\t';
-		}
-		file << endl;
-	}
+void ConnectivityMatrix::OutMatrix(string path) {
+	Print2D(path, "trunc", matrix_);
 }

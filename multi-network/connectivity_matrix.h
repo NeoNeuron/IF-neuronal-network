@@ -2,16 +2,16 @@
 //	Copyright: Kyle Chen
 //	Author: Kyle Chen
 //	DATE: 2017-02-21 16:04:45
-//	Description: define class ConnectivityMatrix; Connectivity matrix is used 
+//	Description: define class ConnectivityMatrix; Connectivity matrix is used
 // 	to describe network structure of one dimensional network;
 //***************
-#ifndef _MULTI_NETWORK_SIMULATION_CONNECTIVITY_MATRIX_H_ 
-#define _MULTI_NETWORK_SIMULATION_CONNECTIVITY_MATRIX_H_ 
+#ifndef _MULTI_NETWORK_SIMULATION_CONNECTIVITY_MATRIX_H_
+#define _MULTI_NETWORK_SIMULATION_CONNECTIVITY_MATRIX_H_
 
 #include<iostream>
 #include<fstream>
 #include<cstdlib>
-#include<vector> 
+#include<vector>
 
 using namespace std;
 
@@ -38,13 +38,13 @@ private:
 public:
 	//	INPUTS:
 
-	// Set size of network: 
+	// Set size of network:
 	void SetNeuronNumber(int neuron_number);
 
 	//	Set connectivity density of network;
 	void SetConnectingDensity(int connecting_density);
 
-	//	Load onnectivity matrix from external matrix; 
+	//	Load onnectivity matrix from external matrix;
 	void LoadMatrix(vector<vector<int> > &matrix);
 
 	//	Rewire network according to certain probability;
@@ -54,13 +54,13 @@ public:
 	int ReadMatrix(int i, int j);
 
 	//	Output the average value of least path among all neuronal pairs;
-	double OutputMeanPath();
+	double GetMeanPath();
 
 	//	Output the average value of clustering coefficient among all neurons;
-	double OutputMeanClusteringCoefficient();
+	double GetMeanClusteringCoefficient();
 
 	//	Output matrix_ to external file.
-	void OutputMatrix(ofstream & file);
+	void OutMatrix(string path);
 };
 
-#endif // _MULTI_NETWORK_SIMULATION_CONNECTIVITY_MATRIX_H_ 
+#endif // _MULTI_NETWORK_SIMULATION_CONNECTIVITY_MATRIX_H_

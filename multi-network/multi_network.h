@@ -10,6 +10,7 @@
 #include "neuron.h"
 #include "connectivity_matrix.h"
 #include "group.h"
+#include "../io/io.h"
 #include <iostream>
 #include <vector>
 

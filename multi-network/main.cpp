@@ -51,13 +51,7 @@ int main(int argc, const char* argv[]) {
 	preNet.Rewire(pre_rewiring_probability, pre_rewiring_seed, true);
 	postNet.Rewire(post_rewiring_probability, post_rewiring_seed, true);
 	double maximum_time = atof(m_map_config["MaximumTime"].c_str());
-	string neuronFileName, conMatFileName;
-	//neuronFileName = dir + "preNeuron.txt";
-	//conMatFileName = dir + "preMat.txt";
-	//preNet.load(neuronFileName, conMatFileName);
-	//neuronFileName = dir + "postNeuron.txt";
-	//conMatFileName = dir + "postMat.txt";
-	//postNet.load(neuronFileName, conMatFileName);
+
 	preNet.InitializeNeuronalType(atof(m_map_config["PreNetTypeProbability"].c_str()), atoi(m_map_config["PreNetTypeSeed"].c_str()));
 	cout << "in pre-network." << endl;
 	postNet.InitializeNeuronalType(atof(m_map_config["PostNetTypeProbability"].c_str()), atoi(m_map_config["PostNetTypeSeed"].c_str()));
@@ -78,108 +72,72 @@ int main(int argc, const char* argv[]) {
 	vector<vector<bool> > conMat(preNetNum);
 	double conP = atof(m_map_config["ConnectingProbability"].c_str());
 	srand(atoi(m_map_config["ConnectingSeed"].c_str()));
-	ofstream conMatFile;
-	string conMatFilename = dir + "conMat.txt";
-	conMatFile.open(conMatFilename.c_str());
 	for (int i = 0; i < preNetNum; i++) {
 		conMat[i].resize(postNetNum);
 		for (int j = 0; j < postNetNum; j++) {
-			if (rand() / (RAND_MAX*1.0) < conP) {
-				conMat[i][j] = true;
-				conMatFile << true << "\t";
-			} else {
-				conMat[i][j] = false;
-				conMatFile << false << "\t";
-			}
+			if (rand() / (RAND_MAX*1.0) < conP) conMat[i][j] = true;
+			else conMat[i][j] = false;
 		}
-		conMatFile << endl;
 	}
-	conMatFile.close();
+	string conMat_path = dir + "conMat.txt";
+	Print2D(conMat_path, "trunc", conMat);
 
 	// SETUP DYNAMICS:
 	double t = 0, dt = atof(m_map_config["TimingStep"].c_str()), tmax = maximum_time;
-	ofstream preV,  postV;
-	// ofstream preGE, preGI, postGE, postGI;
-	ofstream preI, postI;
-	ofstream preEI, preII, postEI, postII;
-	string preV_filename = dir + "preV.txt";
-	// string preGE_filename = dir + "preGE.txt";
-	// string preGI_filename = dir + "preGI.txt";
-	string postV_filename = dir + "postV.txt";
-	// string postGE_filename = dir + "postGE.txt";
-	// string postGI_filename = dir + "postGI.txt";
-	string preI_filename = dir + "preI.txt";
-	string postI_filename = dir + "postI.txt";
-	string preEI_filename = dir + "preEI.txt";
-	string preII_filename = dir + "preII.txt";
-	string postEI_filename = dir + "postEI.txt";
-	string postII_filename = dir + "postII.txt";
-	preV.open(preV_filename.c_str());
-	// preGE.open(preGE_filename.c_str());
-	// preGI.open(preGI_filename.c_str());
-	postV.open(postV_filename.c_str());
-	// postGE.open(postGE_filename.c_str());
-	// postGI.open(postGI_filename.c_str());
-	preI.open(preI_filename.c_str());
-	postI.open(postI_filename.c_str());
-	preEI.open(preEI_filename.c_str());
-	preII.open(preII_filename.c_str());
-	postEI.open(postEI_filename.c_str());
-	postII.open(postII_filename.c_str());
-	// vector<vector<double> > readme;
-	vector<double> potential;
-	vector<double> current;
-	vector<double> currentE, currentI;
+	// Define file path for output data;
+	string preV_path = dir + "preV.txt";
+	// string preGE_path = dir + "preGE.txt";
+	// string preGI_path = dir + "preGI.txt";
+	string postV_path = dir + "postV.txt";
+	// string postGE_path = dir + "postGE.txt";
+	// string postGI_path = dir + "postGI.txt";
+	string preI_path = dir + "preI.txt";
+	string postI_path = dir + "postI.txt";
+	string preEI_path = dir + "preEI.txt";
+	string preII_path = dir + "preII.txt";
+	string postEI_path = dir + "postEI.txt";
+	string postII_path = dir + "postII.txt";
+	// Initialize files:
+	ofstream preV, postV, preI, postI;
+	preV.open(preV_path.c_str(), ios::trunc);
+	preV.close();
+	// preGE.open(preGE_path.c_str(), ios::trunc);
+	// preGE.close();
+	// preGI.open(preGI_path.c_str(), ios::trunc);
+	// postGE.close();
+	postV.open(postV_path.c_str(), ios::trunc);
+	postV.close();
+	// postGE.open(postGE_path.c_str(), ios::trunc);
+	// postGE.close();
+	// postGI.open(postGI_path.c_str(), ios::trunc);
+	// postGI.close();
+	preI.open(preI_path.c_str(), ios::trunc);
+	preI.close();
+	postI.open(postI_path.c_str(), ios::trunc);
+	postI.close();
+	// preEI.open(preEI_path.c_str(), ios::trunc);
+	// preEI.close();
+	// preII.open(preII_path.c_str(), ios::trunc);
+	// preII.close();
+	// postEI.open(postEI_path.c_str(), ios::trunc);
+	// postEI.close();
+	// postII.open(postII_path.c_str(), ios::trunc);
+	// postII.close();
+
 	char cr = (char)13;
 	double progress;
 	while (t < tmax) {
 		UpdateSystemState(preNet, postNet, conMat, t, dt);
 		t += dt;
-		potential.clear();
-		current.clear();
-		currentE.clear();
-		currentI.clear();
-		preNet.OutPotential(potential);
-		preNet.OutCurrent(current);
-		preNet.OutPartialCurrent(true, currentE);
-		preNet.OutPartialCurrent(false, currentI);
-		for (int i = 0; i < preNetNum; i++) {
-			preV << setprecision(15) << (double)potential[i] << '\t';
-			// preGE << setprecision(15) << (double)readme[i][1] << '\t';
-			// preGI << setprecision(15) << (double)readme[i][2] << '\t';
-			preI << setprecision(15) << (double)current[i] << '\t';
-			preEI << setprecision(15) << (double)currentE[i] << '\t';
-			preII << setprecision(15) << (double)currentI[i] << '\t';
-		}
-		preV << endl;
-		// preGE << endl;
-		// preGI << endl;
-		preI << endl;
-		preEI << endl;
-		preII << endl;
-
-		potential.clear();
-		current.clear();
-		currentE.clear();
-		currentI.clear();
-		postNet.OutPotential(potential);
-		postNet.OutCurrent(current);
-		postNet.OutPartialCurrent(true, currentE);
-		postNet.OutPartialCurrent(false, currentI);
-		for (int i = 0; i < postNetNum; i++) {
-			postV << setprecision(15) << (double)potential[i] << '\t';
-			// postGE << setprecision(15) << (double)readme[i][1] << '\t';
-			// postGI << setprecision(15) << (double)readme[i][2] << '\t';
-			postI << setprecision(15) << (double)current[i] << '\t';
-			postEI << setprecision(15) << (double)currentE[i] << '\t';
-			postII << setprecision(15) << (double)currentI[i] << '\t';
-		}
-		postV << endl;
-		// postGE << endl;
-		// postGI << endl;
-		postI << endl;
-		postEI << endl;
-		postII << endl;
+		// Output temporal data;
+		preNet.OutPotential(preV_path);
+		preNet.OutCurrent(preI_path);
+		// preNet.OutPartialCurrent(preEI, true);
+		// preNet.OutPartialCurrent(preII, false);
+		postNet.OutPotential(postV_path);
+		postNet.OutCurrent(postI_path);
+		// postNet.OutPartialCurrent(postEI, true);
+		// postNet.OutPartialCurrent(postII, false);
 
 		progress = t * 100.0 / tmax;
 		cout << cr;
@@ -188,78 +146,26 @@ int main(int argc, const char* argv[]) {
 	}
 	cout << endl;
 
-	preV.close();
-	// preGE.close();
-	// postGE.close();
-	postV.close();
-	// preGI.close();
-	// postGI.close();
-	preI.close();
-	postI.close();
-	postEI.close();
-	postII.close();
-
-	neuronFileName = dir + "preNeuron.txt";
-	conMatFileName = dir + "preMat.txt";
-	preNet.Save(neuronFileName, conMatFileName);
-	neuronFileName = dir + "postNeuron.txt";
-	conMatFileName = dir + "postMat.txt";
-	postNet.Save(neuronFileName, conMatFileName);
+	string preNeuron_path, preMat_path;
+	preNeuron_path = dir + "preNeuron.txt";
+	preMat_path = dir + "preMat.txt";
+	preNet.Save(preNeuron_path, preMat_path);
+	string postNeuron_path, postMat_path;
+	postNeuron_path = dir + "postNeuron.txt";
+	postMat_path = dir + "postMat.txt";
+	postNet.Save(postNeuron_path, postMat_path);
 
 	// OUTPUTS:
-	vector<vector<double> > spikes;
-	ofstream data;
-	string pre_raster_filename = dir + "rasterPre.txt";
-	string post_raster_filename = dir + "rasterPost.txt";
-	spikes.clear();
-	preNet.OutSpikeTrains(spikes);
-	data.open(pre_raster_filename.c_str());
-	int neuron_indices = 0;
-	for (vector<vector<double> >::iterator it = spikes.begin(); it != spikes.end(); it++) {
-		data << (int) neuron_indices << '\t';
-		neuron_indices ++;
-		for (vector<double>::iterator itt = it->begin(); itt != it->end(); itt++) {
-			data << setprecision(5) << (double)*itt << '\t';
-		}
-		data << endl;
-	}
-	data.close();
-
-	spikes.clear();
-	postNet.OutSpikeTrains(spikes);
-	data.open(post_raster_filename.c_str());
-	neuron_indices = 0;
-	for (vector<vector<double> >::iterator it = spikes.begin(); it != spikes.end(); it++) {
-		data << (int) neuron_indices << '\t';
-		neuron_indices ++;
-		for (vector<double>::iterator itt = it->begin(); itt != it->end(); itt++) {
-			data << setprecision(5) << (double)*itt << '\t';
-		}
-		data << endl;
-	}
-	data.close();
+	string pre_raster_path = dir + "rasterPre.txt";
+	string post_raster_path = dir + "rasterPost.txt";
+	preNet.OutSpikeTrains(pre_raster_path);
+	postNet.OutSpikeTrains(post_raster_path);
 
 	finish = clock();
 
 	// COUNTS:
 	double ToTtime;
 	ToTtime = (finish - start) / CLOCKS_PER_SEC;
-	if (ToTtime < 60) {
-		printf(">> It takes %.2fs\n", ToTtime);
-	} else if (ToTtime >= 60 && ToTtime < 3600) {
-		int  MIN;
-		double S;
-		MIN = floor(ToTtime / 60);
-		S = ToTtime - MIN * 60;
-		printf(">> It takes %dmin %.2fs\n", MIN, S);
-	} else {
-		int MIN, H;
-		double S;
-		H = ToTtime / 3600;
-		MIN = (ToTtime - H * 3600) / 60;
-		S = ToTtime - H * 3600 - MIN * 60;
-		printf(">> It takes %dh %dmin %.2fs\n", H, MIN, S);
-	}
-	cout << ">> END!" << endl;
+	printf(">> It takes %.2fs\n", ToTtime);
 	return 0;
 }

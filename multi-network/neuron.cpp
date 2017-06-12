@@ -354,7 +354,7 @@ void Neuron::OutSpikeTrain(vector<double> & spikes) {
 	spikes = spike_train_;
 }
 
-void Neuron::OutNewSpikes(double t, vector<Spike>& x) {
+void Neuron::GetNewSpikes(double t, vector<Spike>& x) {
 	Spike add_spike;
 	add_spike.mode = false;
 	add_spike.function = type_;

@@ -33,9 +33,9 @@ int main() {
 			v = cell.UpdateNeuronalState(t, dt, impt_e, impt_i);
 			t += dt;
 			if (abs(floor(2 * t) - 2 * t) < 1e-15) {
-				data << setprecision(20) << (double)v << "\t";
-			}			
-			//cout << setprecision(4) << (double)(100 * t / tmax);			
+				data << setprecision(20) << (double)v << ",";
+			}
+			//cout << setprecision(4) << (double)(100 * t / tmax);
 		}
 		data << endl;
 		cell.Reset();
@@ -48,6 +48,6 @@ int main() {
 	// readout runing time;
 	double ToTtime;
 	ToTtime = (finish - start) / CLOCKS_PER_SEC;
-	cout << "It takes " << (double)ToTtime << "s" << endl;	
+	cout << "It takes " << (double)ToTtime << "s" << endl;
 	return 0;
 }

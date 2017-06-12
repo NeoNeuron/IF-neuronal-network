@@ -5,6 +5,7 @@
 //	Date: 2017-02-21 16:06:30
 //******************************
 #include "group.h"
+#include "../io/io.h"
 #include <iostream>
 #include <algorithm>
 #include <ctime>
@@ -84,7 +85,7 @@ void NeuronalNetwork::InitializeExternalPoissonProcess(bool function, double rat
 				while (log(x) < -1e12) x = rand() / (RAND_MAX + 1.0);
 				tLast -= log(x) / rate;
 				external_excitatory_inputs_[i].push_back(tLast);
-				//external_poisson << (double)tLast << "\t";
+				//external_poisson << (double)tLast << ",";
 			}
 			//external_poisson << endl;
 		}
@@ -119,7 +120,7 @@ void NeuronalNetwork::InNewSpikes(vector<vector<Spike> > & data) {
 
 void NeuronalNetwork::LoadNetworkState(string neuron_file, string connecting_matrix_file) {
 	vector<vector<double> > neuronalSetups;
-	Read2DInfo(neuron_file, neuronalSetups);
+	Read2D(neuron_file, neuronalSetups);
 	NeuronalState add;
 	for (int i = 0; i < neuron_number_; i++) {
 		if (neuronalSetups[i][0] == 1) add.type = true;
@@ -132,7 +133,7 @@ void NeuronalNetwork::LoadNetworkState(string neuron_file, string connecting_mat
 		neurons_[i].LoadNeuronalState(add);
 	}
 	vector<vector<int> > connecting_matrix;
-	Read2DInfo(connecting_matrix_file, connecting_matrix);
+	Read2D(connecting_matrix_file, connecting_matrix);
 	connectivity_matrix_.LoadMatrix(connecting_matrix);
 }
 
@@ -146,8 +147,8 @@ void NeuronalNetwork::Rewire(double p, int seed, bool output_option) {
 	connectivity_matrix_.Rewire(p, seed, output_option);
 	if (output_option == true) {
 		double mean_path, mean_clustering_coefficient;
-		mean_path = connectivity_matrix_.OutputMeanPath();
-		mean_clustering_coefficient = connectivity_matrix_.OutputMeanClusteringCoefficient();
+		mean_path = connectivity_matrix_.GetMeanPath();
+		mean_clustering_coefficient = connectivity_matrix_.GetMeanClusteringCoefficient();
 		cout << "After rewiring," << endl;
 		cout << "The mean characteristic path is " << setprecision(4) << (double)mean_path << "." << endl;
 		cout << "The mean clustering coefficient is " << setprecision(4) << (double)mean_clustering_coefficient << "." << endl;
@@ -190,38 +191,42 @@ void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
 	}
 }
 
-void NeuronalNetwork::OutPotential(vector<double>& potential) {
-	potential.clear();
-	potential.resize(neuron_number_);
+void NeuronalNetwork::OutPotential(string path) {
+	vector<double> potential(neuron_number_);
 	for (int i = 0; i < neuron_number_; i++) {
 		potential[i] = neurons_[i].GetPotential();
 	}
+	Print1D(path, "app", 0, potential);
 }
 
-void NeuronalNetwork::OutConductance(vector<vector<double> > &x) {
-  x.clear();
-  vector<double> add(2);
-  x.resize(neuron_number_, add);
-  for (int i = 0; i < neuron_number_; i++) {
-  	x[i][0] = neurons_[i].GetConductance(true);
-  	x[i][1] = neurons_[i].GetConductance(false);
-  }
+void NeuronalNetwork::OutConductance(string path, bool function) {
+	vector<double> conductance(neuron_number_);
+	if (function) {
+		for (int i = 0; i < neuron_number_; i++) {
+			conductance[i] = neurons_[i].GetConductance(true);
+		}
+	} else {
+		for (int i = 0; i < neuron_number_; i++) {
+			conductance[i] = neurons_[i].GetConductance(false);
+		}
+	}
+  Print1D(path, "app", 0, conductance);
 }
 
-void NeuronalNetwork::OutCurrent(vector<double> & current) {
-	current.clear();
-	current.resize(neuron_number_);
+void NeuronalNetwork::OutCurrent(string path) {
+	vector<double> current(neuron_number_);
 	for (int i = 0; i < neuron_number_; i++) {
 		current[i] = neurons_[i].OutTotalCurrent();
 	}
+	Print1D(path, "app", 0, current);
 }
 
-void NeuronalNetwork::OutPartialCurrent(bool type, vector<double> & current) {
-	current.clear();
-	current.resize(neuron_number_);
+void NeuronalNetwork::OutPartialCurrent(string path, bool type) {
+	vector<double> current(neuron_number_);
 	for (int i = 0; i < neuron_number_; i++) {
 		current[i] = neurons_[i].OutLeakyCurrent() + neurons_[i].OutSynapticCurrent(type);
 	}
+	Print1D(path, "app", 0, current);
 }
 
 
@@ -231,41 +236,39 @@ void NeuronalNetwork::Save(string neuron_file, string connecting_matrix_file) {
 	NeuronalState add;
 	for (int i = 0; i < neuron_number_; i++) {
 		neurons_[i].Save(add);
-		data << (bool)add.type << '\t';
-		data << (int)add.index << '\t';
-		data << (double)add.membrane_potential_ << '\t';
-		data << (double)add.ge << '\t';
-		data << (double)add.gi << '\t';
+		data << (bool)add.type << ',';
+		data << (int)add.index << ',';
+		data << (double)add.membrane_potential_ << ',';
+		data << (double)add.ge << ',';
+		data << (double)add.gi << ',';
 		data << (double)add.remaining_refractory_time << endl;
 	}
 	data.close();
-	data.open(connecting_matrix_file.c_str());
-	connectivity_matrix_.OutputMatrix(data);
-	data.close();
+	connectivity_matrix_.OutMatrix(connecting_matrix_file);
 }
 
 
-void NeuronalNetwork::OutSpikeTrains(vector<vector<double> > & data) {
-	data.clear();
-	data.resize(neuron_number_);
+void NeuronalNetwork::OutSpikeTrains(string path) {
+	vector<vector<double> > spikes(neuron_number_);
 	vector<double> add_spike_train;
 	for (int i = 0; i < neuron_number_; i++) {
 		neurons_[i].OutSpikeTrain(add_spike_train);
-		data[i] = add_spike_train;
+		spikes[i] = add_spike_train;
 	}
+	Print2D(path, "trunc", spikes);
 }
 
-void NeuronalNetwork::OutNewSpikes(double t, vector<vector<Spike> >& data) {
+void NeuronalNetwork::GetNewSpikes(double t, vector<vector<Spike> >& data) {
 	data.clear();
 	data.resize(neuron_number_);
 	vector<Spike> x;
 	for (int i = 0; i < neuron_number_; i++) {
-		neurons_[i].OutNewSpikes(t, x);
+		neurons_[i].GetNewSpikes(t, x);
 		data[i] = x;
 	}
 }
 
-void NeuronalNetwork::OutNeuronType(vector<bool>& types) {
+void NeuronalNetwork::GetNeuronType(vector<bool>& types) {
 	types.clear();
 	types.resize(neuron_number_);
 	for (int i = 0; i < neuron_number_; i++) {
@@ -281,84 +284,10 @@ void NeuronalNetwork::GetConductance(int i, bool function) {
 	neurons_[i].GetConductance(function);
 }
 
-void NeuronalNetwork::GetMatrix(ofstream & matrix_file) {
-	matrix_file.open("matFile.txt");
-	connectivity_matrix_.OutputMatrix(matrix_file);
-	matrix_file.close();
-}
-
 void NeuronalNetwork::RestoreNeurons() {
 	for (int i = 0; i < neuron_number_; i++) {
 		neurons_[i].Reset();
 	}
 	external_excitatory_inputs_.clear();
 	external_inhibitory_inputs_.clear();
-}
-
-void Read2DInfo(string filename, vector<vector<int> >& data) {
-	data.clear();
-	ifstream ifile;
-	const char* char_filename = filename.c_str();
-	ifile.open(char_filename);
-	string s;
-	vector<int> add_int;
-	string::size_type pos;
-	while (getline(ifile, s)) {
-		add_int.clear();
-		pos = s.find_first_of('\t', 0);
-		string ss;
-		const char *sss;
-		while (pos != s.npos) {
-			ss = s.substr(0, pos);
-			sss = ss.c_str();
-			add_int.push_back(atof(sss));
-			s.erase(0, pos + 1);
-			ss.clear();
-			pos = s.find_first_of('\t', 0);
-		}
-		pos = s.find_first_of('\n', 0);
-		if (pos == 0) continue;
-		else {
-			ss = s.substr(0, pos);
-			sss = ss.c_str();
-			add_int.push_back(atof(sss));
-		}
-		data.push_back(add_int);
-		s.clear();
-	}
-	ifile.close();
-}
-
-void Read2DInfo(string filename, vector<vector<double> >& data) {
-	data.clear();
-	ifstream ifile;
-	const char* char_filename = filename.c_str();
-	ifile.open(char_filename);
-	string s;
-	vector<double> add_double;
-	string::size_type pos;
-	while (getline(ifile, s)) {
-		add_double.clear();
-		pos = s.find_first_of('\t', 0);
-		string ss;
-		const char *sss;
-		while (pos != s.npos) {
-			ss = s.substr(0, pos);
-			sss = ss.c_str();
-			add_double.push_back(atof(sss));
-			s.erase(0, pos + 1);
-			ss.clear();
-			pos = s.find_first_of('\t', 0);
-		}
-		pos = s.find_first_of('\n', 0);
-		if (pos == 0) continue;
-		else {
-			ss = s.substr(0, pos);
-			sss = ss.c_str();
-			add_double.push_back(atof(sss));
-		}
-		data.push_back(add_double);
-		s.clear();
-	}
-	ifile.close();
 }
