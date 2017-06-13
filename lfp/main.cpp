@@ -5,6 +5,7 @@
 //	Description: main file for lfp.h and lfp.cpp
 //***************
 #include "lfp.h"
+#include "../io/io.h"
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -30,9 +31,9 @@ int main(int argc, const char* argv[]) {
 
 	//	Choose objective neuron in loop 1;
 	int objective_neuron_index = atoi(argv[2]);
-	string pre_neuron_filename = loading_dir + "preNeuron.txt";
+	string pre_neuron_path = loading_dir + "preNeuron.txt";
 	vector<int> pre_neuron_type;
-	ReadColumn(pre_neuron_filename, 0, 6, pre_neuron_type);
+	Read1D(pre_neuron_path, 0, 1, pre_neuron_type);
 	cout << ">> Target neuron in pre-network: ";
 	if (pre_neuron_type[objective_neuron_index] == 1) {
 		cout << "#" << objective_neuron_index << " neuron is an excitatory neuron." << endl;
@@ -64,26 +65,26 @@ int main(int argc, const char* argv[]) {
 	t_range[1] = atof(argv[5]);
 	printf(">> Time range is (%.2f, %.2f] ms.\n", t_range[0], t_range[1]);
 
-	string current_filename = loading_dir + "postI.txt";
+	string current_path = loading_dir + "postI.txt";
 	cout << ">> Calculating LFP ..." << endl;
 	int total_neuron_number = atoi(argv[6]);
 	vector<double> lfp;
-	// LFP(t_range, total_neuron_number, list, potential_filename, excitatory_conductance_filename, inhibitory_conductance_filename, lfp);
-	LFP(t_range, total_neuron_number, list, current_filename, lfp);
+	// LFP(t_range, total_neuron_number, list, potential_path, excitatory_conductance_path, inhibitory_conductance_path, lfp);
+	LFP(t_range, total_neuron_number, list, current_path, lfp);
 
 	//	Output data:
 	string out_dir = "./lfp/file-txt/";
-	string lfp_filename = out_dir + "lfp.txt";
-	string raster_filename = out_dir + "raster.txt";
+	string lfp_path = out_dir + "lfp.txt";
+	string raster_path = out_dir + "raster.txt";
 
 	//	Output LFP:
 	cout << ">> Outputing LFP and spike train ..." << endl;
-	OutputLFP(lfp, lfp_filename);
+	OutLFP(lfp_path, lfp);
 	//	Output raster of objective neruon:
-	string original_raster_filename = loading_dir + "rasterPre.txt";
+	string original_raster_path = loading_dir + "rasterPre.txt";
 	vector<double> objective_neuron_raster;
-	ReadLine(original_raster_filename, objective_neuron_index, objective_neuron_raster);
-	OutputSpikeTrain(t_range, objective_neuron_raster, raster_filename);
+	Read1D(original_raster_path, objective_neuron_index, 0, objective_neuron_raster);
+	OutSpikeTrain(raster_path, objective_neuron_raster, t_range);
 	cout << ">> Finished." << endl;
 	return 0;
 }

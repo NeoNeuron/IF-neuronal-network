@@ -12,9 +12,9 @@ def Compile():
 	"""
 	compile *.cpp files
 	"""
-	os.system("g++ ./multi-network/*.cpp -o ./multi-network/two-network-system.out")
-	os.system("g++ ./lfp/*.cpp -o ./lfp/calculate-lfp.out")
-	os.system("g++ ./tdmi/*.cpp -o ./tdmi/calculate-tdmi.out")
+	os.system("g++ ./multi-network/*.cpp ./io/io.cpp -o ./multi-network/two-network-system.out")
+	os.system("g++ ./lfp/*.cpp ./io/io.cpp -o ./lfp/calculate-lfp.out")
+	os.system("g++ ./tdmi/*.cpp ./io/io.cpp -o ./tdmi/calculate-tdmi.out")
 
 
 def load_raster(loading_dir, filename, index):
@@ -30,7 +30,7 @@ def load_raster(loading_dir, filename, index):
 			break
 		counter += 1
 	f.close()
-	raster = raster.replace('\n', '').split('\t')
+	raster = raster.replace('\n', '').split(',')
 	for s in raster:
 		if s == '':
 			raster.remove(s)
@@ -50,7 +50,7 @@ def lfp(loading_dir, filename, index_list):
 	post_current = open(loading_dir + filename)
 	current = []
 	for line in post_current:
-		line = line.replace('\n', '').split('\t')
+		line = line.replace('\n', '').split(',')
 		line = [float(line[num]) for num in index_list]
 		current.append(sum(line) / 3)
 	post_current.close()
@@ -64,7 +64,7 @@ def load_matrix(loading_dir, filename):
 	conMat = open(loading_dir + filename)
 	matrix = []
 	for line in conMat:
-		line = line.replace('\n', '').split('\t')
+		line = line.replace('\n', '').split(',')
 		for s in line:
 			if s == '':
 				line.remove(s)
@@ -102,11 +102,11 @@ def import_tdmi():
 	signal_order = []
 	signal_rand = []
 	for line in f_order:
-		line = line.split('\t')
+		line = line.split(',')
 		time_series.append(float(line[0]))
 		signal_order.append(float(line[1]))
 	for line in f_rand:
-		line = line.split('\t')
+		line = line.split(',')
 		signal_rand.append(float(line[1]))
 	time_series = np.array(time_series)
 	signal_order = np.array(signal_order)

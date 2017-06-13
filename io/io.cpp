@@ -204,7 +204,7 @@ void Print2D(string path, string mode, vector<vector<int> >& data) {
 	if (mode == "app") {
 		ofile.open(path.c_str(), ios::app);
 	} else if (mode == "trunc") {
-		ofile.open(path.c_str(), ios::trunc);
+		ofile.open(path.c_str());
 	}
 	for (vector<vector<int> >::iterator it = data.begin(); it != data.end(); it++) {
 		for (vector<int>::iterator itt = it->begin(); itt != it->end(); itt++) {
@@ -220,7 +220,7 @@ void Print2D(string path, string mode, vector<vector<double> >& data) {
 	if (mode == "app") {
 		ofile.open(path.c_str(), ios::app);
 	} else if (mode == "trunc") {
-		ofile.open(path.c_str(), ios::trunc);
+		ofile.open(path.c_str());
 	}
 	for (vector<vector<double> >::iterator it = data.begin(); it != data.end(); it++) {
 		for (vector<double>::iterator itt = it->begin(); itt != it->end(); itt++) {
@@ -236,7 +236,7 @@ void Print2D(string path, string mode, vector<vector<bool> >& data) {
 	if (mode == "app") {
 		ofile.open(path.c_str(), ios::app);
 	} else if (mode == "trunc") {
-		ofile.open(path.c_str(), ios::trunc);
+		ofile.open(path.c_str());
 	}
 	for (vector<vector<bool> >::iterator it = data.begin(); it != data.end(); it++) {
 		for (vector<bool>::iterator itt = it->begin(); itt != it->end(); itt++) {
@@ -252,7 +252,7 @@ void Print1D(string path, string mode, int axis, vector<int>& data) {
 	if (mode == "app") {
 		ofile.open(path.c_str(), ios::app);
 	} else if (mode == "trunc") {
-		ofile.open(path.c_str(), ios::trunc);
+		ofile.open(path.c_str());
 	}
 	if (axis == 0) {
 		for (vector<int>::iterator it = data.begin(); it != data.end(); it++) {
@@ -272,7 +272,7 @@ void Print1D(string path, string mode, int axis, vector<double>& data) {
 	if (mode == "app") {
 		ofile.open(path.c_str(), ios::app);
 	} else if (mode == "trunc") {
-		ofile.open(path.c_str(), ios::trunc);
+		ofile.open(path.c_str());
 	}
 	if (axis == 0) {
 		for (vector<double>::iterator it = data.begin(); it != data.end(); it++) {

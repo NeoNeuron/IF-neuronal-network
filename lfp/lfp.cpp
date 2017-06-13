@@ -5,6 +5,7 @@
 //	Description: source file of lfp.h
 //***************
 #include "lfp.h"
+#include "../io/io.h"
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -31,166 +32,17 @@ void Sample(vector<int> & origin_vector, vector<int> & sample_vector, int num) {
 			vector_copy.erase(vector_copy.begin() + ind, vector_copy.begin() + ind + 1);
 		}
 		return;
-	}	
-}
-
-
-void ReadLine(string file_name, int line_index, vector<int> &output) {
-	// open data file;
-	const char* char_file_name = file_name.c_str();
-	ifstream ifile;
-	ifile.open(char_file_name);
-	// prepare input file stream;
-	string s;
-	output.clear();
-	int getline_counter = 0;
-	while (getline(ifile, s)) {
-		if (getline_counter == line_index) {
-			string::size_type pos = s.find_first_of('\t', 0);
-			string ss;
-			while (pos != s.npos) {
-				ss = s.substr(0, pos);
-				const char *sss;
-				sss = ss.c_str();
-				output.push_back(atof(sss));
-				s.erase(0, pos + 1);
-				ss.clear();
-				pos = s.find_first_of('\t', 0);
-			}
-			pos = s.find_first_of('\n', 0);
-			if (pos != 0) {
-				ss = s.substr(0, pos);
-				const char *sss;
-				sss = ss.c_str();
-				output.push_back(atof(sss));
-			}
-			break;
-		}
-		getline_counter ++;
 	}
-	ifile.close();
 }
 
-void ReadLine(string file_name, int line_index, vector<double> &output) {
-	// open data file;
-	const char* char_file_name = file_name.c_str();
-	ifstream ifile;
-	ifile.open(char_file_name);
-	// prepare input file stream;
-	string s;
-	output.clear();
-	int getline_counter = 0;
-	while (getline(ifile, s)) {
-		if (getline_counter == line_index) {
-			string::size_type pos = s.find_first_of('\t', 0);
-			string ss;
-			while (pos != s.npos) {
-				ss = s.substr(0, pos);
-				const char *sss;
-				sss = ss.c_str();
-				output.push_back(atof(sss));
-				s.erase(0, pos + 1);
-				ss.clear();
-				pos = s.find_first_of('\t', 0);
-			}
-			pos = s.find_first_of('\n', 0);
-			if (pos != 0) {
-				ss = s.substr(0, pos);
-				const char *sss;
-				sss = ss.c_str();
-				output.push_back(atof(sss));
-			}
-			break;
-		}
-		getline_counter ++;
-	}
-	ifile.close();
-}
-
-void ReadColumn(string file_name, int column_index, int num_column, vector<int> &output) {
-	// open data file;
-	const char* char_file_name = file_name.c_str();
-	ifstream ifile;
-	ifile.open(char_file_name);
-	// prepare input file stream;
-	string s;
-	string ss;
-	string::size_type pos;
-	int column_counter;
-	output.clear();
-	while (getline(ifile, s)) {
-		for (int i = 0; i < num_column; i++) {
-			column_counter = 0;
-			pos = s.find_first_of('\t', 0);
-			if (column_counter == column_index) {
-				ss = s.substr(0, pos);
-				const char *sss;
-				sss = ss.c_str();
-				output.push_back(atof(sss));
-				break;
-			}
-			s.erase(0, pos + 1);
-			column_counter ++;
-		}
-	}
-	ifile.close();
-}
-
-void ReadLines(string file_name, vector<int> &line_index, vector<vector<double> > &data) {
-	// open data file;
-	const char* char_file_name = file_name.c_str();
-	ifstream ifile;
-	ifile.open(char_file_name);
-	// prepare input file stream;
-	string s;
-	vector<double> add_double;
-	data.clear();
-	int getline_counter = -1;
-	int line_index_i = 0;
-	int line_index_max = line_index.size();
-	while (getline(ifile, s)) {
-		getline_counter ++;
-		//cout << getline_counter << endl;
-		if (line_index[line_index_i] == getline_counter) {
-			add_double.clear();
-			string::size_type pos = s.find_first_of('\t', 0);
-			string ss;			
-			//int counter = 0;
-			while (pos != s.npos) {
-				ss = s.substr(0, pos);
-				const char *sss;
-				sss = ss.c_str();
-				add_double.push_back(atof(sss));
-				s.erase(0, pos + 1);
-				ss.clear();
-				pos = s.find_first_of('\t', 0);
-				//counter ++;
-				//cout << counter << endl;
-			}
-			pos = s.find_first_of('\n', 0);
-			if (pos != 0) {
-				ss = s.substr(0, pos);
-				const char *sss;
-				sss = ss.c_str();
-				add_double.push_back(atof(sss));
-			}
-			data.push_back(add_double);
-			s.clear();
-			line_index_i ++;
-		}
-		if (line_index_i == line_index_max) break;
-	}
-	ifile.close();
-}
-
-int KeySelect(string & key, vector<neuron_type> & types, vector<int> & indices) {	
+int KeySelect(string & key, vector<neuron_type> & types, vector<int> & indices) {
 	// select keys:
 	indices.clear();
 	if (key == "all") {
 		indices.resize(types.size());
 		for (int i = 0; i < types.size(); i ++) {
 			indices[i] = types[i].index;
-		} 
+		}
 	} else if (key == "exc") {
 		for (vector<neuron_type>::iterator it = types.begin(); it != types.end(); it ++) {
 			if (it->type == true) indices.push_back(it->index);
@@ -203,8 +55,7 @@ int KeySelect(string & key, vector<neuron_type> & types, vector<int> & indices) 
 	return indices.size();
 }
 
-
-void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, string potential_filename, string excitatory_conductance_filename, string inhibitory_conductance_filename, vector<double> &lfp) {
+void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, string potential_path, string excitatory_conductance_path, string inhibitory_conductance_path, vector<double> &lfp) {
 	// preliminary parameters;
 	double sampling_rate = 32; // Unit ms: 32/ms;
 	double leaky_reversal_potential = 0;
@@ -220,17 +71,14 @@ void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, st
 	lfp.resize(size_of_lfp);
 
 	// Load potential file and conductance files;
-	const char* char_potential_filename = potential_filename.c_str();
-	const char* char_excitatory_conductance_filename = excitatory_conductance_filename.c_str();
-	const char* char_inhibitory_conductance_filename =inhibitory_conductance_filename.c_str();
 	string s_potential, s_e_conductance, s_i_conductance;
 	string ss;
 	// For t = [0, t_begin];
 	// cout << ">> Loading ... " << endl;
 	ifstream potential_in_file, excitatory_conductance_in_file, inhibitory_conductance_in_file;
-	potential_in_file.open(char_potential_filename);
-	excitatory_conductance_in_file.open(char_excitatory_conductance_filename);
-	inhibitory_conductance_in_file.open(char_inhibitory_conductance_filename);
+	potential_in_file.open(potential_path.c_str());
+	excitatory_conductance_in_file.open(excitatory_conductance_path.c_str());
+	inhibitory_conductance_in_file.open(inhibitory_conductance_path.c_str());
 	for (int i = 0; i < t_begin; i ++) {
 		getline(potential_in_file, s_potential);
 		getline(excitatory_conductance_in_file, s_e_conductance);
@@ -250,21 +98,17 @@ void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, st
 		neuron_list_counter = 0;
 		temp_lfp = 0;
 		for (int j = 0; j < total_neuron_number; j ++) {
-			pos_potential = s_potential.find_first_of('\t', 0);
-			pos_e_conductance = s_e_conductance.find_first_of('\t', 0);
-			pos_i_conductance = s_i_conductance.find_first_of('\t', 0);
-			
-			if (j == neuron_list[neuron_list_counter]) {	
-				ss = s_potential.substr(0, pos_potential);
-				const char* sss1 = ss.c_str();
-				temp_potential = atof(sss1);
-				ss = s_e_conductance.substr(0, pos_e_conductance);
-				const char* sss2 = ss.c_str();
-				temp_e_conductance = atof(sss2);
+			pos_potential = s_potential.find_first_of(',', 0);
+			pos_e_conductance = s_e_conductance.find_first_of(',', 0);
+			pos_i_conductance = s_i_conductance.find_first_of(',', 0);
 
+			if (j == neuron_list[neuron_list_counter]) {
+				ss = s_potential.substr(0, pos_potential);
+				temp_potential = atof(ss.c_str());
+				ss = s_e_conductance.substr(0, pos_e_conductance);
+				temp_e_conductance = atof(ss.c_str());
 				ss = s_i_conductance.substr(0, pos_i_conductance);
-				const char* sss3 = ss.c_str();
-				temp_i_conductance = atof(sss3);
+				temp_i_conductance = atof(ss.c_str());
 				temp_lfp += -leaky_conductance * (temp_potential - leaky_reversal_potential) - temp_e_conductance * (temp_potential - excitatory_reversal_potential) - temp_i_conductance * (temp_potential - inhibitory_reversal_potential);
 				neuron_list_counter ++;
 			}
@@ -285,7 +129,7 @@ void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, st
 	cout << endl;
 }
 
-void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, string current_filename, vector<double> &lfp) {
+void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, string current_path, vector<double> &lfp) {
 	// preliminary parameters;
 	double sampling_rate = 32; // Unit ms: 32/ms;
 
@@ -302,7 +146,7 @@ void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, st
 	// For t = [0, t_begin];
 	// cout << ">> Loading ... " << endl;
 	ifstream current_in_file;
-	current_in_file.open(current_filename.c_str());
+	current_in_file.open(current_path.c_str());
 	for (int i = 0; i < t_begin; i ++) {
 		getline(current_in_file, s_current);
 	}
@@ -318,11 +162,10 @@ void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, st
 		neuron_list_counter = 0;
 		temp_lfp = 0;
 		for (int j = 0; j < total_neuron_number; j ++) {
-			pos_current = s_current.find_first_of('\t', 0);		
-			if (j == neuron_list[neuron_list_counter]) {	
+			pos_current = s_current.find_first_of(',', 0);
+			if (j == neuron_list[neuron_list_counter]) {
 				ss = s_current.substr(0, pos_current);
 				temp_current = atof(ss.c_str());
-				
 				temp_lfp += temp_current;
 				neuron_list_counter ++;
 			}
@@ -339,23 +182,17 @@ void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, st
 	cout << endl;
 }
 
-void OutputLFP(vector<double> &lfp, string filename) {
-	ofstream output;
-	output.open(filename.c_str());
-	for (vector<double>::iterator it = lfp.begin(); it != lfp.end(); it++) {
-		output << setprecision(20) << (double)*it << endl;
-	}
-	output.close();	
+void OutLFP(string path, vector<double>& lfp) {
+	Print1D(path, "trunc", 1, lfp);
 }
 
-void OutputSpikeTrain(double* t_range, vector<double> &spikes, string filename) {
-	ofstream output;
-	output.open(filename.c_str());		
-	for (vector<double>::iterator it = spikes.begin(); it != spikes.end(); it++) {
-		if (*it > t_range[0] and *it <= t_range[1]) {
-			output << (double)*it - t_range[0] << endl;
-		}
-		if (*it > t_range[1]) break;
-	}	
-	output.close();
+void OutSpikeTrain(string path, vector<double>& spikes, double* t_range) {
+	vector<double> spikes_copy = spikes;
+	vector<double>::iterator it = spikes_copy.begin();
+	while (it != spikes_copy.end()) {
+		if (*it <= t_range[0]) it = spikes_copy.erase(it);
+		else if (*it > t_range[1]) {spikes_copy.erase(it, spikes_copy.end()); break;}
+		else it++;
+	}
+	Print1D(path, "trunc", 1, spikes_copy);
 }

@@ -19,35 +19,6 @@ struct neuron_type{
 
 void Sample(vector<int> & origin_vector, vector<int> &sample_vector, int num);
 
-//	Read specific line from *.txt file;
-//	STRING filename: file name of txt file;
-//	INT line_index: the index of chosen lines, from 0 to maximum - 1;
-//	VECTOR<INT> output: storage of output data;
-//	Return: none;
-void ReadLine(string filename, int line_index, vector<int> &output);
-
-//	Read specific line from *.txt file;
-//	STRING filename: file name of txt file;
-//	INT line_index: the index of chosen lines, from 0 to maximum - 1;
-//	VECTOR<DOUBLE> output: storage of output data;
-//	Return: none;
-void ReadLine(string filename, int line_index, vector<double> &output);
-
-//	Read specific Column from *.txt file;
-//	STRING filename: file name of txt file;
-//	INT column_index: the index of chosen lines, from 0 to maximum - 1;
-//	INT num_colunm: total number of column contained in target file; nature number;
-//	VECTOR<INT> output: storage of output data;
-//	Return: none;
-void ReadColumn(string filename, int column_index, int num_column, vector<int> &output);
-
-//	Read specific lines from *.txt file;
-//	STRING filename: file name of txt file;
-//	VECTOR<VECTOR<DOUBLE> > data: storage for the lines of data;
-//	VECTOR<INT> line_index: List of lines that choosen;
-//	Return: none;
-void ReadLines(string filename, vector<int> &line_index, vector<vector<double> > &data);
-
 //	Key Selection:
 //	Choose the specific portion of neurons in post-network, according to key;
 //	Return number of selected neurons;
@@ -61,7 +32,7 @@ int KeySelect(string & key, vector<neuron_type> & type, vector<int> & indices);
 //	STRING inhibitory_conductance_file;
 //	VECTOR<DOUBLE> lfp: local field potential data;
 //	Return: none;
-void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, string potential_filename, string excitatory_conductance_filename, string inhibitory_conductance_filename, vector<double> &lfp);
+void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, string potential_path, string excitatory_conductance_path, string inhibitory_conductance_path, vector<double> &lfp);
 
 //	Local field potential model [version 0.11]
 //	Description: point current source model without sptial distribution;
@@ -69,19 +40,19 @@ void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, st
 //	STRING current_file: total membrane current;
 //	VECTOR<DOUBLE> lfp: local field potential data;
 //	Return: none;
-void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, string current_filename, vector<double> &lfp);
+void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, string current_path, vector<double> &lfp);
 
 // 	Output LFP;
 //	Description: output LFP data to a given file;
-//	STRING filename: output file name;
+//	STRING path: output file name;
 //	Return: none;
-void OutputLFP(vector<double> &lfp, string filename);
+void OutLFP(string path, vector<double>& lfp);
 
 // 	Output spike train;
 //	Description: output the spike train of chosen neuron within chosen time range; spiking time points are rearranged which starts from 0;
 //	DOUBLE* t_range: time period used in calculation, with unit ms;
-//	STRING filename: output file name;
+//	STRING path: output file name;
 //	Return: none;
-void OutputSpikeTrain(double* t_range, vector<double> &spikes, string filename);
+void OutSpikeTrain(string path, vector<double>& spikes, double* t_range);
 
 #endif // _DATA_ANALYSIS_LFP_H_
