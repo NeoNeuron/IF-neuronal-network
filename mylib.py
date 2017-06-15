@@ -204,8 +204,8 @@ def CreateText(loading_dir, neuron_index, connecting_list):
 	Create text in TDMI plot, including type of target neuron and the number of neuron it connected as well as their type;
 	"""
 	# loading files;
-	prenet_type = np.genfromtxt(loading_dir + 'preNeuron.txt', dtype = int, usecols = 0)
-	postnet_type = np.genfromtxt(loading_dir + 'postNeuron.txt', dtype = int, usecols = 0)
+	prenet_type = np.genfromtxt(loading_dir + 'preNeuron.txt', dtype = int, usecols = 0, delimiter = ',')
+	postnet_type = np.genfromtxt(loading_dir + 'postNeuron.txt', dtype = int, usecols = 0, delimiter = ',')
 	conMat = load_matrix(loading_dir = loading_dir, filename = 'conMat.txt')
 	# create text variable
 	text = '#' + str(neuron_index) + ' neuron '

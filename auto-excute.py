@@ -8,13 +8,13 @@ import pandas as pd
 import mylib
 
 # Update to newest code version;
-compile_updated = False;
+compile_updated = True;
 if compile_updated == False:
 	mylib.Compile()
 
 # Define loading directory and figure saving directory:
-loading_dir = "/media/kyle/Drive/ResearchData/Apr22/t7/"
-saving_dir = './results/Apr22/t7/'
+loading_dir = "/media/kyle/Drive/ResearchData/Jun14/t0/"
+saving_dir = '/media/kyle/Drive/ResearchData/Jun14/t0/figs/'
 
 # setting preliminary parameters
 total_neuron_number = 100
@@ -64,6 +64,8 @@ timing_step_list = [0.25]
 data_dic = {'index':np.zeros(0).astype(int),'type':np.zeros(0).astype(int), 'mean firing rate':[], 'number of connection':np.zeros(0).astype(int), 'number of excitatory connection':np.zeros(0).astype(int), 'number of inhibitory connection':np.zeros(0).astype(int), 'signal noise ratio':[], 'peak time':[], 'time constant':[]}
 data_out = pd.DataFrame(data_dic)
 
+pre_net_types = np.genfromtxt(loading_dir + 'preNeuron.txt', dtype = int, usecols = 0, delimiter = ',')
+post_net_types = np.genfromtxt(loading_dir + 'postNeuron.txt', dtype = int, usecols = 0, delimiter = ',')
 
 # Start loops
 for i in range(total_neuron_number):
@@ -87,10 +89,8 @@ for i in range(total_neuron_number):
 		mylib.PlotTdmi(time_series = time_series, signal_order = signal_order, signal_rand = signal_rand, saving_dir = saving_dir, saving_filename = saving_filename, figure_text = figure_text)
 		# Output data:
 		data_out.loc[ind, 'index'] = ind
-		pre_net_types = np.genfromtxt(loading_dir + 'preNeuron.txt', dtype = int, usecols = 0)
 		data_out.loc[ind, 'type'] = pre_net_types[ind]
 		data_out.loc[ind, 'mean firing rate'] = mylib.mean_rate(loading_dir = loading_dir, filename = 'rasterPre.txt', index = ind, tmax = 10)
-		post_net_types = np.genfromtxt(loading_dir + 'postNeuron.txt', dtype = int, usecols = 0)
 		data_out.loc[ind, 'number of connection'] = len(ll)
 		data_out.loc[ind, 'number of excitatory connection'], data_out.loc[ind, 'number of inhibitory connection'] = mylib.DivideNeuronalTypes(neuron_types = post_net_types, neuron_list = ll)
 
