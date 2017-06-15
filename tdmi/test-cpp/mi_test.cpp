@@ -4,7 +4,8 @@
 //	Date: 2017-02-27 21:47:53
 //	Description: Test all four TDMI functions;
 //***************
-#include "mi.h"
+#include "../mi.h"
+#include "../../io/io.h"
 #include <iostream>
 #include <fstream>
 #include <cmath>
@@ -55,10 +56,10 @@ int main() {
 			ofstream tdmi_test;
 			tdmi_test.open("tdmi_test_1.dat");
 			for (int i = 0; i < positive_time_delay + negative_time_delay + 1; i++) {
-				tdmi_test << (double)dt*(i - negative_time_delay) << '\t' << xy_tdmi[i];
+				tdmi_test << (double)dt*(i - negative_time_delay) << ',' << xy_tdmi[i];
 				if (i < positive_time_delay + negative_time_delay) tdmi_test << endl;
 			}
-			tdmi_test.close(); 
+			tdmi_test.close();
 			option = SetOption();
 		} else if (option == 2) {
 			int set_size = 10000; // size of x, y, u, v;
@@ -85,10 +86,10 @@ int main() {
 			ofstream tdmi_test;
 			tdmi_test.open("tdmi_test_2.dat");
 			for (int i = 0; i < positive_time_delay + negative_time_delay + 1; i++) {
-				tdmi_test << i - negative_time_delay << '\t' << xy_tdmi[i] << "\t" << uv_tdmi[i];
+				tdmi_test << i - negative_time_delay << ',' << xy_tdmi[i] << "," << uv_tdmi[i];
 				if (i < positive_time_delay + negative_time_delay) tdmi_test << endl;
 			}
-			tdmi_test.close(); 
+			tdmi_test.close();
 			option = SetOption();
 		} else if (option == 3) {
 			int set_size = 10000; // size of x, y, u, v;
@@ -112,14 +113,14 @@ int main() {
 			int negative_time_delay = 20;
 			TDMI(x, y, expected_occupancy, negative_time_delay, positive_time_delay, xy_tdmi);
 			TDMI(u, v, expected_occupancy, negative_time_delay, positive_time_delay, uv_tdmi);
-			
+
 			ofstream tdmi_test;
 			tdmi_test.open("tdmi_test_3.dat");
 			for (int i = 0; i < positive_time_delay + negative_time_delay + 1; i++) {
-				tdmi_test << i - negative_time_delay << '\t' << xy_tdmi[i] << "\t" << uv_tdmi[i];
+				tdmi_test << i - negative_time_delay << ',' << xy_tdmi[i] << "," << uv_tdmi[i];
 				if (i < positive_time_delay + negative_time_delay) tdmi_test << endl;
 			}
-			tdmi_test.close(); 
+			tdmi_test.close();
 			option = SetOption();
 		} else if (option == 4) {
 			// INPUT NEURONAL DATA:
@@ -127,11 +128,11 @@ int main() {
 			vector<double> LFP_test;
 			string folder = "./test_file/";
 			ifstream data;
-			string file_name;
-			file_name = folder + "LFP_test.txt";
-			ReadData(file_name, LFP_test);
-			file_name = folder + "raster_test.txt";
-			ReadData(file_name, raster_test);
+			string path;
+			path = folder + "LFP_test.txt";
+			Read1D(path, 0, 1, LFP_test);
+			path = folder + "raster_test.txt";
+			Read1D(path, 0, 1, raster_test);
 
 			// TIME DELAY
 			vector<double> tdmi;
@@ -139,11 +140,11 @@ int main() {
 			int positive_time_delay = 20;
 			int negative_time_delay = 20;
 			TDMI(raster_test, LFP_test, dt, 0.03125, 0.01, negative_time_delay, positive_time_delay, tdmi);
-						
+
 			ofstream tdmi_test;
 			tdmi_test.open("tdmi_test_4.dat");
 			for (int i = 0; i < negative_time_delay + positive_time_delay + 1; i++) {
-				tdmi_test << (double) dt*(i - negative_time_delay) << '\t' << (double)tdmi[i];
+				tdmi_test << (double) dt*(i - negative_time_delay) << ',' << (double)tdmi[i];
 				if (i < positive_time_delay + negative_time_delay) tdmi_test << endl;
 			}
 			tdmi_test.close();
@@ -154,11 +155,11 @@ int main() {
 			vector<double> LFP_test;
 			string folder = "./test_file/";
 			ifstream data;
-			string file_name;
-			file_name = folder + "LFP_test.txt";
-			ReadData(file_name, LFP_test);
-			file_name = folder + "raster_test.txt";
-			ReadData(file_name, raster_test);
+			string path;
+			path = folder + "LFP_test.txt";
+			Read1D(path, LFP_test);
+			path = folder + "raster_test.txt";
+			Read1D(path, raster_test);
 
 			// TIME DELAY
 			vector<double> tdmi;
@@ -167,11 +168,11 @@ int main() {
 			int positive_time_delay = 80;
 			int negative_time_delay = 100;
 			TDMI(raster_test, LFP_test, expected_occupancy, dt, 0.03125, negative_time_delay, positive_time_delay, tdmi, false);
-						
+
 			ofstream tdmi_test;
 			tdmi_test.open("tdmi_test_5.dat");
 			for (int i = 0; i < negative_time_delay + positive_time_delay + 1; i++) {
-				tdmi_test << (double)dt*(i - negative_time_delay) << '\t' << (double)tdmi[i];
+				tdmi_test << (double)dt*(i - negative_time_delay) << ',' << (double)tdmi[i];
 				if (i < positive_time_delay + negative_time_delay) tdmi_test << endl;
 			}
 			tdmi_test.close();

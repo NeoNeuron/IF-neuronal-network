@@ -88,6 +88,37 @@ void JointPDF(vector<double>& x, vector<double>& y, vector<double>& x_edges, vec
 	}
 }
 
+void JointPDF(vector<bool>& binary_spikes, vector<double>& lfp, vector<double>& lfp_edges,
+	vector<vector<double> >& jointpdf) {
+	int bin_number = lfp_edges.size();
+	int num_pairs = lfp.size();
+	jointpdf.resize(2);
+	for (int i = 0; i < 2; i++) jointpdf[i].resize(lfp_edges.size(), 0);
+	int ind;
+	for (int i = 0; i < num_pairs; i++) {
+		// determine lfp's coordination;
+		ind = floor(bin_number / 2);
+		if (lfp[i] < lfp_edges[ind]) {
+			for (int j = ind - 1; j > -1; j--) {
+				if (lfp[i] >= lfp_edges[j]) {ind = j; break;}
+			}
+		} else {
+			for (int j = ind + 1; j < bin_number; j++) {
+				if (lfp[i] < lfp_edges[j]) {ind = j - 1; break;}
+			}
+			if (ind == floor(bin_number / 2)) ind = bin_number - 1;
+		}
+		// determine spike's coordination;
+		if (binary_spikes[i]) jointpdf[0][ind]++;
+		else jointpdf[1][ind]++;
+	}
+	for (vector<vector<double> >::iterator it = jointpdf.begin(); it != jointpdf.end(); it++) {
+		for (vector<double>::iterator itt = it->begin(); itt != it->end(); itt++) {
+			*itt /= num_pairs;
+		}
+	}
+}
+
 double Max(vector<double>& data) {
 	vector<double>::iterator it;
 	it = max_element(data.begin(), data.end());
@@ -102,86 +133,12 @@ double Min(vector<double>& data) {
 
 void FindMaxMin(vector<double>& data, double *max_and_min, double bin_width) {
 	double min, max;
-	for (vector<double>::iterator it = data.begin(); it != data.end(); it++) {
-		if (it == data.begin()) {
-			min = *it;
-			max = *it;
-		} else {
-			if (*it < min) min = *it;
-			else if (*it > max) max = *it;
-			else continue;
-		}
-	}
+	min = Min(data);
+	max = Max(data);
 	min = floor(min / bin_width)*bin_width;
 	max = ceil(max / bin_width)*bin_width;
 	*max_and_min = max;
 	*(max_and_min + 1) = min;
-}
-
-void ReadData(string filename, vector<vector<double> >& data) {
-	data.clear();
-	ifstream ifile;
-	ifile.open(filename.c_str());
-	string s;
-	vector<double> add_double;
-	while (getline(ifile, s)) {
-		add_double.clear();
-		string::size_type pos = s.find_first_of('\t', 0);
-		string ss;
-		while (pos != s.npos) {
-			ss = s.substr(0, pos);
-			add_double.push_back(atof(ss.c_str()));
-			s.erase(0, pos + 1);
-			ss.clear();
-			pos = s.find_first_of('\t', 0);
-		}
-		pos = s.find_first_of('\n', 0);
-		if (pos == 0) continue;
-		else {
-			ss = s.substr(0, pos);
-			add_double.push_back(atof(ss.c_str()));
-		}
-		data.push_back(add_double);
-		s.clear();
-	}
-	ifile.close();
-}
-
-void ReadData(string filename, vector<vector<int> >& data) {
-	data.clear();
-	ifstream ifile;
-	ifile.open(filename.c_str());
-	string s;
-	vector<int> add_int;
-	while (getline(ifile, s)) {
-		add_int.clear();
-		string::size_type pos = s.find_first_of('\t', 0);
-		while (pos != s.npos) {
-			string ss = s.substr(0, pos);
-			add_int.push_back(atof(ss.c_str()));
-			s.erase(0, pos + 1);
-			ss.clear();
-			pos = s.find_first_of('\t', 0);
-		}
-		data.push_back(add_int);
-		s.clear();
-	}
-	ifile.close();
-}
-
-void ReadData(string filename, vector<double> & data) {
-	data.clear();
-	ifstream ifile;
-	ifile.open(filename.c_str());
-	string s;
-	string::size_type pos;
-	string ss;
-	while (getline(ifile, s)) {
-		pos = s.find_first_of('\n', 0);
-		ss = s.substr(0, pos);
-		data.push_back(atof(ss.c_str()));
-	}
-	ifile.close();
 }
 
 void ConvertSpikeToBinary(vector<double>& spikes, vector<bool> & binary_spikes, double tmax, double dt) {
@@ -213,10 +170,9 @@ void ConvertBinaryToInt(vector<bool> & binary_spikes, vector<int> & spikeInt, in
 double BoolHistogram(vector<bool>& data) {
 	int count = 0;
 	for (vector<bool>::iterator it = data.begin(); it != data.end(); it++) {
-		if (*it == true) count += 1;
+		if (*it) count += 1;
 	}
-	double length = data.size();
-	return count / length;
+	return count * 1.0 / data.size();
 }
 
 void IntHistogram(vector<int>& data, vector<double> & histogram, int min, int max) {
@@ -227,8 +183,9 @@ void IntHistogram(vector<int>& data, vector<double> & histogram, int min, int ma
 		IND = *it - min;
 		count[IND] ++;
 	}
+	histogram.resize(number);
 	for (int i = 0; i < number; i++) {
-		histogram.push_back(count[i] * 1.0 / data.size());
+		histogram[i] = count[i] * 1.0 / data.size();
 	}
 }
 
@@ -416,42 +373,31 @@ double MI(vector<bool>& binary_spikes, vector<double>& LFP, int time_bin_number,
 double MI(vector<bool>& binary_spikes, vector<double>& LFP, int bin_number) {
 	// calculate the occupancy;
 	// int bin_number = floor(sqrt(LFP.size() / expected_occupancy)); // bin_number: numberber of non-uniform bins;
-	int occupancy = LFP.size() / bin_number, residue = LFP.size() % bin_number; // residue: remaining number of data that not used.
+	int occupancy = LFP.size() / bin_number;
+	int residue = LFP.size() % bin_number; // residue: remaining number of data that not used.
 	int data_size = LFP.size() - residue;
-
 
 	// calculate histogram;
 	vector<double> edges;
 	FindEdges(LFP, edges, occupancy, residue);
 	double p_spike;
 	p_spike = BoolHistogram(binary_spikes);
+	double pr_spikes[2]; // pr_spikes[0] = probability of spikes; pr_spikes[1] = probability of non-spikes;
+	pr_spikes[0] = p_spike;
+	pr_spikes[1] = 1 - p_spike;
 
 	// Calculate conditional probability;
-	vector<int> count_xy_true(bin_number, 0);
-	vector<int> count_xy_false(bin_number, 0);
-
-	int ind;
-	for (int i = 0; i < data_size; i++) {
-		ind = -1;
-		for (int j = 0; j < bin_number; j++) {
-			if (LFP[i] < edges[j]) {ind = j - 1; break;}
-			if (ind == -1) ind = bin_number - 1;
-		}
-		if (binary_spikes[i] == true) count_xy_true[ind]++;
-		else count_xy_false[ind]++;
-	}
+	vector<vector<double> > jointpdf;
+	JointPDF(binary_spikes, LFP, edges, jointpdf);
 
 	// Calculate mutual information;
 
-	double mi = 0, Pxy = 0; // Pxy = P(x,y);
-	for (int i = 0; i < bin_number; i++) {
-		if (count_xy_true[i] != 0) {
-			Pxy = count_xy_true[i] * 1.0 / data_size;
-			mi += Pxy *log2(bin_number*Pxy / p_spike);
-		}
-		if (count_xy_false[i] != 0) {
-			Pxy = count_xy_false[i] * 1.0 / data_size;
-			mi += Pxy *log2(bin_number*Pxy / (1 - p_spike));
+	double mi = 0; // Pxy = P(x,y);
+	for (int i = 0; i < 2; i++) {
+		for (int j = 0; j< bin_number; j++) {
+			if (jointpdf[i][j] != 0) {
+				mi += jointpdf[i][j] *log2(bin_number*jointpdf[i][j] / pr_spikes[i]);
+			}
 		}
 	}
 	if (mi<0) {

@@ -5,6 +5,7 @@
 //	Description: Mutual information analysis program; version 1.0
 //***************
 #include "mi.h"
+#include "../io/io.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -31,11 +32,11 @@ int main(int argc, const char* argv[]) {
 	string file_dir = "./lfp/file-txt/";
 
 	// DATA OF PRELAYER NEURON:
-	string filename;
-	filename = file_dir + "raster.txt";
-	ReadData(filename, raster);
-	filename = file_dir + "lfp.txt";
-	ReadData(filename, lfp);
+	string path;
+	path = file_dir + "raster.txt";
+	Read1D(path, 0, 1, raster);
+	path = file_dir + "lfp.txt";
+	Read1D(path, 0, 1, lfp);
 	// Preparing input args;
 	double dt = atof(argv[1]);
 	int negative_time_delay = atoi(argv[2]);
@@ -59,14 +60,14 @@ int main(int argc, const char* argv[]) {
 	cout << ">> Outputing data ... " << endl;
 	data_out.open("./tdmi/file-txt/tdmi_ordered.txt");
 	for (int i = 0; i < negative_time_delay + positive_time_delay + 1; i++) {
-		data_out << (double)dt*(i - negative_time_delay) << '\t' << (double)tdmi_ordered[i];
+		data_out << (double)dt*(i - negative_time_delay) << ',' << (double)tdmi_ordered[i];
 		if (i < positive_time_delay + negative_time_delay) data_out << endl;
 	}
 	data_out.close();
 
 	data_out.open("./tdmi/file-txt/tdmi_rand.txt");
 	for (int i = 0; i < negative_time_delay + positive_time_delay + 1; i++) {
-		data_out << (double)dt*(i - negative_time_delay) << '\t' << (double)tdmi_random[i];
+		data_out << (double)dt*(i - negative_time_delay) << ',' << (double)tdmi_random[i];
 		if (i < positive_time_delay + negative_time_delay) data_out << endl;
 	}
 	data_out.close();

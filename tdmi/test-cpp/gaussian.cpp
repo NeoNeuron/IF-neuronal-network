@@ -41,7 +41,7 @@ int main(int argc, const char* argv[]) {
   ofstream tdmi_test;
   tdmi_test.open("../file-txt/gaussian_uniform.txt");
   for (int i = 0; i < positive_time_delay + negative_time_delay + 1; i++) {
-    tdmi_test << i - negative_time_delay << '\t' << xy_tdmi[i] << "\t" << uv_tdmi[i];
+    tdmi_test << i - negative_time_delay << ',' << xy_tdmi[i] << "," << uv_tdmi[i];
     if (i < positive_time_delay + negative_time_delay) tdmi_test << endl;
   }
   tdmi_test.close();
@@ -57,7 +57,7 @@ int main(int argc, const char* argv[]) {
 
 	tdmi_test.open("../file-txt/gaussian_adaptive.txt");
 	for (int i = 0; i < positive_time_delay + negative_time_delay + 1; i++) {
-		tdmi_test << i - negative_time_delay << '\t' << xy_tdmi[i] << "\t" << uv_tdmi[i];
+		tdmi_test << i - negative_time_delay << ',' << xy_tdmi[i] << "," << uv_tdmi[i];
 		if (i < positive_time_delay + negative_time_delay) tdmi_test << endl;
 	}
 	tdmi_test.close();
