@@ -136,7 +136,7 @@ void Read1D(string path, int index, int axis, vector<double>& data) {
   // open data file;
   ifstream ifile;
   ifile.open(path.c_str());
-  if (axis == 0) {
+  if (axis == 0) { // for rows
   	// prepare input file stream;
   	string s, ss;
     string::size_type pos;
@@ -162,7 +162,7 @@ void Read1D(string path, int index, int axis, vector<double>& data) {
       s.clear();
   		getline_counter ++;
   	}
-  } else {
+  } else { // for columns;
     // prepare input file stream;
   	string s, ss;
   	string::size_type pos;
