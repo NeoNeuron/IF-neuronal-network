@@ -5,6 +5,7 @@
 //	Description: source file of mi.h
 //***************
 #include "mi.h"
+#include "../io/io.h"
 #include <iostream>
 #include <fstream>
 #include <cmath>
@@ -530,7 +531,7 @@ void TDMI_adaptive(vector<double>& x, vector<double>& y, int negative_time_delay
 		y_copy.erase(y_copy.end() - 1, y_copy.end());
 		pdf_path.clear();
 		int2str(index, pdf_path);
-		pdf_path = "../results/jointpdfs/jpdf_" + pdf_path;
+		pdf_path = "../../results/jointpdfs/jpdf_" + pdf_path;
 		index ++;
 		tdmi[negative_time_delay - i - 1] = MI(x_copy, y_copy, pdf_path);
 	}
@@ -538,7 +539,7 @@ void TDMI_adaptive(vector<double>& x, vector<double>& y, int negative_time_delay
 	// No shift;
 	pdf_path.clear();
 	int2str(index, pdf_path);
-	pdf_path = "../results/jointpdfs/jpdf_" + pdf_path;
+	pdf_path = "../../results/jointpdfs/jpdf_" + pdf_path;
 	index ++;
 	tdmi[negative_time_delay] = MI(x, y, pdf_path);
 
@@ -550,7 +551,7 @@ void TDMI_adaptive(vector<double>& x, vector<double>& y, int negative_time_delay
 		y_copy.erase(y_copy.begin(), y_copy.begin() + 1);
 		pdf_path.clear();
 		int2str(index, pdf_path);
-		pdf_path = "../results/jointpdfs/jpdf_" + pdf_path;
+		pdf_path = "../../results/jointpdfs/jpdf_" + pdf_path;
 		index ++;
 		tdmi[negative_time_delay + i + 1] = MI(x_copy, y_copy, pdf_path);
 	}
