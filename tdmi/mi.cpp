@@ -9,6 +9,7 @@
 #include <fstream>
 #include <cmath>
 #include <algorithm>
+#include <sstream>
 
 using namespace std;
 
@@ -16,6 +17,12 @@ const double PI = 3.1415926;
 
 bool comp(const double &a, const double &b) {
 	return a < b;
+}
+
+void int2str(const int &int_temp,string &string_temp) {
+	stringstream stream;
+	stream << int_temp;
+	string_temp=stream.str();
 }
 
 double GaussKernel() {
@@ -329,6 +336,45 @@ double MI(vector<double>& x, vector<double>& y) {
 	return mi;
 }
 
+double MI(vector<double>& x, vector<double>& y, string pdf_path) {
+	//	Compare the length of x & y;
+	int length;
+	if (x.size() > y.size()) length = y.size();
+	else length = x.size();
+	// Calculate actual occupancy;
+	int bin_number = floor(sqrt(length / 5)); // bin_number: numberber of non-uniform bins;
+	int occupancy = floor(length / bin_number);
+	int x_residue = x.size() - bin_number*occupancy; // residue: remaining number of data that not used.
+	int y_residue = y.size() - bin_number*occupancy;
+	int data_size = bin_number*occupancy;
+
+	// Find edges of histogram;
+	vector<double> x_edges, y_edges;
+	FindEdges(x, x_edges, occupancy, x_residue);
+	FindEdges(y, y_edges, occupancy, y_residue);
+
+	// 	Calculate conditional probability;
+	vector<vector<double> > jointpdf;
+	JointPDF(x, y, x_edges, y_edges, jointpdf);
+	Print2D(pdf_path, "trunc", jointpdf);
+
+	// Calculate mutual information;
+	double mi = 0;
+	for (int i = 0; i < bin_number; i++) {
+		for (int j = 0; j < bin_number; j++) {
+			if (jointpdf[i][j] != 0) {
+				mi += jointpdf[i][j] * log2(pow(bin_number, 2)*jointpdf[i][j]);
+			}
+		}
+	}
+	if (mi<0) {
+		cout << mi << endl;
+		cout << "Press ENTER to continue:" << endl;
+		cin.get();
+	}
+	return mi;
+}
+
 double MI(vector<bool>& binary_spikes, vector<double>& LFP, int time_bin_number, double LFP_max, double LFP_min, double bin_width) {
 	// Prepare historgram;
 	double p_spike;
@@ -475,16 +521,26 @@ void TDMI_adaptive(vector<double>& x, vector<double>& y, int negative_time_delay
 	int repeat_number = positive_time_delay + negative_time_delay + 1;
 	tdmi.resize(repeat_number, 0);
 
-	// No shift;
-	tdmi[negative_time_delay] = MI(x, y);
-
+	string pdf_path;
+	int index = 0;
 	// Negative shift;
 	vector<double> x_copy = x, y_copy = y;
 	for (int i = 0; i < negative_time_delay; i++) {
 		x_copy.erase(x_copy.begin(), x_copy.begin() + 1);
 		y_copy.erase(y_copy.end() - 1, y_copy.end());
-		tdmi[negative_time_delay - i - 1] = MI(x_copy, y_copy);
+		pdf_path.clear();
+		int2str(index, pdf_path);
+		pdf_path = "../results/jointpdfs/jpdf_" + pdf_path;
+		index ++;
+		tdmi[negative_time_delay - i - 1] = MI(x_copy, y_copy, pdf_path);
 	}
+
+	// No shift;
+	pdf_path.clear();
+	int2str(index, pdf_path);
+	pdf_path = "../results/jointpdfs/jpdf_" + pdf_path;
+	index ++;
+	tdmi[negative_time_delay] = MI(x, y, pdf_path);
 
 	// Positive shift;
 	x_copy = x;
@@ -492,7 +548,11 @@ void TDMI_adaptive(vector<double>& x, vector<double>& y, int negative_time_delay
 	for (int i = 0; i < positive_time_delay; i++) {
 		x_copy.erase(x_copy.end() - 1, x_copy.end());
 		y_copy.erase(y_copy.begin(), y_copy.begin() + 1);
-		tdmi[negative_time_delay + i + 1] = MI(x_copy, y_copy);
+		pdf_path.clear();
+		int2str(index, pdf_path);
+		pdf_path = "../results/jointpdfs/jpdf_" + pdf_path;
+		index ++;
+		tdmi[negative_time_delay + i + 1] = MI(x_copy, y_copy, pdf_path);
 	}
 }
 

@@ -113,6 +113,8 @@ double MI(vector<double>& x, vector<double>& y, double* x_max_and_min, double* y
 //	Return: value of mutual information;
 double MI(vector<double>& x, vector<double>& y);
 
+double MI(vector<double>& x, vector<double>& y, string pdf_path);
+
 //	Mutual information between binary spike train and local field potential; the scheme of histogram is those with equally sized bins;
 //	VECTOR<BOOL> binary_spikes: spike train with binary format;
 //	VECTOR<DOUBLE> LFP: orignal local field potential(LFP);
