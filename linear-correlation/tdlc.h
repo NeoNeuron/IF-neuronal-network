@@ -8,7 +8,7 @@ using namespace std;
 
 //	Read 1D data from *.txt files; Data type: (double);
 //	Return: none;
-// void ReadData(string filename, vector<double> & data);
+// void ReadData(string path, vector<double> & data);
 
 // Return mean value of elements of x;
 double Mean(vector<int>& x);

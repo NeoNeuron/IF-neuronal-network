@@ -28,7 +28,7 @@ int main(int argc, const char* argv[]) {
   vector<double> tdlc_xy, tdlc_uv;
   // manipulate data;
 
-  // cout << mean_first.size() << '\t' << mean_second.size() << endl;
+  // cout << mean_first.size() << ',' << mean_second.size() << endl;
   TDLC(X, Y, negative_time_delay, positive_time_delay, tdlc_xy);
   TDLC(U, V, negative_time_delay, positive_time_delay, tdlc_uv);
 
@@ -36,7 +36,7 @@ int main(int argc, const char* argv[]) {
   ofstream ofile;
   ofile.open("../file-txt/gaussian.txt");
   for (int i = 0; i < negative_time_delay + positive_time_delay + 1; i ++) {
-    ofile << (double) i - negative_time_delay << '\t' << setprecision(6) << (double)tdlc_xy[i] << '\t' << setprecision(6) << (double)tdlc_uv[i];
+    ofile << (double) i - negative_time_delay << ',' << setprecision(6) << (double)tdlc_xy[i] << ',' << setprecision(6) << (double)tdlc_uv[i];
     if (i != (negative_time_delay + positive_time_delay)) ofile << endl;
   }
   ofile.close();

@@ -7,10 +7,10 @@
 
 using namespace std;
 
-// void ReadData(string filename, vector<double> & data) {
+// void ReadData(string path, vector<double> & data) {
 // 	data.clear();
 // 	ifstream ifile;
-// 	ifile.open(filename.c_str());
+// 	ifile.open(path.c_str());
 // 	string s;
 // 	string::size_type pos;
 // 	string ss;

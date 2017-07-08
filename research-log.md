@@ -327,3 +327,12 @@ Finished Report of Week 3 & 4
 ## To do list:
 1. Plot all tdmi figure to investigate their pattern
 2. define a new automatic recognition method to help my program to classify them.
+
+
+# 2017-06-10
+
+## Generating one way driven X and Y series with Gaussian noise;
+- X[i] = -0.1 * X[i - 1] + GaussKernel();
+- Y[i] = -0.1 * X[i - 1] + GaussKernel();
+
+### Add API of joint probability distribution output;

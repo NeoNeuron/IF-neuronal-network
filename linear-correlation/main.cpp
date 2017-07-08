@@ -4,7 +4,7 @@
 #include<iomanip>
 #include<cmath>
 #include"tdlc.h"
-#include"../tdmi/mi.h"
+#include"../io/io.h"
 using namespace std;
 
 int main(int argc, const char* argv[]) {
@@ -16,12 +16,12 @@ int main(int argc, const char* argv[]) {
   // prepare data loading system;
   string loading_dir = "./lfp/file-txt/";
   string outputing_dir = "./linear-correlation/file-txt/";
-  string ifilename_lfp = loading_dir + "lfp.txt";
-  string ifilename_raster = loading_dir + "raster.txt";
-  string ofilename = outputing_dir + "linecorr.txt";
+  string ipath_lfp = loading_dir + "lfp.txt";
+  string ipath_raster = loading_dir + "raster.txt";
+  string opath = outputing_dir + "linecorr.txt";
   vector<double> lfp, raster;
-  ReadData(ifilename_lfp, lfp);
-  ReadData(ifilename_raster, raster);
+  Read1D(ipath_lfp, 0, 1, lfp);
+  Read1D(ipath_raster, 0, 1, raster);
   double sampling_dt = 0.03125;
   // Main calculation:
   double timing_step = atof(argv[1]);
@@ -48,14 +48,14 @@ int main(int argc, const char* argv[]) {
     if (ind == lfp_length) ind -= 1;
     mean_raster[ind] += 1;
   }
-  // cout << mean_lfp.size() << '\t' << mean_raster.size() << endl;
+  // cout << mean_lfp.size() << ',' << mean_raster.size() << endl;
   TDLC(mean_raster, mean_lfp, negative_time_delay, positive_time_delay, tdlc);
 
   // output results:
   ofstream ofile;
-  ofile.open(ofilename.c_str());
+  ofile.open(opath.c_str());
   for (int i = 0; i < negative_time_delay + positive_time_delay + 1; i ++) {
-    ofile << (double) (i - negative_time_delay) * timing_step << '\t' << setprecision(6) << (double)tdlc[i];
+    ofile << (double) (i - negative_time_delay) * timing_step << ',' << setprecision(6) << (double)tdlc[i];
     if (i != (negative_time_delay + positive_time_delay)) ofile << endl;
   }
   ofile.close();
