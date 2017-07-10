@@ -3,7 +3,7 @@
 #include<fstream>
 #include<numeric>
 #include<cstdlib>
-#include"tdlc.h"
+#include"../include/lcc.h"
 
 using namespace std;
 

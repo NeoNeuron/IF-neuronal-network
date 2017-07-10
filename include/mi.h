@@ -4,8 +4,8 @@
 //	Date: 2017-02-27 21:48:02
 //	Description: Define algorithm to estimate Mutual Information(MI) and Time-Delayed Mutual Information(TDMI);
 //***************
-#ifndef _DATA_ANALYSIS_MI_H_
-#define _DATA_ANALYSIS_MI_H_
+#ifndef _IFNET_MI_H_
+#define _IFNET_MI_H_
 
 #include <string>
 #include <vector>
@@ -146,4 +146,4 @@ void TDMI(vector<double>& spikes, vector<double>& LFP, double dt, double samplin
 // Delayed mutual information of spiking train and LFP, with adaptive partitions;
 void TDMI(vector<double>& spikes, vector<double>& LFP, double dt, double sampling_dt, int negative_time_delay, int positive_time_delay, vector<double> & tdmi, bool random_switch);
 
-#endif // _DATA_ANALYSIS_MI_H_
+#endif // _IFNET_MI_H_

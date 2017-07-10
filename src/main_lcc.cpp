@@ -3,8 +3,8 @@
 #include<cstdlib>
 #include<iomanip>
 #include<cmath>
-#include"tdlc.h"
-#include"../io/io.h"
+#include"../include/lcc.h"
+#include"../include/io.h"
 using namespace std;
 
 int main(int argc, const char* argv[]) {

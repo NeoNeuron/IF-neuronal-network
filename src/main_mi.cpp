@@ -4,8 +4,8 @@
 //	Date: 2017-06-03
 //	Description: Mutual information analysis program; version 1.0
 //***************
-#include "mi.h"
-#include "../io/io.h"
+#include "../include/mi.h"
+#include "../include/io.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>

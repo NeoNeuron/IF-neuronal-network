@@ -4,8 +4,8 @@
 //	Date: 2017-03-08 12:34:37
 //	Description: Source code of connectivity_matrix.cpp;
 //***************
-#include "connectivity_matrix.h"
-#include "../io/io.h"
+#include "../include/connectivity_matrix.h"
+#include "../include/io.h"
 
 void ConnectivityMatrix::Scan(int target_value, int row_index, vector<int> &output_indices) {
 	for (int s = 0; s < neuron_number_; s++) {

@@ -4,8 +4,8 @@
 //	Description: Define class Neuron, structure Spike and NeuronState;
 //	Date: 2017-02-21 16:06:30
 //******************************
-#include "group.h"
-#include "../io/io.h"
+#include "../include/group.h"
+#include "../include/io.h"
 #include <iostream>
 #include <algorithm>
 #include <ctime>
@@ -290,4 +290,35 @@ void NeuronalNetwork::RestoreNeurons() {
 	}
 	external_excitatory_inputs_.clear();
 	external_inhibitory_inputs_.clear();
+}
+
+void UpdateSystemState(NeuronalNetwork & pre_network, NeuronalNetwork & post_network, vector<vector<bool> > & connectivity_matrix, double t, double dt) {
+	//	Update pre_network in two network system;
+	pre_network.UpdateNetworkState(t, dt);
+	//	Transmit spiking information from pre_network to post_network;
+	vector<vector<Spike> > tempPreSpikes, tempPostSpikes;
+	pre_network.GetNewSpikes(t, tempPreSpikes);
+	// Set transmit time:
+	// double transmit_time = 2;
+	// for (vector<vector<Spike> >::iterator it = tempPreSpikes.begin(); it != tempPreSpikes.end(); it ++) {
+	// 	if (it -> size() > 0) {
+	// 		for (vector<Spike>::iterator itt = it -> begin(); itt != it -> end(); itt ++) {
+	// 			itt -> t += transmit_time;
+	// 		}
+	// 	}
+	// }
+	// find temporal spiking sequence for post network;
+	tempPostSpikes.resize(connectivity_matrix[1].size());
+	for (int i = 0; i < connectivity_matrix.size(); i++) {
+		if (tempPreSpikes[i].size() != 0) {
+			for (int j = 0; j < connectivity_matrix.size(); j++) {
+				if (connectivity_matrix[i][j] == true) {
+					tempPostSpikes[j].insert(tempPostSpikes[j].end(), tempPreSpikes[i].begin(), tempPreSpikes[i].end());
+				}
+			}
+		}
+	}
+	post_network.InNewSpikes(tempPostSpikes);
+	//	Update post_network in two network system;
+	post_network.UpdateNetworkState(t, dt);
 }

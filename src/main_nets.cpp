@@ -5,14 +5,15 @@
 //	Description: test program for multi-network simulation;
 //*************************
 
-#include "multi_network.h"
-#include "get-config.h"
+#include "../include/group.h"
+#include "../include/get-config.h"
+#include "../include/io.h"
 #include <cstdlib>
 #include <cmath>
 #include <ctime>
 #include <sstream>
-
 using namespace std;
+
 //	Simulation program for two network system;
 //	arguments:
 //	argv[1] = Outputing directory for neural data;
@@ -28,7 +29,7 @@ int main(int argc, const char* argv[]) {
 	dir = argv[1];
 
 	// Loading config.ini:
-	string net_config_path = "./multi-network/config.ini";
+	string net_config_path = "../doc/config.ini";
   map<string, string> m_map_config;
   ReadConfig(net_config_path,m_map_config);
   cout << ">> [Config.ini]:" << endl;

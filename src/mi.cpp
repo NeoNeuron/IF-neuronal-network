@@ -4,14 +4,13 @@
 //	Date: 2017-02-27 21:48:11
 //	Description: source file of mi.h
 //***************
-#include "mi.h"
-#include "../io/io.h"
+#include "../include/mi.h"
+#include "../include/io.h"
 #include <iostream>
 #include <fstream>
 #include <cmath>
 #include <algorithm>
 #include <sstream>
-
 using namespace std;
 
 const double PI = 3.1415926;

@@ -4,15 +4,14 @@
 //	Date: 2017-03-08 21:32:55
 //	Description: source file of lfp.h
 //***************
-#include "lfp.h"
-#include "../io/io.h"
+#include "../include/lfp.h"
+#include "../include/io.h"
 #include <iostream>
 #include <fstream>
 #include <algorithm>
 #include <iomanip>
 #include <cstdlib>
 #include <ctime>
-
 using namespace std;
 
 void Sample(vector<int> & origin_vector, vector<int> & sample_vector, int num) {

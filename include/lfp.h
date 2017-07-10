@@ -4,8 +4,8 @@
 //	Date: 2017-03-08 21:32:46
 //	Description: Define model of local field potential(LFP);
 //***************
-#ifndef _DATA_ANALYSIS_LFP_H_
-#define _DATA_ANALYSIS_LFP_H_
+#ifndef _IFNET_LFP_H_
+#define _IFNET_LFP_H_
 
 #include <string>
 #include <vector>
@@ -55,4 +55,4 @@ void OutLFP(string path, vector<double>& lfp);
 //	Return: none;
 void OutSpikeTrain(string path, vector<double>& spikes, double* t_range);
 
-#endif // _DATA_ANALYSIS_LFP_H_
+#endif // _IFNET_LFP_H_

@@ -4,14 +4,13 @@
 //	Date: 2017-03-13 15:07:34
 //	Description: main file for lfp.h and lfp.cpp
 //***************
-#include "lfp.h"
-#include "../io/io.h"
+#include "../include/lfp.h"
+#include "../include/io.h"
 #include <iostream>
 #include <fstream>
 #include <algorithm>
 #include <iomanip>
 #include <cstdlib>
-
 using namespace std;
 
 //	Function of calculating LFP with point current source model in 1-D loop network case;

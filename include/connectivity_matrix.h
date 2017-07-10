@@ -5,8 +5,8 @@
 //	Description: define class ConnectivityMatrix; Connectivity matrix is used
 // 	to describe network structure of one dimensional network;
 //***************
-#ifndef _MULTI_NETWORK_SIMULATION_CONNECTIVITY_MATRIX_H_
-#define _MULTI_NETWORK_SIMULATION_CONNECTIVITY_MATRIX_H_
+#ifndef _IFNET_CONNECTIVITY_MATRIX_H_
+#define _IFNET_CONNECTIVITY_MATRIX_H_
 
 #include<iostream>
 #include<fstream>
@@ -63,4 +63,4 @@ public:
 	void OutMatrix(string path);
 };
 
-#endif // _MULTI_NETWORK_SIMULATION_CONNECTIVITY_MATRIX_H_
+#endif // _IFNET_CONNECTIVITY_MATRIX_H_

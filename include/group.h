@@ -4,8 +4,8 @@
 //	Date: 2017-03-08 15:47:39
 //	Description: define Struct SpikeElement and Class NeuronalNetwork;
 //***************
-#ifndef _MULTI_NETWORK_SIMULATION_GROUP_H_
-#define _MULTI_NETWORK_SIMULATION_GROUP_H_
+#ifndef _IFNET_GROUP_H_
+#define _IFNET_GROUP_H_
 
 #include"neuron.h"
 #include"connectivity_matrix.h"
@@ -136,4 +136,6 @@ public:
 	void GetConductance(int i, bool function);
 };
 
-#endif // _MULTI_NETWORK_SIMULATION_GROUP_H_
+void UpdateSystemState(NeuronalNetwork & pre_network, NeuronalNetwork & post_network, vector<vector<bool> > &connectivity_matrix, double t, double dt);
+
+#endif // _IFNET_GROUP_H_

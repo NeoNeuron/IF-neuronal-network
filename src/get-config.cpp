@@ -4,7 +4,7 @@
 //  Date: 2017-03-09 15:58:25
 //  Description: Source file for get-config.h
 //***************
-#include "get-config.h"
+#include "../include/get-config.h"
 #include <fstream>
 #include <iostream>
 
@@ -23,7 +23,7 @@ bool IsCommentChar(char c) {
 void Trim(string & str) {
     if (str.empty()) return;
     int i, start_pos, end_pos;
-    for (i = 0; i < str.size(); i++) {  
+    for (i = 0; i < str.size(); i++) {
         if (!IsSpace(str[i])) {
             break;
         }

@@ -1,9 +1,8 @@
-#ifndef _TDLC_H_
-#define _TDLC_H_
+#ifndef _IFNET_LCC_H_
+#define _IFNET_LCC_H_
 
 #include<string>
 #include<vector>
-
 using namespace std;
 
 //	Read 1D data from *.txt files; Data type: (double);
@@ -27,4 +26,4 @@ void TDLC(vector<int>& raster, vector<double>& lfp, int negative_time_delay, int
 
 void TDLC(vector<double>& first, vector<double>& second, int negative_time_delay, int positive_time_delay, vector<double>& tdlc);
 
-#endif // _TDLC_H_
+#endif // _IFNET_LCC_H_
