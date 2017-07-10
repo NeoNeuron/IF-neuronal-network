@@ -72,9 +72,9 @@ int main(int argc, const char* argv[]) {
 	LFP(t_range, total_neuron_number, list, current_path, lfp);
 
 	//	Output data:
-	string out_dir = "./lfp/file-txt/";
-	string lfp_path = out_dir + "lfp.txt";
-	string raster_path = out_dir + "raster.txt";
+	string out_dir = "./data/lfp/";
+	string lfp_path = out_dir + "lfp.csv";
+	string raster_path = out_dir + "raster.csv";
 
 	//	Output LFP:
 	cout << ">> Outputing LFP and spike train ..." << endl;

@@ -27,15 +27,14 @@ int main(int argc, const char* argv[]) {
 	start = clock();
 	// INPUT NEURONAL DATA:
 	ifstream data;
-	vector<double> raster;
-	vector<double> lfp;
-	string file_dir = "./lfp/file-txt/";
+	vector<double> raster, lfp;
+	string ifile_dir = "./data/lfp/";
 
 	// DATA OF PRELAYER NEURON:
 	string path;
-	path = file_dir + "raster.txt";
+	path = ifile_dir + "raster.csv";
 	Read1D(path, 0, 1, raster);
-	path = file_dir + "lfp.txt";
+	path = ifile_dir + "lfp.csv";
 	Read1D(path, 0, 1, lfp);
 	// Preparing input args;
 	double dt = atof(argv[1]);
@@ -58,16 +57,10 @@ int main(int argc, const char* argv[]) {
 	//	Output data:
 	ofstream data_out;
 	cout << ">> Outputing data ... " << endl;
-	data_out.open("./tdmi/file-txt/tdmi_ordered.txt");
+	data_out.open("./data/mi/mi.csv");
+	data_out << "timelag,ordered,random" << endl;
 	for (int i = 0; i < negative_time_delay + positive_time_delay + 1; i++) {
-		data_out << (double)dt*(i - negative_time_delay) << ',' << (double)tdmi_ordered[i];
-		if (i < positive_time_delay + negative_time_delay) data_out << endl;
-	}
-	data_out.close();
-
-	data_out.open("./tdmi/file-txt/tdmi_rand.txt");
-	for (int i = 0; i < negative_time_delay + positive_time_delay + 1; i++) {
-		data_out << (double)dt*(i - negative_time_delay) << ',' << (double)tdmi_random[i];
+		data_out << (double)dt*(i - negative_time_delay) << ',' << (double)tdmi_ordered[i] << ',' << (double)tdmi_random[i];
 		if (i < positive_time_delay + negative_time_delay) data_out << endl;
 	}
 	data_out.close();
