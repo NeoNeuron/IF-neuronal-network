@@ -6,6 +6,7 @@ import time
 from scipy.optimize	import curve_fit
 import random
 import os
+import pandas as pd
 
 
 def Compile():
@@ -95,37 +96,22 @@ def mean_rate(loading_dir, filename, index, tmax):
 	mean_rate = len(raster)*1.0 / tmax
 	return mean_rate
 
-def import_tdmi():
-	f_order = open("./tdmi/file-txt/tdmi_ordered.txt", 'r')
-	f_rand = open("./tdmi/file-txt/tdmi_rand.txt", 'r')
-	time_series = []
-	signal_order = []
-	signal_rand = []
-	for line in f_order:
-		line = line.split(',')
-		time_series.append(float(line[0]))
-		signal_order.append(float(line[1]))
-	for line in f_rand:
-		line = line.split(',')
-		signal_rand.append(float(line[1]))
-	time_series = np.array(time_series)
-	signal_order = np.array(signal_order)
-	signal_rand = np.array(signal_rand)
-	return time_series, signal_order, signal_rand
-
-def tdmi_parameters(time_series, signal_order, signal_rand):
+def tdmi_parameters(mi):
 	"""
 	Returns:
 	sn_ratio: signal-noise ratio
 	peak_time: time point of maximum mutual information
 	time_constant: time constant for signal decay;
 	"""
+	time_series = mi['timelag']
+	signal_ordered = mi['ordered']
+	signal_random = mi['random']
 	# calculate noise level
-	noise_mean = signal_rand.mean()
-	noise_std = signal_rand.std()
+	noise_mean = signal_random.mean()
+	noise_std = signal_random.std()
 	# allocate maximum mutual information signal
-	signal_max_ind = np.argmax(signal_order)
-	signal_max = signal_order[signal_max_ind]
+	signal_max_ind = signal_ordered.argmax()
+	signal_max = signal_ordered[signal_max_ind]
 	peak_time = time_series[signal_max_ind]
 
 	if noise_mean != 0:
@@ -135,15 +121,15 @@ def tdmi_parameters(time_series, signal_order, signal_rand):
 		# if type(signal_max_ind) == int:
 		ind = signal_max_ind
 		if ind >= noise_mean + noise_std:
-			while signal_order[ind] >= noise_mean + noise_std:
-				if ind == len(signal_order) - 1:
+			while signal_ordered[ind] >= noise_mean + noise_std:
+				if ind == len(signal_ordered) - 1:
 					break
 				ind += 1
 			signal_back_ind = ind
 			if  signal_back_ind - signal_max_ind > 3:
 				fexp = lambda x, a, b, c: a*np.exp(-b * x) + c
 				try:
-					popt, pcov = curve_fit(fexp, time_series[signal_max_ind:signal_back_ind], signal_order[signal_max_ind:signal_back_ind], p0 = (1, 1, 0))
+					popt, pcov = curve_fit(fexp, time_series.ix[signal_max_ind:signal_back_ind].values, signal_ordered.ix[signal_max_ind:signal_back_ind].values, p0 = (1, 1, 0))
 				except RuntimeError:
 					popt = [0, 0, 0]
 				# decayed time constant
@@ -224,16 +210,16 @@ def PlotTdmi(time_series, signal_order, signal_rand, saving_dir, saving_filename
 	plt.plot(time_series, signal_order, label = "TDMI-original")
 	plt.plot(time_series, signal_rand, label = "TDMI-swapped")
 	# setting axis range;
-	x_max = time_series[-1]
+	x_max = time_series[len(time_series) - 1]
 	x_min = time_series[0]
-	if np.max(signal_order) > np.max(signal_rand):
-		y_max = np.max(signal_order)
+	if max(signal_order) > max(signal_rand):
+		y_max = max(signal_order)
 	else:
-		y_max = np.max(signal_rand)
-	if np.min(signal_order) < np.min(signal_rand):
-		y_min = np.min(signal_order)
+		y_max = max(signal_rand)
+	if min(signal_order) < min(signal_rand):
+		y_min = min(signal_order)
 	else:
-		y_min = np.min(signal_rand)
+		y_min = min(signal_rand)
 	abs_diff = y_max - y_min;
 	y_min -= abs_diff * 0.1
 	y_max += abs_diff * 0.1
