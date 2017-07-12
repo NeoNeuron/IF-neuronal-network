@@ -1,0 +1,14 @@
+# ignore all executable files
+bin/*
+
+# ignore data files
+data/*
+
+# ignore results files
+results/*
+
+# ignore config files
+*.ini
+
+# ignore python lib object
+*.pyc
