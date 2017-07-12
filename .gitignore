@@ -5,7 +5,7 @@ bin/*
 data/*
 
 # ignore results files
-# results/*
+results/*
 
 # ignore config files
 *.ini
