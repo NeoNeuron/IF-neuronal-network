@@ -97,9 +97,8 @@ void DoubleHistogram(vector<double> & data, vector<double> & histogram, double m
 
 // 	Mutual information of two binary spike trains;
 //	VECTOR<BOOL> x, y: tow original bool sequence;
-//	INT bin_size: number of bool value contained in single int;
 //	Return: value of mutual information;
-double MI(vector<bool>& x, vector<bool>& y, int bin_size);
+double MI(vector<bool>& x, vector<bool>& y);
 
 // 	Mutual information of two double sequences;
 //	VECTOR<DOUBLE> x, y: two original double sequences;
@@ -132,7 +131,7 @@ double MI(vector<bool> &binary_spikes, vector<double> &LFP, int time_bin_number,
 double MI(vector<bool> &binary_spikes, vector<double> &LFP, int bin_number);
 
 // Time-delayed mutual information between two spike trains;
-void TDMI(vector<double>& x, vector<double>& y, double dt, double tmax, int bin_size, int negative_time_delay, int positive_time_delay, vector<double> & tdmi);
+void TDMI(vector<double>& x, vector<double>& y, double dt, double tmax, int negative_time_delay, int positive_time_delay, vector<double> & tdmi);
 
 // Delayed mutual information of two double vector, by applying histogram scheme with equal bin size;
 void TDMI_uniform(vector<double>& x, vector<double>& y, int negative_time_delay, int positive_time_delay, vector<double> & tdmi);

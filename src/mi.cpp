@@ -212,35 +212,39 @@ void DoubleHistogram(vector<double> & data, vector<double> & histogram, double m
 	}
 }
 
-double MI(vector<bool>& x, vector<bool>& y, int bin_size) {
+double MI(vector<bool>& x, vector<bool>& y) {
 	if (x.size() != y.size()) {
 		cout << "ERROR: x and y don't have the same length." << endl;
 		return 0;
 	} else {
-		// Convert bool vector to int vector;
-
-		vector<int> x_int, y_int;
-		ConvertBinaryToInt(x, x_int, bin_size);
-		ConvertBinaryToInt(y, y_int, bin_size);
-
+		int np = x.size();
 		// Histograms;
-		int max_value = pow(2, bin_size);
-		vector<double> Px, Py;
-		IntHistogram(x_int, Px, 0, max_value - 1);
-		IntHistogram(y_int, Py, 0, max_value - 1);
+		double px, py;
+		px = BoolHistogram(x);
+		py = BoolHistogram(y);
+		vector<double> Px(2), Py(2);
+		Px[0] = 1 - px;
+		Px[1] = px;
+		Py[0] = 1 - py;
+		Py[1] = py;
 
-		vector<int> add(max_value, 0);
-		vector<vector<int> > count_xy(max_value, add);
-		for (int i = 0; i < x_int.size(); i++) {
-			count_xy[x_int[i]][y_int[i]]++;
+		vector<int> add(2, 0);
+		vector<vector<int> > count_xy(2, add);
+		for (int i = 0; i < np; i++) {
+			if (x[i]) {
+				if (y[i]) count_xy[1][1] ++;
+				else count_xy[1][0] ++;
+			} else {
+				if (y[i]) count_xy[0][1] ++;
+				else count_xy[0][0] ++;
 		}
 
 		// Mutual information;
 		double mi = 0;
-		for (int i = 0; i < max_value; i++) {
-			for (int j = 0; j < max_value; j++) {
+		for (int i = 0; i < 2; i++) {
+			for (int j = 0; j < 2; j++) {
 				if (count_xy[i][j] != 0) {
-					mi += count_xy[i][j] * 1.0 / x_int.size()*log2(count_xy[i][j] * 1.0 / x_int.size() / Px[i] / Py[j]);
+					mi += count_xy[i][j] * 1.0 / np*log2(count_xy[i][j] * 1.0 / np / Px[i] / Py[j]);
 				}
 				else continue;
 			}
@@ -454,22 +458,21 @@ double MI(vector<bool>& binary_spikes, vector<double>& LFP, int bin_number) {
 	return mi;
 }
 
-void TDMI(vector<double>& x, vector<double>& y, double dt, double tmax, int bin_size, int negative_time_delay, int positive_time_delay, vector<double> & tdmi) {
+void TDMI(vector<double>& x, vector<double>& y, double dt, double tmax, int negative_time_delay, int positive_time_delay, vector<double> & tdmi) {
 	vector<bool> x_bool, y_bool;
 	ConvertSpikeToBinary(x, x_bool, tmax, dt);
 	ConvertSpikeToBinary(y, y_bool, tmax, dt);
-	int repeat_number = positive_time_delay + negative_time_delay + 1;
-	tdmi.resize(repeat_number, 0);
+	tdmi.resize(positive_time_delay + negative_time_delay + 1, 0);
 
 	// No shift;
-	tdmi[negative_time_delay] = MI(x_bool, y_bool, bin_size);
+	tdmi[negative_time_delay] = MI(x_bool, y_bool);
 
 	// Negative shift;
 	vector<bool> x_copy = x_bool, y_copy = y_bool;
 	for (int i = 0; i < negative_time_delay; i++) {
 		x_copy.erase(x_copy.begin());
 		y_copy.erase(y_copy.end() - 1);
-		tdmi[negative_time_delay - i - 1] = MI(x_copy, y_copy, bin_size);
+		tdmi[negative_time_delay - i - 1] = MI(x_copy, y_copy);
 	}
 
 	// Positive shift;
@@ -478,7 +481,7 @@ void TDMI(vector<double>& x, vector<double>& y, double dt, double tmax, int bin_
 	for (int i = 0; i < positive_time_delay; i++) {
 		x_copy.erase(x_copy.end() - 1);
 		y_copy.erase(y_copy.begin());
-		tdmi[negative_time_delay + i + 1] = MI(x_copy, y_copy, bin_size);
+		tdmi[negative_time_delay + i + 1] = MI(x_copy, y_copy);
 	}
 }
 
