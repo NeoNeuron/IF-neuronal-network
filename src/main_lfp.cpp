@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <cstdlib>
+#include <stdexcept>
 using namespace std;
 
 //	Function of calculating LFP with point current source model in 1-D loop network case;

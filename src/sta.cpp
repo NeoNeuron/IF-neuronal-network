@@ -2,6 +2,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <cmath>
+#include <stdexcept>
 #include "../include/sta.h"
 #include "../include/io.h"
 using namespace std;

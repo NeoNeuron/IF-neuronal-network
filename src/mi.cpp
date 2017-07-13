@@ -237,6 +237,7 @@ double MI(vector<bool>& x, vector<bool>& y) {
 			} else {
 				if (y[i]) count_xy[0][1] ++;
 				else count_xy[0][0] ++;
+			}
 		}
 
 		// Mutual information;

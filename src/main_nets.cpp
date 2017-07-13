@@ -12,6 +12,7 @@
 #include <cmath>
 #include <ctime>
 #include <sstream>
+#include <stdexcept>
 using namespace std;
 
 //	Simulation program for two network system;

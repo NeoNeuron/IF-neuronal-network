@@ -185,7 +185,7 @@ void OutLFP(string path, vector<double>& lfp) {
 	Print1D(path, "trunc", 1, lfp);
 }
 
-void OutSpikeTrain(string path, vector<double>& spikes, double* t_range) {
+void OutSpikeTrain(string filename, vector<double>& spikes, double* t_range) {
 	vector<double> spikes_copy = spikes;
 	vector<double>::iterator it = spikes_copy.begin();
 	while (it != spikes_copy.end()) {
@@ -198,5 +198,6 @@ void OutSpikeTrain(string path, vector<double>& spikes, double* t_range) {
 			it++;
 		}
 	}
+	string path = "./data/raster/" + filename;
 	Print1D(path, "trunc", 1, spikes_copy);
 }

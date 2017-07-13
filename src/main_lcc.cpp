@@ -1,8 +1,9 @@
-#include<iostream>
-#include<fstream>
-#include<cstdlib>
-#include<iomanip>
-#include<cmath>
+#include <iostream>
+#include <fstream>
+#include <cstdlib>
+#include <iomanip>
+#include <cmath>
+#include <stdexcept>
 #include"../include/lcc.h"
 #include"../include/io.h"
 using namespace std;
