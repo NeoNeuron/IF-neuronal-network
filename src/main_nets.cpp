@@ -30,7 +30,7 @@ int main(int argc, const char* argv[]) {
 	dir = argv[1];
 
 	// Loading config.ini:
-	string net_config_path = "./doc/config.ini";
+	string net_config_path = "./doc/config_nets.ini";
   map<string, string> m_map_config;
   ReadConfig(net_config_path,m_map_config);
   cout << ">> [Config.ini]:" << endl;

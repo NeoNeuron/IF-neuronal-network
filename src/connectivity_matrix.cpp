@@ -66,6 +66,11 @@ void ConnectivityMatrix::SetNeuronNumber(int neuron_number) {
 	neuron_number_ = neuron_number;
 	vector<int> add_int0(neuron_number_, 0);
 	vector<int> add_intn1(neuron_number_, -1);
+	matrix_.clear();
+	path_matrix_.clear();
+	mediate_mode_matrix_.clear();
+	mediate_mode_matrix_.clear();
+	clustering_coefficient_.clear();
 	matrix_.resize(neuron_number_, add_int0);
 	path_matrix_.resize(neuron_number_, add_int0);
 	mediate_mode_matrix_.resize(neuron_number_, add_intn1);

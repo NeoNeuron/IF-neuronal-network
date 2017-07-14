@@ -44,7 +44,7 @@ public:
 	//	Set connectivity density of network;
 	void SetConnectingDensity(int connecting_density);
 
-	//	Load onnectivity matrix from external matrix;
+	//	Load connectivity matrix from external matrix;
 	void LoadMatrix(vector<vector<int> > &matrix);
 
 	//	Rewire network according to certain probability;

@@ -118,7 +118,7 @@ void NeuronalNetwork::InNewSpikes(vector<vector<Spike> > & data) {
 	}
 }
 
-void NeuronalNetwork::LoadNetworkState(string neuron_file, string connecting_matrix_file) {
+void NeuronalNetwork::LoadNeuronalState(string neuron_file) {
 	vector<vector<double> > neuronalSetups;
 	Read2D(neuron_file, neuronalSetups);
 	NeuronalState add;
@@ -132,6 +132,9 @@ void NeuronalNetwork::LoadNetworkState(string neuron_file, string connecting_mat
 		add.remaining_refractory_time = neuronalSetups[i][5];
 		neurons_[i].LoadNeuronalState(add);
 	}
+}
+
+void NeuronalNetwork::LoadConnectivityMat(string connecting_matrix_file) {
 	vector<vector<int> > connecting_matrix;
 	Read2D(connecting_matrix_file, connecting_matrix);
 	connectivity_matrix_.LoadMatrix(connecting_matrix);

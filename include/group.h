@@ -74,15 +74,20 @@ public:
 	void InNewSpikes(vector<vector<Spike> > &data);
 
 	//Load previous setups;
-	//Define a 'NeuronState' type to store neuronal condition;
-	//A ROW VECTOR:
+
+	// Load neuronal states:
+	// Define a 'NeuronState' type to store neuronal condition;
+	// A ROW VECTOR:
 	//	0: neuronal type;
 	//	1: neuronal index;
 	//	2: membrane potential;
 	//	3: excitatory conductivity;
 	//	4: inhibitory conductivity;
 	//	5: remaining refractory period;
-	void LoadNetworkState(string neuronFile, string conMatFile);
+	void LoadNeuronalState(string neuronFile);
+
+	// Load connectivity matrix;
+	void LoadConnectivityMat(string conMatFile);
 
 	// DYNAMICS:
 
