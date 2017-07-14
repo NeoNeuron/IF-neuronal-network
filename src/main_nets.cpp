@@ -30,7 +30,7 @@ int main(int argc, const char* argv[]) {
 	dir = argv[1];
 
 	// Loading config.ini:
-	string net_config_path = "../doc/config.ini";
+	string net_config_path = "./doc/config.ini";
   map<string, string> m_map_config;
   ReadConfig(net_config_path,m_map_config);
   cout << ">> [Config.ini]:" << endl;
@@ -95,10 +95,10 @@ int main(int argc, const char* argv[]) {
 	// string postGI_path = dir + "postGI.txt";
 	string preI_path = dir + "preI.txt";
 	string postI_path = dir + "postI.txt";
-	string preEI_path = dir + "preEI.txt";
-	string preII_path = dir + "preII.txt";
-	string postEI_path = dir + "postEI.txt";
-	string postII_path = dir + "postII.txt";
+	// string preEI_path = dir + "preEI.txt";
+	// string preII_path = dir + "preII.txt";
+	// string postEI_path = dir + "postEI.txt";
+	// string postII_path = dir + "postII.txt";
 	// Initialize files:
 	ofstream preV, postV, preI, postI;
 	preV.open(preV_path.c_str());
