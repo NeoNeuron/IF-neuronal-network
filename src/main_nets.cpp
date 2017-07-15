@@ -49,7 +49,9 @@ int main(int argc, const char* argv[]) {
 	pre_rewiring_seed = atoi(m_map_config["PreNetRewiringSeed"].c_str());
 	post_rewiring_seed = atoi(m_map_config["PostNetRewiringSeed"].c_str());
 	// Generate networks;
-	NeuronalNetwork preNet(preNetNum, preNetDensity), postNet(postNetNum, postNetDensity);
+	NeuronalNetwork preNet(preNetNum), postNet(postNetNum);
+	preNet.SetConnectingDensity(preNetDensity);
+	postNet.SetConnectingDensity(postNetDensity);
 	preNet.Rewire(pre_rewiring_probability, pre_rewiring_seed, true);
 	postNet.Rewire(post_rewiring_probability, post_rewiring_seed, true);
 	double maximum_time = atof(m_map_config["MaximumTime"].c_str());

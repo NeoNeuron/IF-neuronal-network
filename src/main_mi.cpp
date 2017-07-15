@@ -41,7 +41,8 @@ int main(int argc, const char* argv[]) {
 	printf(">> maximum negative time delay = %d\n", negative_time_delay);
 	printf(">> maximum positive time delay = %d\n", positive_time_delay);
 	// Judge the running mode:
-	if (argv[1] == "0") {
+	int mode = atoi(argv[1]);
+	if (mode == 0) {
 		vector<double> raster_x, raster_y;
 		string path;
 		path = "./data/raster/raster_x.csv";
@@ -65,7 +66,7 @@ int main(int argc, const char* argv[]) {
 			if (i < positive_time_delay + negative_time_delay) data_out << endl;
 		}
 		data_out.close();
-	} else if (argv[1] == "1") {
+	} else if (mode == 1) {
 		// INPUT NEURONAL DATA:
 		vector<double> raster, lfp;
 
@@ -94,7 +95,7 @@ int main(int argc, const char* argv[]) {
 			if (i < positive_time_delay + negative_time_delay) data_out << endl;
 		}
 		data_out.close();
-	} else if (argv[1] == "2") {
+	} else if (mode == 2) {
 		// INPUT NEURONAL DATA:
 		vector<double> lfp_x, lfp_y;
 

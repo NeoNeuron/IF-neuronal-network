@@ -42,6 +42,11 @@ double NeuronalNetwork::SortSpikes(double t, double dt, vector<SpikeElement>& T)
 	}
 }
 
+void NeuronalNetwork::SetConnectingDensity(int density){
+	connecting_density_ = density;
+	connectivity_matrix_.SetConnectingDensity(connecting_density_);
+}
+
 void NeuronalNetwork::InitializeNeuronalType(double p, int seed) {
 	srand(seed);
 	double x = 0;

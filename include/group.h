@@ -40,15 +40,15 @@ private:
 
 public:
 	//	Neuronal network initialization:
-	NeuronalNetwork(int neuron_number, int density) {
+	NeuronalNetwork(int neuron_number) {
 		neuron_number_ = neuron_number;
 		neurons_ = new Neuron[neuron_number_];
 		for (int i = 0; i < neuron_number_; i++) neurons_[i].SetNeuronIndex(i);
 		connectivity_matrix_.SetNeuronNumber(neuron_number_);
-		connecting_density_ = density;
-		connectivity_matrix_.SetConnectingDensity(connecting_density_);
+		connecting_density_ = 0;
 	}
 	// INPUTS:
+	void SetConnectingDensity(int density);
 
 	// 	Initialize neuronal types in the network;
 	//	DOUBLE p: the probability of the presence of excitatory neuron;

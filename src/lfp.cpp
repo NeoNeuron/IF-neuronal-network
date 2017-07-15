@@ -14,6 +14,10 @@
 #include <ctime>
 using namespace std;
 
+bool comp(const int x, const int y) {
+	return x < y;
+}
+
 void Sample(vector<int> & origin_vector, vector<int> & sample_vector, int num) {
 	sample_vector.clear();
 	if (num == origin_vector.size() || num == 0) {
@@ -54,7 +58,7 @@ int KeySelect(string & key, vector<neuron_type> & types, vector<int> & indices) 
 	return indices.size();
 }
 
-void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, string potential_path, string excitatory_conductance_path, string inhibitory_conductance_path, vector<double> &lfp) {
+void LFP(double* t_range, vector<int> & neuron_list, string potential_path, string excitatory_conductance_path, string inhibitory_conductance_path, vector<double> &lfp) {
 	// preliminary parameters;
 	double sampling_rate = 32; // Unit ms: 32/ms;
 	double leaky_reversal_potential = 0;
@@ -68,6 +72,9 @@ void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, st
 	int size_of_lfp = t_end - t_begin;
 	lfp.clear();
 	lfp.resize(size_of_lfp);
+
+	// Sort neuron list:
+	sort(neuron_list.begin(), neuron_list.end(), comp);
 
 	// Load potential file and conductance files;
 	string s_potential, s_e_conductance, s_i_conductance;
@@ -96,7 +103,7 @@ void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, st
 		getline(inhibitory_conductance_in_file, s_i_conductance);
 		neuron_list_counter = 0;
 		temp_lfp = 0;
-		for (int j = 0; j < total_neuron_number; j ++) {
+		for (int j = 0; j < neuron_list.back() + 1; j ++) {
 			pos_potential = s_potential.find_first_of(',', 0);
 			pos_e_conductance = s_e_conductance.find_first_of(',', 0);
 			pos_i_conductance = s_i_conductance.find_first_of(',', 0);
@@ -128,7 +135,7 @@ void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, st
 	cout << endl;
 }
 
-void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, string current_path, vector<double> &lfp) {
+void LFP(double* t_range, vector<int> & neuron_list, string current_path, vector<double> &lfp) {
 	// preliminary parameters;
 	double sampling_rate = 32; // Unit ms: 32/ms;
 
@@ -138,6 +145,9 @@ void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, st
 	int size_of_lfp = t_end - t_begin;
 	lfp.clear();
 	lfp.resize(size_of_lfp);
+
+	// Sort neuron list:
+	sort(neuron_list.begin(), neuron_list.end(), comp);
 
 	// Load potential file and conductance files;
 	string s_current;
@@ -160,7 +170,7 @@ void LFP(double* t_range, int total_neuron_number, vector<int> & neuron_list, st
 		getline(current_in_file, s_current);
 		neuron_list_counter = 0;
 		temp_lfp = 0;
-		for (int j = 0; j < total_neuron_number; j ++) {
+		for (int j = 0; j < neuron_list.back() + 1; j ++) {
 			pos_current = s_current.find_first_of(',', 0);
 			if (j == neuron_list[neuron_list_counter]) {
 				ss = s_current.substr(0, pos_current);

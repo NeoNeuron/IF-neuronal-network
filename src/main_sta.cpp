@@ -7,6 +7,10 @@
 #include "../include/io.h"
 using namespace std;
 
+//	arguments:
+//	argv[1] = path of spike train file;
+//	argv[2] = path of lfp file;
+//	argv[3] = tau time range, seperated by comma, with unit in milliseconds;
 int main(int argc, const char* argv[]) {
   if (argc != 4) 		throw runtime_error("wrong number of args");
   string file_path_spike_train = argv[1];

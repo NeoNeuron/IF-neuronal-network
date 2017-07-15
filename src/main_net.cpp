@@ -36,110 +36,53 @@ int main(int argc, const char* argv[]) {
   cout << ">> [Config.ini]:" << endl;
 	PrintConfig(m_map_config);
 	cout << endl;
-
-	int preNetNum, postNetNum, preNetDensity, postNetDensity;
-	double pre_rewiring_probability, post_rewiring_probability;
-	int pre_rewiring_seed, post_rewiring_seed;
-	preNetNum = atoi(m_map_config["PreNetNeuronNumber"].c_str());
-	postNetNum = atoi(m_map_config["PostNetNeuronNumber"].c_str());
-	preNetDensity = atoi(m_map_config["PreNetConnectingDensity"].c_str());
-	postNetDensity = atoi(m_map_config["PostNetConnectingDensity"].c_str());
-	pre_rewiring_probability = atof(m_map_config["PreNetRewiringProbability"].c_str());
-	post_rewiring_probability = atof(m_map_config["PostNetRewiringProbability"].c_str());
-	pre_rewiring_seed = atoi(m_map_config["PreNetRewiringSeed"].c_str());
-	post_rewiring_seed = atoi(m_map_config["PostNetRewiringSeed"].c_str());
-	// Generate networks;
-	NeuronalNetwork preNet(preNetNum, preNetDensity), postNet(postNetNum, postNetDensity);
-	preNet.Rewire(pre_rewiring_probability, pre_rewiring_seed, true);
-	postNet.Rewire(post_rewiring_probability, post_rewiring_seed, true);
-	double maximum_time = atof(m_map_config["MaximumTime"].c_str());
-
-	preNet.InitializeNeuronalType(atof(m_map_config["PreNetTypeProbability"].c_str()), atoi(m_map_config["PreNetTypeSeed"].c_str()));
-	cout << "in pre-network." << endl;
-	postNet.InitializeNeuronalType(atof(m_map_config["PostNetTypeProbability"].c_str()), atoi(m_map_config["PostNetTypeSeed"].c_str()));
-	cout << "in post-network." << endl;
-
-	bool type;
-	istringstream(m_map_config["PreNetDrivingType"]) >> boolalpha >> type;
-	preNet.SetDrivingType(type);
-	preNet.InitializeExternalPoissonProcess(true, atof(m_map_config["PreNetDrivingRateExcitatory"].c_str()), atof(m_map_config["PreNetDrivingRateInhibitory"].c_str()), maximum_time, atoi(m_map_config["PreNetExternalDrivingSeed"].c_str()));
-	preNet.InitializeExternalPoissonProcess(false, 0, 0, maximum_time, 0);
-
-	istringstream(m_map_config["PostNetDrivingType"]) >> boolalpha >> type;
-	postNet.SetDrivingType(type);
-	postNet.InitializeExternalPoissonProcess(true, atof(m_map_config["PostNetDrivingRateExcitatory"].c_str()), atof(m_map_config["PostNetDrivingRateInhibitory"].c_str()), maximum_time, atoi(m_map_config["PostNetExternalDrivingSeed"].c_str()));
-	postNet.InitializeExternalPoissonProcess(false, 0, 0, maximum_time, 0);
-
-	// SETUP CONNECTIVITY MAT
-	vector<vector<bool> > conMat(preNetNum);
-	double conP = atof(m_map_config["ConnectingProbability"].c_str());
-	srand(atoi(m_map_config["ConnectingSeed"].c_str()));
-	for (int i = 0; i < preNetNum; i++) {
-		conMat[i].resize(postNetNum);
-		for (int j = 0; j < postNetNum; j++) {
-			if (rand() / (RAND_MAX*1.0) < conP) conMat[i][j] = true;
-			else conMat[i][j] = false;
-		}
+	// load neuron number;
+	int neuron_number = atoi(m_map_config["NeuronNumber"].c_str());
+	NeuronalNetwork net(neuron_number);
+	// load connecting mode;
+	int connecting_mode = atoi(m_map_config["ConnectingMode"].c_str());
+	if (connecting_mode == 0) { // External connectivity matrix;
+		net.LoadConnectivityMat("./data/sampleMat.csv");
+	} else {
+		int connecting_density = atoi(m_map_config["ConnectingDensity"].c_str());
+		net.SetConnectingDensity(connecting_density);
+		int rewiring_probability = atof(m_map_config["RewiringProbability"].c_str());
+		int rewiring_seed = atoi(m_map_config["RewiringSeed"].c_str());
+		// Generate networks;
+		net.Rewire(rewiring_probability, rewiring_seed, true);
 	}
-	string conMat_path = dir + "conMat.txt";
-	Print2D(conMat_path, "trunc", conMat);
+	// initialize the network;
+	net.InitializeNeuronalType(atof(m_map_config["TypeProbability"].c_str()), atoi(m_map_config["TypeSeed"].c_str()));
+	cout << "in the network." << endl;
+
+	double maximum_time = atof(m_map_config["MaximumTime"].c_str());
+	bool type;
+	istringstream(m_map_config["DrivingType"]) >> boolalpha >> type;
+	net.SetDrivingType(type);
+	net.InitializeExternalPoissonProcess(true, atof(m_map_config["DrivingRateExcitatory"].c_str()), atof(m_map_config["DrivingRateInhibitory"].c_str()), maximum_time, atoi(m_map_config["ExternalDrivingSeed"].c_str()));
+	net.InitializeExternalPoissonProcess(false, 0, 0, maximum_time, 0);
 
 	// SETUP DYNAMICS:
 	double t = 0, dt = atof(m_map_config["TimingStep"].c_str()), tmax = maximum_time;
 	// Define file path for output data;
-	string preV_path = dir + "preV.txt";
-	// string preGE_path = dir + "preGE.txt";
-	// string preGI_path = dir + "preGI.txt";
-	string postV_path = dir + "postV.txt";
-	// string postGE_path = dir + "postGE.txt";
-	// string postGI_path = dir + "postGI.txt";
-	string preI_path = dir + "preI.txt";
-	string postI_path = dir + "postI.txt";
-	// string preEI_path = dir + "preEI.txt";
-	// string preII_path = dir + "preII.txt";
-	// string postEI_path = dir + "postEI.txt";
-	// string postII_path = dir + "postII.txt";
+	string V_path = dir + "V.csv";
+	string I_path = dir + "I.csv";
 	// Initialize files:
-	ofstream preV, postV, preI, postI;
-	preV.open(preV_path.c_str());
-	preV.close();
-	// preGE.open(preGE_path.c_str());
-	// preGE.close();
-	// preGI.open(preGI_path.c_str());
-	// postGE.close();
-	postV.open(postV_path.c_str());
-	postV.close();
-	// postGE.open(postGE_path.c_str());
-	// postGE.close();
-	// postGI.open(postGI_path.c_str());
-	// postGI.close();
-	preI.open(preI_path.c_str());
-	preI.close();
-	postI.open(postI_path.c_str());
-	postI.close();
-	// preEI.open(preEI_path.c_str());
-	// preEI.close();
-	// preII.open(preII_path.c_str());
-	// preII.close();
-	// postEI.open(postEI_path.c_str());
-	// postEI.close();
-	// postII.open(postII_path.c_str());
-	// postII.close();
+	ofstream V, I;
+	V.open(V_path.c_str());
+	V.close();
+
+	I.open(I_path.c_str());
+	I.close();
 
 	char cr = (char)13;
 	double progress;
 	while (t < tmax) {
-		UpdateSystemState(preNet, postNet, conMat, t, dt);
+		net.UpdateNetworkState(t, dt);
 		t += dt;
 		// Output temporal data;
-		preNet.OutPotential(preV_path);
-		preNet.OutCurrent(preI_path);
-		// preNet.OutPartialCurrent(preEI, true);
-		// preNet.OutPartialCurrent(preII, false);
-		postNet.OutPotential(postV_path);
-		postNet.OutCurrent(postI_path);
-		// postNet.OutPartialCurrent(postEI, true);
-		// postNet.OutPartialCurrent(postII, false);
+		net.OutPotential(V_path);
+		net.OutCurrent(I_path);
 
 		progress = t * 100.0 / tmax;
 		cout << cr;
@@ -148,20 +91,14 @@ int main(int argc, const char* argv[]) {
 	}
 	cout << endl;
 
-	string preNeuron_path, preMat_path;
-	preNeuron_path = dir + "preNeuron.txt";
-	preMat_path = dir + "preMat.txt";
-	preNet.Save(preNeuron_path, preMat_path);
-	string postNeuron_path, postMat_path;
-	postNeuron_path = dir + "postNeuron.txt";
-	postMat_path = dir + "postMat.txt";
-	postNet.Save(postNeuron_path, postMat_path);
+	string neuron_path, mat_path;
+	neuron_path = dir + "neuron.csv";
+	mat_path = dir + "mat.csv";
+	net.Save(neuron_path, mat_path);
 
 	// OUTPUTS:
-	string pre_raster_path = dir + "rasterPre.txt";
-	string post_raster_path = dir + "rasterPost.txt";
-	preNet.OutSpikeTrains(pre_raster_path);
-	postNet.OutSpikeTrains(post_raster_path);
+	string raster_path = dir + "raster.csv";
+	net.OutSpikeTrains(raster_path);
 
 	finish = clock();
 

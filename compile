@@ -1,5 +1,7 @@
 #!/bin/bash
+g++ src/io.cpp src/get-config.cpp src/neuron.cpp src/group.cpp src/connectivity_matrix.cpp src/main_net.cpp -o bin/net.out
 g++ src/io.cpp src/get-config.cpp src/neuron.cpp src/group.cpp src/connectivity_matrix.cpp src/main_nets.cpp -o bin/nets.out
+g++ src/io.cpp src/lfp.cpp src/main_raster.cpp -o bin/raster.out
 g++ src/io.cpp src/lfp.cpp src/main_lfp.cpp -o bin/lfp.out
 g++ src/io.cpp src/mi.cpp src/main_mi.cpp -o bin/mi.out
 g++ src/io.cpp src/lcc.cpp src/main_lcc.cpp -o bin/lcc.out
