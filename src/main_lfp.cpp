@@ -23,7 +23,7 @@ int main(int argc, const char* argv[]) {
 	if (argc != 5) {
 		throw runtime_error("wrong number of args");
 	}
-	cout << "==========" << endl
+	cout << "==========" << endl;
 	//	Defined folder path;
 	string path = argv[1];
 	//	Analyze listing series;

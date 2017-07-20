@@ -21,6 +21,7 @@ using namespace std;
 //		0: spike to spike
 //		1: spike to lfp
 //		2: lfp to lfp
+//		3: spike to potential
 //	argv[2] = timing step for TDMI;
 //	argv[3] = delay time range;
 int main(int argc, const char* argv[]) {
@@ -38,7 +39,7 @@ int main(int argc, const char* argv[]) {
 	int positive_time_delay = atoi(range.c_str());
 	range = "";
 	printf(">> dt = %f ms\n", dt);
-	printf(">> Time-delay = [-%f, %f]\n", negative_time_delay * dt, positive_time_delay * dt);
+	printf(">> Time-delay = [-%.2f, %.2f] ms\n", negative_time_delay * dt, positive_time_delay * dt);
 	// Judge the running mode:
 	int mode = atoi(argv[1]);
 	if (mode == 0) {
@@ -126,6 +127,35 @@ int main(int argc, const char* argv[]) {
 		data_out << "timelag,mi" << endl;
 		for (int i = 0; i < negative_time_delay + positive_time_delay + 1; i++) {
 			data_out << (double)dt*(i - negative_time_delay) << ',' << (double)tdmi[i];
+			if (i < positive_time_delay + negative_time_delay) data_out << endl;
+		}
+		data_out.close();
+	} else if (mode == 3) {
+		// INPUT NEURONAL DATA:
+		vector<double> raster, potential;
+
+		// DATA OF PRELAYER NEURON:
+		string path;
+		path = "./data/raster/raster.csv";
+		Read1D(path, 0, 1, raster);
+		path = "./data/potential/potential.csv";
+		Read1D(path, 0, 1, potential);
+
+		double sampling_dt = 0.03125;
+		cout << ">> Calculating ordered TDMI ... " << endl;
+		vector<double> tdmi_ordered;
+		TDMI(raster, potential, dt, sampling_dt, negative_time_delay, positive_time_delay, tdmi_ordered, false);
+		cout << ">> Calculating swapped TDMI ... " << endl;
+		vector<double> tdmi_random;
+		TDMI(raster, potential, dt, sampling_dt, negative_time_delay, positive_time_delay, tdmi_random, true);
+
+		//	Output data:
+		ofstream data_out;
+		cout << ">> Outputing data ... " << endl;
+		data_out.open("./data/mi/mi_sp.csv");
+		data_out << "timelag,ordered,random" << endl;
+		for (int i = 0; i < negative_time_delay + positive_time_delay + 1; i++) {
+			data_out << (double)dt*(i - negative_time_delay) << ',' << (double)tdmi_ordered[i] << ',' << (double)tdmi_random[i];
 			if (i < positive_time_delay + negative_time_delay) data_out << endl;
 		}
 		data_out.close();

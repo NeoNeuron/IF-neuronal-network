@@ -46,6 +46,16 @@ int main(int argc, const char* argv[]) {
     }
   }
   // output spike triggered average
-  Print1D("./data/sta.csv", "trunc", 1, sta);
+  ofstream ofile;
+  ofile.open("./data/sta.csv");
+  ofile << "timelag,sta," << endl;
+  ofile.close();
+  vector<double> add(2, 0);
+  vector<vector<double> > odata(num_bin, add);
+  for (int i = 0; i < num_bin; i ++) {
+    odata[i][0] = tau_min + i * dt_seq;
+    odata[i][1] = sta[i];
+  }
+  Print2D("./data/sta.csv", "app", odata);
   return 0;
 }
