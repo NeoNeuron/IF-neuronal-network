@@ -23,6 +23,7 @@ int main(int argc, const char* argv[]) {
 	if (argc != 5) {
 		throw runtime_error("wrong number of args");
 	}
+	cout << "==========" << endl
 	//	Defined folder path;
 	string path = argv[1];
 	//	Analyze listing series;
@@ -42,7 +43,7 @@ int main(int argc, const char* argv[]) {
 	}
 	sort(list.begin(),list.end());
 	int neuron_num = list.size();
-	printf(">> There are %d connected neuron which contribute to LFP.\n", neuron_num);
+	printf(">> %d connected neuron contribute to LFP\n", neuron_num);
 
 	//	Choose objective time range;
 	double t_range[2]; // t_range[0] = t_min; t_range[1] = t_max;
@@ -52,7 +53,7 @@ int main(int argc, const char* argv[]) {
   range_str.erase(0, pos + 1);
   t_range[1] = atof(range_str.c_str());
   range_str = "";
-	printf(">> Time range is (%.2f, %.2f] ms.\n", t_range[0], t_range[1]);
+	printf(">> Time range = (%.2f, %.2f] ms\n", t_range[0], t_range[1]);
 
 	cout << ">> Calculating LFP ..." << endl;
 	int total_neuron_number = atoi(argv[6]);
@@ -65,6 +66,6 @@ int main(int argc, const char* argv[]) {
 	string out_dir = "./data/lfp/";
 	string lfp_path = out_dir + argv[4];
 	OutLFP(lfp_path, lfp);
-	cout << ">> Finished." << endl;
+	cout << ">> Done" << endl << "==========" << endl;
 	return 0;
 }

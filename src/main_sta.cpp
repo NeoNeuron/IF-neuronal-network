@@ -2,6 +2,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <cmath>
+#include <numeric>
 #include <stdexcept>
 #include "../include/sta.h"
 #include "../include/io.h"
@@ -13,17 +14,26 @@ using namespace std;
 //	argv[3] = tau time range, seperated by comma, with unit in milliseconds;
 int main(int argc, const char* argv[]) {
   if (argc != 4) 		throw runtime_error("wrong number of args");
+  // load file paths;
   string file_path_spike_train = argv[1];
   string file_path_conti_seq = argv[2];
+  // load range of time delay;
   string tau_range = argv[3];
   string::size_type pos = tau_range.find_first_of(',', 0);
   double tau_min = atof(tau_range.substr(0, pos).c_str());
   tau_range.erase(0, pos + 1);
   double tau_max = atof(tau_range.c_str());
   tau_range = "";
+  // input spike train and lfp;
   vector<double> spike_train, conti_seq;
   Read1D(file_path_spike_train, 0, 1, spike_train);
   Read1D(file_path_conti_seq, 0, 1, conti_seq);
+  // take average of lfps;
+  double sum = accumulate(conti_seq.begin(), conti_seq.end(), 0.0);
+  double mean = sum / conti_seq.size();
+  for (vector<double>::iterator it = conti_seq.begin(); it != conti_seq.end(); it ++) *it -= mean;
+
+  // prepare timing systems;
   double dt_seq = 0.03125;
   int num_bin = ceil((tau_max - tau_min) / dt_seq);
   int num_bin_neg = ceil(abs(tau_min) / dt_seq);

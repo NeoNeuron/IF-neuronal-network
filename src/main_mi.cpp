@@ -38,8 +38,7 @@ int main(int argc, const char* argv[]) {
 	int positive_time_delay = atoi(range.c_str());
 	range = "";
 	printf(">> dt = %f ms\n", dt);
-	printf(">> maximum negative time delay = %d\n", negative_time_delay);
-	printf(">> maximum positive time delay = %d\n", positive_time_delay);
+	printf(">> Time-delay = [-%f, %f]\n", negative_time_delay * dt, positive_time_delay * dt);
 	// Judge the running mode:
 	int mode = atoi(argv[1]);
 	if (mode == 0) {
