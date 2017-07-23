@@ -22,6 +22,7 @@ using namespace std;
 //		1: spike to lfp
 //		2: lfp to lfp
 //		3: spike to potential
+//		4: potential to potential
 //	argv[2] = timing step for TDMI;
 //	argv[3] = delay time range;
 int main(int argc, const char* argv[]) {
@@ -156,6 +157,41 @@ int main(int argc, const char* argv[]) {
 		data_out << "timelag,ordered,random" << endl;
 		for (int i = 0; i < negative_time_delay + positive_time_delay + 1; i++) {
 			data_out << (double)dt*(i - negative_time_delay) << ',' << (double)tdmi_ordered[i] << ',' << (double)tdmi_random[i];
+			if (i < positive_time_delay + negative_time_delay) data_out << endl;
+		}
+		data_out.close();
+	} else if (mode == 4) {
+		// INPUT NEURONAL DATA:
+		vector<double> potential_x, potential_y;
+
+		// DATA OF PRELAYER NEURON:
+		string path;
+		path = "./data/potential/potential_x.csv";
+		Read1D(path, 0, 1, potential_x);
+		path = "./data/potential/potential_y.csv";
+		Read1D(path, 0, 1, potential_y);
+
+		double sampling_dt = 0.03125;
+		// take average;
+		int np = floor(dt/sampling_dt);
+		int nd = floor(potential_x.size()/np);
+		vector<double> potential_x_ave(nd, 0), potential_y_ave(nd, 0);
+		for (int i = 0; i < nd; i++) {
+			for (int j = 0; j < np; j++) {
+				potential_x_ave[i] += potential_x[i*np + j]/np;
+				potential_y_ave[i] += potential_y[i*np + j]/np;
+			}
+		}
+		cout << ">> Calculating ordered TDMI ... " << endl;
+		vector<double> tdmi;
+		TDMI_adaptive(potential_x_ave, potential_y_ave, negative_time_delay, positive_time_delay, tdmi);
+		//	Output data:
+		ofstream data_out;
+		cout << ">> Outputing data ... " << endl;
+		data_out.open("./data/mi/mi_pp.csv");
+		data_out << "timelag,mi" << endl;
+		for (int i = 0; i < negative_time_delay + positive_time_delay + 1; i++) {
+			data_out << (double)dt*(i - negative_time_delay) << ',' << (double)tdmi[i];
 			if (i < positive_time_delay + negative_time_delay) data_out << endl;
 		}
 		data_out.close();

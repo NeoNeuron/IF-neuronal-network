@@ -316,7 +316,7 @@ void UpdateSystemState(NeuronalNetwork & pre_network, NeuronalNetwork & post_net
 	// 	}
 	// }
 	// find temporal spiking sequence for post network;
-	tempPostSpikes.resize(connectivity_matrix[1].size());
+	tempPostSpikes.resize(connectivity_matrix[0].size());
 	for (int i = 0; i < connectivity_matrix.size(); i++) {
 		if (tempPreSpikes[i].size() != 0) {
 			for (int j = 0; j < connectivity_matrix.size(); j++) {
