@@ -113,6 +113,12 @@ void NeuronalNetwork::InitializeExternalPoissonProcess(bool function, double rat
 	}
 }
 
+void NeuronalNetwork::SetF(bool function, double val) {
+	for (int i = 0; i < neuron_number_; i ++) {
+		neurons_[i].SetFeedforwardConductance(function, val);
+	}
+}
+
 void NeuronalNetwork::InNewSpikes(vector<vector<Spike> > & data) {
 	for (int i = 0; i < neuron_number_; i++) {
 		if (data[i].size() != 0) {

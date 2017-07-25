@@ -66,11 +66,13 @@ int main(int argc, const char* argv[]) {
 	preNet.SetDrivingType(type);
 	preNet.InitializeExternalPoissonProcess(true, atof(m_map_config["PreNetDrivingRateExcitatory"].c_str()), atof(m_map_config["PreNetDrivingRateInhibitory"].c_str()), maximum_time, atoi(m_map_config["PreNetExternalDrivingSeed"].c_str()));
 	preNet.InitializeExternalPoissonProcess(false, 0, 0, maximum_time, 0);
+	preNet.SetF(true, atof(m_map_config["PreNetDrivingStrength"].c_str()));
 
 	istringstream(m_map_config["PostNetDrivingType"]) >> boolalpha >> type;
 	postNet.SetDrivingType(type);
 	postNet.InitializeExternalPoissonProcess(true, atof(m_map_config["PostNetDrivingRateExcitatory"].c_str()), atof(m_map_config["PostNetDrivingRateInhibitory"].c_str()), maximum_time, atoi(m_map_config["PostNetExternalDrivingSeed"].c_str()));
 	postNet.InitializeExternalPoissonProcess(false, 0, 0, maximum_time, 0);
+	postNet.SetF(true, atof(m_map_config["PostNetDrivingStrength"].c_str()));
 
 	// SETUP CONNECTIVITY MAT
 	vector<vector<bool> > conMat(preNetNum);

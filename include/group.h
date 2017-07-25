@@ -70,6 +70,9 @@ public:
 	//	INT seed: seed for built-in random generator;
 	void InitializeExternalPoissonProcess(bool function, double rate_excitatory, double rate_inhibitory, double tmax, int seed);
 
+	// Set feedforward inputing strength: (default: 5e-3)
+	void SetF(bool function, double val);
+
 	// 	Input new spikes for neurons all together;
 	void InNewSpikes(vector<vector<Spike> > &data);
 
