@@ -11,23 +11,24 @@ using namespace std;
 int main(int argc, const char* argv[]) {
   // Input args:
   //  argv[1] = timing step, with unit milliseconds;
-  //	argv[2] = lower bond of time-delay range;
-  //	argv[3] = upper bond of time-delay range;
-  if (argc != 4) throw runtime_error("wrong number of args");
+  //	argv[2] = time-delay range, seperated by comma;
+  if (argc != 3) throw runtime_error("wrong number of args");
   // prepare data loading system;
-  string loading_dir = "./lfp/file-txt/";
-  string outputing_dir = "./linear-correlation/file-txt/";
-  string ipath_lfp = loading_dir + "lfp.txt";
-  string ipath_raster = loading_dir + "raster.txt";
-  string opath = outputing_dir + "linecorr.txt";
+  string ipath_lfp = "./data/lfp/lfp.csv";
+  string ipath_raster = "./data/raster/raster.csv";
+  string opath = "./data/lcc/lcc.csv";
   vector<double> lfp, raster;
   Read1D(ipath_lfp, 0, 1, lfp);
   Read1D(ipath_raster, 0, 1, raster);
   double sampling_dt = 0.03125;
   // Main calculation:
   double timing_step = atof(argv[1]);
-  int negative_time_delay = atoi(argv[2]);
-  int positive_time_delay = atoi(argv[3]);
+  string range = argv[2];
+	string::size_type pos = range.find_first_of(',', 0 );
+	int negative_time_delay = atoi(range.substr(0, pos).c_str());
+	range.erase(0, pos + 1);
+	int positive_time_delay = atoi(range.c_str());
+	range = "";
   vector<double> tdlc;
   // manipulate data;
   int n = round(timing_step / sampling_dt);
@@ -55,6 +56,7 @@ int main(int argc, const char* argv[]) {
   // output results:
   ofstream ofile;
   ofile.open(opath.c_str());
+  ofile << "timelag,lcc" << endl;
   for (int i = 0; i < negative_time_delay + positive_time_delay + 1; i ++) {
     ofile << (double) (i - negative_time_delay) * timing_step << ',' << setprecision(6) << (double)tdlc[i];
     if (i != (negative_time_delay + positive_time_delay)) ofile << endl;
