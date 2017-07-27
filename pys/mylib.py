@@ -76,6 +76,14 @@ def load_matrix(loading_dir, filename):
 	return matrix
 
 def isi_stat(raster, bins = 50, hist_plot = False):
+	"""
+	raster: double vectors
+	bin: number of bins in histogram
+	hist_plot: whether show the histogram, true for plot, false for not;
+	return:
+		n: frequency of each bin
+		bins: frontier edge of bins
+	"""
 	raster_temp = np.delete(np.insert(raster, 0, 0), -1)
 	isi = raster - raster_temp
 	n, bins = np.histogram(isi, bins = bins)

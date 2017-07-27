@@ -309,8 +309,11 @@ void NeuronalNetwork::RestoreNeurons() {
 void UpdateSystemState(NeuronalNetwork & pre_network, NeuronalNetwork & post_network, vector<vector<bool> > & connectivity_matrix, double t, double dt) {
 	//	Update pre_network in two network system;
 	pre_network.UpdateNetworkState(t, dt);
+	// Get neuronal number:
+	int number_pre = pre_network.GetNeuronNumber();
+	int number_post = post_network.GetNeuronNumber();
 	//	Transmit spiking information from pre_network to post_network;
-	vector<vector<Spike> > tempPreSpikes, tempPostSpikes;
+	vector<vector<Spike> > tempPreSpikes(number_pre), tempPostSpikes(number_post);
 	pre_network.GetNewSpikes(t, tempPreSpikes);
 	// Set transmit time:
 	// double transmit_time = 2;
@@ -322,10 +325,9 @@ void UpdateSystemState(NeuronalNetwork & pre_network, NeuronalNetwork & post_net
 	// 	}
 	// }
 	// find temporal spiking sequence for post network;
-	tempPostSpikes.resize(connectivity_matrix[0].size());
-	for (int i = 0; i < connectivity_matrix.size(); i++) {
+	for (int i = 0; i < number_pre; i++) {
 		if (tempPreSpikes[i].size() != 0) {
-			for (int j = 0; j < connectivity_matrix.size(); j++) {
+			for (int j = 0; j < number_post; j++) {
 				if (connectivity_matrix[i][j] == true) {
 					tempPostSpikes[j].insert(tempPostSpikes[j].end(), tempPreSpikes[i].begin(), tempPreSpikes[i].end());
 				}
