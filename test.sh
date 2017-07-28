@@ -33,14 +33,14 @@
 # ./bin/sta.out data/raster/raster.csv data/lfp/lfp.csv -10,25
 # python pys/py.py bb
 
-./bin/raster.out /media/kyle/Drive/ResearchData/Jul27/t0004/rasterPre.txt 0 1000,20000 raster.csv
-for ((i = 9; i < 10; i ++))
+./bin/raster.out /media/kyle/Drive/ResearchData/Jul27/t0005/rasterPre.txt 0 1000,20000 raster.csv
+for ((i = 0; i < 1; i ++))
 do
-  ./bin/lfp.out /media/kyle/Drive/ResearchData/Jul27/t0004/postI.txt 0,1,2,3,4,5,6,7,8,$i 1000,20000 lfp.csv
+  ./bin/lfp.out /media/kyle/Drive/ResearchData/Jul27/t0005/postI.txt $i,1,2,3,4,5,6,7,8,9 1000,20000 lfp.csv
   # cp ./data/raster/raster3.csv ./data/raster/raster.csv
   # cp ./data/lfp/lfp3.csv ./data/lfp/lfp.csv
-  ./bin/mi.out 1 0.25 40,100
-  ./bin/sta.out data/raster/raster.csv data/lfp/lfp.csv -10,25
-  ./bin/lcc.out 0.25 40,100
+  ./bin/mi.out 1 0.25 100,200
+  ./bin/sta.out data/raster/raster.csv data/lfp/lfp.csv -25,50
+  ./bin/lcc.out 0.25 100,200
   python pys/py.py bb
 done
