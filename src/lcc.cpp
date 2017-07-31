@@ -7,21 +7,6 @@
 
 using namespace std;
 
-// void ReadData(string path, vector<double> & data) {
-// 	data.clear();
-// 	ifstream ifile;
-// 	ifile.open(path.c_str());
-// 	string s;
-// 	string::size_type pos;
-// 	string ss;
-// 	while (getline(ifile, s)) {
-// 		pos = s.find_first_of('\n', 0);
-// 		ss = s.substr(0, pos);
-// 		data.push_back(atof(ss.c_str()));
-// 	}
-// 	ifile.close();
-// }
-
 double Mean(vector<int>& x) {
   double sum = accumulate(x.begin(), x.end(), 0.0);
   return sum * 1.0 / x.size();
@@ -34,20 +19,16 @@ double Mean(vector<double>& x) {
 
 double Std(vector<int>& x) {
   double x_mean = Mean(x);
-  double std = 0;
-  for (vector<int>::iterator it = x.begin(); it != x.end(); it ++) {
-    std += pow(*it - x_mean, 2);
-  }
-  return sqrt(std / x.size());
+  vector<double> x2(x.size());
+  for (int i = 0; i < x.size(); i ++) x2[i] = x[i] * x[i];
+  return Mean(x2) - x_mean * x_mean;
 }
 
 double Std(vector<double>& x) {
   double x_mean = Mean(x);
-  double std = 0;
-  for (vector<double>::iterator it = x.begin(); it != x.end(); it ++) {
-    std += pow(*it - x_mean, 2);
-  }
-  return sqrt(std / x.size());
+  vector<double> x2(x.size());
+  for (int i = 0; i < x.size(); i ++) x2[i] = x[i] * x[i];
+  return Mean(x2) - x_mean * x_mean;
 }
 
 double LC(vector<int>& raster, vector<double>& lfp) {
@@ -55,9 +36,9 @@ double LC(vector<int>& raster, vector<double>& lfp) {
   double lfp_mean = Mean(lfp);
   vector<double> products(raster.size());
   for (int i = 0; i < raster.size(); i ++) {
-    products[i] = (raster[i] - raster_mean) * (lfp[i] - lfp_mean);
+    products[i] = raster[i] * lfp[i];
   }
-  return Mean(products) / (Std(raster) * Std(lfp));
+  return (Mean(products) - raster_mean * lfp_mean) / (Std(raster) * Std(lfp));
 }
 
 double LC(vector<double>& first, vector<double>& second) {
@@ -65,9 +46,9 @@ double LC(vector<double>& first, vector<double>& second) {
   double second_mean = Mean(second);
   vector<double> products(first.size());
   for (int i = 0; i < first.size(); i ++) {
-    products[i] = (first[i] - first_mean) * (second[i] - second_mean);
+    products[i] = first[i] * second[i];
   }
-  return Mean(products) / (Std(first) * Std(second));
+  return (Mean(products) - first_mean * second_mean) / (Std(first) * Std(second));
 }
 
 void TDLC(vector<int>& raster, vector<double>& lfp, int negative_time_delay, int positive_time_delay, vector<double>& tdlc) {

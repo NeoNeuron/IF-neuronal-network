@@ -10,20 +10,22 @@ using namespace std;
 
 int main(int argc, const char* argv[]) {
   // Input args:
-  //  argv[1] = timing step, with unit milliseconds;
-  //	argv[2] = time-delay range, seperated by comma;
-  if (argc != 3) throw runtime_error("wrong number of args");
+  //  argv[1] = path of raster;
+  //  argv[2] = path of lfp;
+  //  argv[3] = timing step, with unit milliseconds;
+  //	argv[4] = time-delay range, seperated by comma;
+  if (argc != 5) throw runtime_error("wrong number of args");
   // prepare data loading system;
-  string ipath_lfp = "./data/lfp/lfp.csv";
-  string ipath_raster = "./data/raster/raster.csv";
+  string ipath_raster = argv[1];
+  string ipath_lfp = argv[2];
   string opath = "./data/lcc/lcc.csv";
   vector<double> lfp, raster;
   Read1D(ipath_lfp, 0, 1, lfp);
   Read1D(ipath_raster, 0, 1, raster);
   double sampling_dt = 0.03125;
   // Main calculation:
-  double timing_step = atof(argv[1]);
-  string range = argv[2];
+  double timing_step = atof(argv[3]);
+  string range = argv[4];
 	string::size_type pos = range.find_first_of(',', 0 );
 	int negative_time_delay = atoi(range.substr(0, pos).c_str());
 	range.erase(0, pos + 1);
