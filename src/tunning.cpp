@@ -20,43 +20,58 @@ using namespace std;
 //	arguments:
 //	argv[1] = Outputing directory for neural data;
 int main(int argc, const char* argv[]) {
-	if (argc != 3) {
+	if (argc != 5) {
 		throw runtime_error("wrong number of args");
 	}
 	// 	Setup directory for output files;
 	//	it must be existing dir;
 	double df = atof(argv[1]);
-	string frange = argv[2];
+	double duf = atof(argv[2]);
+	string frange = argv[3];
 	string::size_type pos = frange.find_first_of(',', 0 );
 	double f_min = atof(frange.substr(0, pos).c_str());
 	frange.erase(0, pos + 1);
 	double f_max = atof(frange.c_str());
 	frange = "";
+	string ufrange = argv[4];
+	pos = ufrange.find_first_of(',', 0 );
+	double uf_min = atof(ufrange.substr(0, pos).c_str());
+	ufrange.erase(0, pos + 1);
+	double uf_max = atof(ufrange.c_str());
+	ufrange = "";
 
 	Neuron cell;
 	double t = 0, dt = 0.1, tmax = 10000;
-	double f = f_min;
+	double f = f_min, uf = uf_min;
 	vector<double> impt_e, impt_i;
 	vector<double> spike_train;
-	vector<double> firing_rates;
-	double v;
+	vector<vector<double> > firing_rates;
+	vector<double> newline;
+	double u;
 	while (f <= f_max) {
-		// cout << f << endl;
-		cell.SetDrivingType(false);
-		cell.SetPoissonRate(true, 7.5);
-		cell.SetPoissonRate(false, 0);
-		cell.SetFeedforwardConductance(true, f);
-		while (t < tmax) {
-			v = cell.UpdateNeuronalState(t, dt, impt_e, impt_i);
-			// cout << v << endl;
-			t += dt;
+		newline.clear();
+		while (uf <= uf_max) {
+			u = uf / f;
+			// cout << f << endl;
+			cell.SetDrivingType(false);
+			cell.SetPoissonRate(true, u);
+			cell.SetFeedforwardConductance(true, f);
+			// cout << u << ',' << f << endl;
+			while (t < tmax) {
+				cell.UpdateNeuronalState(t, dt, impt_e, impt_i);
+				// cout << v << endl;
+				t += dt;
+			}
+			cell.OutSpikeTrain(spike_train);
+			// cout << spike_train.size()*1000.0/tmax << endl;
+			newline.push_back(spike_train.size()*1000.0/tmax);
+			cell.Reset();
+			t = 0;
+			uf += duf;
 		}
-		cell.OutSpikeTrain(spike_train);
-		// cout << spike_train.size()*1000.0/tmax << endl;
-		firing_rates.push_back(spike_train.size()*1000.0/tmax);
-		cell.Reset();
-		t = 0;
+		uf = uf_min;
 		f += df;
+		firing_rates.push_back(newline);
 	}
 
 	// char cr = (char)13;
@@ -77,7 +92,7 @@ int main(int argc, const char* argv[]) {
 
 	// OUTPUTS:
 	string path = "./data/tuninng.csv";
-	Print1D(path, "trunc", 1, firing_rates);
+	Print2D(path, "trunc", firing_rates);
 
 	return 0;
 }
