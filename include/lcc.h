@@ -10,17 +10,13 @@ using namespace std;
 // void ReadData(string path, vector<double> & data);
 
 // Return mean value of elements of x;
-double Mean(vector<int>& x);
-double Mean(vector<double>& x);
+template <class T> double Mean(vector<T>& x);
 
 // Return standard deviation of elements of x;
-double Std(vector<int>& x);
-double Std(vector<double>& x);
+template <class T> double Std(vector<T>& x);
 
 // Pearson's product-moment coefficient: Linear correlated coefficient;
-double LC(vector<int>& raster, vector<double>& lfp);
-
-double LC(vector<double>& first, vector<double>& second);
+template <class T1, class T2> double LC(vector<T1>& x, vector<T2>& y);
 
 void TDLC(vector<int>& raster, vector<double>& lfp, int negative_time_delay, int positive_time_delay, vector<double>& tdlc);
 

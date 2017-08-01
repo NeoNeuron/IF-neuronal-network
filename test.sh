@@ -33,12 +33,12 @@
 # ./bin/sta.out data/raster/raster.csv data/lfp/lfp.csv -10,25
 # python pys/py.py bb
 
-./bin/raster.out /media/kyle/Drive/ResearchData/Jul27/t00065/rasterPre.txt 0 1000,20000 raster.csv
+./bin/raster.out ~/github/ifnet/data/tmp/rasterPre.txt 0 1000,20000 raster.csv
 # ./bin/lfp.out /media/kyle/Drive/ResearchData/Jul27/t0005/preI.txt 0 1000,20000 lfp_p.csv
 for ((i = 0; i < 1; i ++))
 do
   # ./bin/raster.out /media/kyle/Drive/ResearchData/Jul27/t0005/rasterPost.txt $i 1000,20000 raster_p.csv
-  ./bin/lfp.out /media/kyle/Drive/ResearchData/Jul27/t00065/postI.txt $i 1000,20000 lfp.csv
+  ./bin/lfp.out ~/github/ifnet/data/tmp/postI.txt $i 1000,20000 lfp.csv
   # ./bin/potential.out /media/kyle/Drive/ResearchData/Jul27/t0005/postV.txt $i,1,2,3,4,5,6,7,8,9  1000,20000 potential.csv
   # cp ./data/raster/raster3.csv ./data/raster/raster.csv
   # cp ./data/lfp/lfp_y.csv ./data/lfp/lfp.csv
