@@ -8,38 +8,26 @@ import random
 import os
 import pandas as pd
 
-
-def Compile():
+def load_spike_train(path, index):
 	"""
-	compile *.cpp files
+	Load spike train of certain neuron, labeled by index;
+	path: path of data file storing raster data
+	index: neuronal index of those whoes spike train are in raster data files
+	Return:
+		spikes: 1 d array of spiking time points;
 	"""
-	os.system("g++ ./multi-network/*.cpp ./io/io.cpp -o ./multi-network/two-network-system.out")
-	os.system("g++ ./lfp/*.cpp ./io/io.cpp -o ./lfp/calculate-lfp.out")
-	os.system("g++ ./tdmi/*.cpp ./io/io.cpp -o ./tdmi/calculate-tdmi.out")
-
-
-def load_raster(loading_dir, filename, index):
-	"""
-	convert raster data for certain neuron;
-	Return an 1 d array of spiking time points
-	"""
-	f = open(loading_dir + filename)
-	counter = 0
-	for line in f:
-		if counter == index:
-			raster = line
-			break
-		counter += 1
-	f.close()
-	raster = raster.replace('\n', '').split(',')
-	for s in raster:
-		if s == '':
-			raster.remove(s)
-	raster = [float(s) for s in raster]
-	raster = np.delete(raster, 0)
-	return raster
+	spikes = np.genfromtxt(path, delimiter = ',', skip_header = index, max_rows = 1)
+	spikes =  np.array([i for i in spikes if str(i) != 'nan'])
+	return spikes
 
 def raster_to_bool(raster, dt):
+	"""
+	Convert spike train to binary time series;
+	raster: original spike train, which is a float array;
+	dt: width of time period of each element in the binary element;
+	Return:
+		raster_bool: 1d bool array;
+	"""
 	tmax = raster[-1]
 	T = int(np.floor(tmax / dt)) + 1
 	raster_bool = np.zeros(T)
@@ -47,22 +35,24 @@ def raster_to_bool(raster, dt):
 		raster_bool[int(np.floor(num / dt))] = 1
 	return raster_bool
 
-def lfp(loading_dir, filename, index_list):
-	post_current = open(loading_dir + filename)
-	current = []
-	for line in post_current:
-		line = line.replace('\n', '').split(',')
-		line = [float(line[num]) for num in index_list]
-		current.append(sum(line) / 3)
-	post_current.close()
+def lfp(path, index_list):
+	"""
+	Load local field potential from data files of currents
+	path: path of current files
+	index_list: list of targeting neuronal index;
+	Return:
+		current: 1d float array, local field potential;
+	"""
+	currents = np.genfromtxt(path, delimiter = ',', usecols = index_list)
+	current = np.mean(currents, axis = 1)
 	return current
 
-def load_matrix(loading_dir, filename):
+def load_matrix(path):
 	"""
 	Return:
 	matrix: an ndarray-typed data;
 	"""
-	conMat = open(loading_dir + filename)
+	conMat = open(path)
 	matrix = []
 	for line in conMat:
 		line = line.replace('\n', '').split(',')
@@ -92,24 +82,24 @@ def isi_stat(raster, bins = 50, hist_plot = False):
 		plt.show()
 	return n, bins
 
-def mean_rate(loading_dir, filename, index, tmax):
+def mean_rate(path, index, tmax):
 	"""
 	loading_dir: directory that neuronal data locate;
 	index: index of pre-network neuron;
 	tmax: maximum time considered in mean_rate() operation, unit in second;
 	"""
 	# load raster data;
-	raster = load_raster(loading_dir = loading_dir, filename = filename, index = index)
+	raster = load_spike_train(path = path, index = index)
 	raster = raster[raster < (tmax * 1000)]
 	mean_rate = len(raster)*1.0 / tmax
 	return mean_rate
 
 def tdmi_parameters(mi):
 	"""
+	mi: DataFame containing 'timelag', 'ordered' and 'random'
 	Returns:
-	sn_ratio: signal-noise ratio
-	peak_time: time point of maximum mutual information
-	time_constant: time constant for signal decay;
+	snr: signal-noise ratio
+	peak_position: postition of mutual information peak, True for postitive and False for negative;
 	"""
 	time_series = mi['timelag']
 	signal_ordered = mi['ordered']
@@ -121,41 +111,18 @@ def tdmi_parameters(mi):
 	signal_max_ind = signal_ordered.argmax()
 	signal_max = signal_ordered[signal_max_ind]
 	peak_time = time_series[signal_max_ind]
+	if peak_time > 0:
+		peak_position = True
+	else:
+		peak_position = False
 
 	if noise_mean != 0:
 		# calculate the signal-noise ratio in TDMI data;
-		sn_ratio = signal_max / noise_mean
-		# find the duriation of sufficient signal
-		# if type(signal_max_ind) == int:
-		ind = signal_max_ind
-		if ind >= noise_mean + noise_std:
-			while signal_ordered[ind] >= noise_mean + noise_std:
-				if ind == len(signal_ordered) - 1:
-					break
-				ind += 1
-			signal_back_ind = ind
-			if  signal_back_ind - signal_max_ind > 3:
-				fexp = lambda x, a, b, c: a*np.exp(-b * x) + c
-				try:
-					popt, pcov = curve_fit(fexp, time_series.ix[signal_max_ind:signal_back_ind].values, signal_ordered.ix[signal_max_ind:signal_back_ind].values, p0 = (1, 1, 0))
-				except RuntimeError:
-					popt = [0, 0, 0]
-				# decayed time constant
-				if popt[1] == 0:
-					time_constant = 0
-				else:
-					time_constant = 1 / popt[1]
-			else:
-				peak_time = -1
-				time_constant = -1
-		else:
-			peak_time = -1
-			time_constant = -1
+		snr = signal_max / noise_mean
 	else:
-		sn_ratio = 0
-		peak_time = -1
-		time_constant = -1
-	return sn_ratio, peak_time, time_constant
+		snr = 'inf'
+		peak_position = 'nan'
+	return snr, peak_position
 
 def MakeTitle(saving_filename):
 	"""
@@ -248,13 +215,26 @@ def PlotTdmi(time_series, signal_order, signal_rand, saving_dir, saving_filename
 	plt.savefig(saving_dir + saving_filename + '.eps')
 	plt.close(0)
 
-# start = time.clock()
-# load current data:
-# loading_dir = '/media/kyle/Drive/ResearchData/Apr18/test1/'
-# aaa = load_raster(loading_dir = loading_dir, index = 10)
-# [b, c] = isi_stat(aaa, 10, True)
-
-
-# finish = time.clock()
-
-# print finish - start
+def plot():
+	sta = pd.read_csv('data/sta.csv')
+	mi = pd.read_csv('data/mi/mi_sl.csv')
+	lcc = pd.read_csv('data/lcc/lcc.csv')
+	plt.figure(figsize = (15,5), dpi = 75)
+	plt.subplot(1,3,1)
+	plt.plot(sta['timelag'], sta['sta'])
+	plt.xlabel('time-delay(ms)')
+	plt.ylabel('LFP')
+	plt.grid(True)
+	plt.subplot(1,3,2)
+	plt.plot(lcc['timelag'], lcc['lcc'])
+	plt.xlabel('time-delay(ms)')
+	plt.ylabel('Pearson\' Correlation')
+	plt.grid(True)
+	plt.subplot(1,3,3)
+	plt.plot(mi['timelag'], mi['ordered'])
+	plt.plot(mi['timelag'], mi['random'])
+	plt.xlabel('time-delay(ms)')
+	plt.ylabel('MI(bits)')
+	plt.grid(True)
+	# plt.savefig('./reports/Jul20/' + sys.argv[1])
+	plt.show()
