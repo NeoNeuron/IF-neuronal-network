@@ -215,7 +215,7 @@ def PlotTdmi(time_series, signal_order, signal_rand, saving_dir, saving_filename
 	plt.savefig(saving_dir + saving_filename + '.eps')
 	plt.close(0)
 
-def plot():
+def plot(filename):
 	sta = pd.read_csv('data/sta.csv')
 	mi = pd.read_csv('data/mi/mi_sl.csv')
 	lcc = pd.read_csv('data/lcc/lcc.csv')
@@ -236,5 +236,5 @@ def plot():
 	plt.xlabel('time-delay(ms)')
 	plt.ylabel('MI(bits)')
 	plt.grid(True)
-	# plt.savefig('./reports/Jul20/' + sys.argv[1])
-	plt.show()
+	plt.savefig('./data/figure/' + filename)
+	# plt.show()

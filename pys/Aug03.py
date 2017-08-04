@@ -12,139 +12,88 @@ frange = sys.argv[3];
 frange = [float(i) for i in frange.split(',')]
 ufrange = sys.argv[4];
 ufrange = [float(i) for i in ufrange.split(',')]
+f = frange[0]
+uf = ufrange[0]
 
 # prepare pathes;
-loading_dir = "./tmp/"
+loading_dir = "./data/tmp/"
 saving_dir = './data/Aug03/'
 
 # setting preliminary parameters
-total_neuron_number = 100
-simulation_accomplish = True
 time_lb = 1000
-time_ub = 10000
-negative_time_delay = 60
-positive_time_delay = 100
+time_ub = 20000
+negative_time_delay = 100
+positive_time_delay = 200
+timing_step = 0.25
 
-subprocess.call['./bin/raster.out', './tmp/rasterPre.txt', '0', '1000,20000', 'raster.csv']
-subprocess.call['./bin/lfp.out', './tmp/postI.txt', '0', '1000,20000', 'lfp.csv']
-subprocess.call['./bin/mi.out', '1', '0.25', '100,200']
+# initialize output data file:
+df_sol_mi_snr = pd.DataFrame({})
+df_sol_mi_pos = pd.DataFrame({})
+df_sol_sta_snr = pd.DataFrame({})
+df_sol_sta_pos = pd.DataFrame({})
 
-subprocess.call['./bin/lfp.out', './tmp/postI.txt', '0,1,2,3,4,5,6,7,8,9', '1000,20000', 'lfp.csv']
-subprocess.call['./bin/mi.out', '1', '0.25', '100,200']
-subprocess.call['./bin/sta.out', './data/raster/raster.csv', './data/lfp/lfp.csv', '-25,50']
-# subprocess.call['./bin/lcc.out', './data/raster/raster.csv', './data/lfp/lfp.csv', '0.25', '100,200']
+# df_mul_mi_snr = pd.DataFrame({})
+# df_mul_mi_pos = pd.DataFrame({})
+# df_mul_sta_snr = pd.DataFrame({})
+# df_mul_sta_pos = pd.DataFrame({})
 
-Neuron cell;
-double t = 0, dt = 0.1, tmax = 10000;
-double f = f_min, uf = uf_min;
-vector<double> impt_e, impt_i;
-vector<double> spike_train;
-vector<vector<double> > firing_rates;
-vector<double> newline;
-double u;
-while (f <= f_max) {
-    newline.clear();
-    while (uf <= uf_max) {
+ll_sol_mi_snr = []
+ll_sol_mi_pos = []
+ll_sol_sta_snr = []
+ll_sol_sta_pos = []
+
+# ll_mul_mi_snr = []
+# ll_mul_mi_pos = []
+# ll_mul_sta_snr = []
+# ll_mul_sta_pos = []
+while uf < ufrange[1]:
+    while f < frange[1]:
         u = uf / f;
-        // cout << f << endl;
-        cell.SetDrivingType(false);
-        cell.SetPoissonRate(true, u);
-        cell.SetFeedforwardConductance(true, f);
-        // cout << u << ',' << f << endl;
-        while (t < tmax) {
-            cell.UpdateNeuronalState(t, dt, impt_e, impt_i);
-            // cout << v << endl;
-            t += dt;
-        }
-        cell.OutSpikeTrain(spike_train);
-        // cout << spike_train.size()*1000.0/tmax << endl;
-        newline.push_back(spike_train.size()*1000.0/tmax);
-        cell.Reset();
-        t = 0;
-        uf += duf;
-    }
-    uf = uf_min;
-    f += df;
-    firing_rates.push_back(newline);
-}
+        # Edit configurations;
+        fini = open('./doc/config_nets.ini', 'r+')
+        fini.seek(182)
+        fini.write('%.5g'%u)
+        fini.seek(277)
+        fini.write('%.5g'%f)
+        fini.close()
+        # Execute simulation
+        subprocess.call(["./bin/nets.out", loading_dir])
+        # Generate spike train
+        subprocess.call['./bin/raster.out', './tmp/rasterPre.txt', '0', str(time_lb) + ',' + str(time_uu), 'raster.csv']
+        # Cauculate LFP from single neuron
+        subprocess.call['./bin/lfp.out', './tmp/postI.txt', '0', str(time_lb) + ',' + str(time_uu), 'lfp.csv']
+        # Calculate mutual information and STA
+        subprocess.call['./bin/mi.out', '1', str(timing_step), str(negative_time_delay) + ',' + str(positive_time_delay)]
+        subprocess.call['./bin/sta.out', './data/raster/raster.csv', './data/lfp/lfp.csv', str(-timing_step * negative_time_delay) + ',' + str(timing_step * positive_time_delay)]
+		# run analysis
+        [sol_mi_snr, sol_mi_pos] = mylib.tdmi_parameters(mi_data)
+        ll_sol_mi_snr.append(sol_mi_snr)
+        ll_sol_mi_pos.append(sol_mi_pos)
+        mylib.plot(('%5.g-'%uf) + ('%5.g'%f) + '.png')
+        # # Cauculate LFP from multi neuron
+        # subprocess.call['./bin/lfp.out', './tmp/postI.txt', '0,1,2,3,4,5,6,7,8,9', str(time_lb) + ',' + str(time_uu), 'lfp.csv']
+        # # Calculate mutual information and STA
+        # subprocess.call['./bin/mi.out', '1', str(timing_step, str(negative_time_delay) + ',' + str(positive_time_delay)]
+        # subprocess.call['./bin/sta.out', './data/raster/raster.csv', './data/lfp/lfp.csv', str(-timing_step * negative_time_delay) + ',' + str(timing_step * positive_time_delay)]
+        f += df
+    df_sol_mi_snr[str(uf)] = ll_sol_mi_snr
+    df_sol_mi_pos[str(uf)] = df_sol_mi_pos
 
-// OUTPUTS:
-string path = "./data/tuninng.csv";
-Print2D(path, "trunc", firing_rates);
+    # df_mul_mi_snr[str(uf)] = df_mul_mi_snr
+    # df_mul_mi_pos[str(uf)] = df_mul_mi_pos
+    # df_mul_sta_snr[str(uf)] = df_mul_sta_snr
+    # df_mul_sta_pos[str(uf)] = df_mul_sta_pos
+    f = frange[0]
+    uf += duf
+    ll_sol_mi_snr = []
+    ll_sol_mi_pos = []
+
+    # ll_mul_mi_snr = []
+    # ll_mul_mi_pos = []
+    # ll_mul_sta_snr = []
+    # ll_mul_sta_pos = []
 
 
-# Generating neruonal data based on settings above;
-subprocess.call(["./bin/nets.out", loading_dir])
-# Setting loops for local field potentials;
-# target_neuron_indice_list = random.sample(all_neuron, 1)
-target_neuron_indice_list = range(0, total_neuron_number)
-order = 2
-# prepare lists:
-conMat = mylib.load_matrix(loading_dir = loading_dir, filename = 'conMat.txt')
-postMat = mylib.load_matrix(loading_dir = loading_dir, filename = 'postMat.txt')
-
-lists = []
-for i in target_neuron_indice_list:
-	ll = np.nonzero(conMat[i,:])[0]
-	lists.append(ll)
-if order == 2:
-	lists2 = []
-	for i in target_neuron_indice_list:
-		ll2 = np.array([]).astype(int)
-		# print lists[i]
-		for item in lists[i]:
-			# print np.nonzero(conMat[item,:])[0]
-			ll2 = np.append(ll2, np.nonzero(postMat[item,:])[0])
-		# print ll2
-		ll2 = np.unique(ll2)
-		# print ll2
-		# print set(ll2)&set(lists[i])
-		ll2 = list(set(ll2) - (set(ll2)&set(lists[i])))
-		# print ll2
-		lists2.append(ll2)
-	lists = lists2
-
-# classification_options = ['all']
-# Setting loops for time-delayed mutual information;
-timing_step_list = [0.25]
-# preparing storage for data;
-data_dic = {'index':np.zeros(0).astype(int),'type':np.zeros(0).astype(int), 'mean firing rate':[], 'number of connection':np.zeros(0).astype(int), 'number of excitatory connection':np.zeros(0).astype(int), 'number of inhibitory connection':np.zeros(0).astype(int), 'signal noise ratio':[], 'peak time':[], 'time constant':[]}
-data_out = pd.DataFrame(data_dic)
-
-pre_net_types = np.genfromtxt(loading_dir + 'preNeuron.txt', dtype = int, usecols = 0, delimiter = ',')
-post_net_types = np.genfromtxt(loading_dir + 'postNeuron.txt', dtype = int, usecols = 0, delimiter = ',')
-
-num_of_trials = 1
-
-# Start loops
-for i in range(num_of_trials):
-	ind = target_neuron_indice_list[i]
-	ll = lists[i]
-	# transform list to str
-	list_str = [str(nn) for nn in ll]
-	list_str = ','.join(list_str)
-	# for num in num_list:
-	subprocess.call(["./bin/lfp.out", loading_dir, str(int(ind)), list_str, str(time_lb), str(time_ub), str(total_neuron_number)])
-	for dt in timing_step_list:
-		subprocess.call(['./bin/mi.out', str(dt), str(negative_time_delay), str(positive_time_delay)])
-		# create a saving filename
-		saving_filename = 'tdmi-' + str(int(ind)) + '-' + str(order) + '-' + str(time_lb) + '-' + str(time_ub) + '-' + str(dt).replace('.', '') + '-' + str(negative_time_delay) + '-' + str(positive_time_delay)
-
-		# create figure_text
-		figure_text = mylib.CreateText(loading_dir = loading_dir, neuron_index = int(ind), connecting_list = ll)
-
-		mi_data = pd.read_csv('./data/mi/mi.csv')
-		# print figure_text
-		mylib.PlotTdmi(time_series = mi_data['timelag'], signal_order = mi_data['ordered'], signal_rand = mi_data['random'], saving_dir = saving_dir, saving_filename = saving_filename, figure_text = figure_text)
-		# Output data:
-		data_out.loc[ind, 'index'] = ind
-		data_out.loc[ind, 'type'] = pre_net_types[ind]
-		data_out.loc[ind, 'mean firing rate'] = mylib.mean_rate(loading_dir = loading_dir, filename = 'rasterPre.txt', index = ind, tmax = 10)
-		data_out.loc[ind, 'number of connection'] = len(ll)
-		data_out.loc[ind, 'number of excitatory connection'], data_out.loc[ind, 'number of inhibitory connection'] = mylib.DivideNeuronalTypes(neuron_types = post_net_types, neuron_list = ll)
-
-		data_out.loc[ind, 'signal noise ratio'],	data_out.loc[ind, 'peak time'], data_out.loc[ind, 'time constant'] = mylib.tdmi_parameters(mi_data)
-		print '=================================================='
-
-# print data_2d
-data_out.to_csv(saving_dir + "pre-net-data"+str(order)+".csv", float_format = '%.4f', index  = False, columns = ['index','type', 'mean firing rate', 'number of connection', 'number of excitatory connection', 'number of inhibitory connection', 'signal noise ratio', 'peak time', 'time constant'])
+# print data
+df_sol_mi_snr.to_csv(saving_dir + "sol_mi_snr.csv", float_format = '%.4f', index  = False)
+df_sol_mi_pos.to_csv(saving_dir + "sol_mi_pos.csv", float_format = '%.4f', index  = False)
