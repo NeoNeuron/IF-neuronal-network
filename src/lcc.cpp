@@ -1,8 +1,8 @@
-#include<cmath>
-#include<iostream>
-#include<fstream>
-#include<numeric>
-#include<cstdlib>
+#include <cmath>
+#include <iostream>
+#include <fstream>
+#include <numeric>
+#include <cstdlib>
 #include"../include/lcc.h"
 
 using namespace std;

@@ -6,12 +6,15 @@
 //***************
 #include "../include/connectivity_matrix.h"
 #include "../include/io.h"
+#include <iostream>
+#include <fstream>
+#include <cstdlib>
+#include <numeric>
+using namespace std;
 
 void ConnectivityMatrix::Scan(int target_value, int row_index, vector<int> &output_indices) {
 	for (int s = 0; s < neuron_number_; s++) {
-		if (matrix_[row_index][s] == target_value) {
-			output_indices.push_back(s);
-		}
+		if (matrix_[row_index][s] == target_value) output_indices.push_back(s);
 	}
 }
 
@@ -47,9 +50,7 @@ void ConnectivityMatrix::CalculateClusteringCoefficient() {
 	double counter = 0;
 	for (int k = 0; k < neuron_number_; k++) {
 		for (int s = 0; s < neuron_number_; s++) {
-			if (k == s || matrix_[k][s] == 1) {
-				neighbor.push_back(s);
-			}
+			if (k == s || matrix_[k][s] == 1) neighbor.push_back(s);
 		}
 		for (int i = 0; i < neighbor.size(); i++) {
 			for (int j = 0; j < neighbor.size(); j++) {
@@ -169,4 +170,13 @@ double ConnectivityMatrix::GetMeanClusteringCoefficient() {
 
 void ConnectivityMatrix::OutMatrix(string path) {
 	Print2D(path, "trunc", matrix_);
+}
+
+bool ConnectivityMatrix::IsConnect(){
+	int counter = 0;
+	for (vector<vector<int> >::iterator it = matrix_.begin(); it != matrix_.end(); it ++) {
+		counter += accumulate(it->begin(), it->end(), 0);
+	}
+	if (counter == 0) return false;
+	else return true;
 }

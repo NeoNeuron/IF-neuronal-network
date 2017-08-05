@@ -4,7 +4,7 @@
 //	Description: Define class Neuron, structure Spike and NeuronState;
 //	Date: 2017-02-21 16:06:30
 //******************************
-#include "../include/group.h"
+#include "../include/network.h"
 #include "../include/io.h"
 #include <iostream>
 #include <algorithm>
@@ -170,35 +170,41 @@ void NeuronalNetwork::Rewire(double p, int seed, bool output_option) {
 }
 
 void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
-	vector<SpikeElement> T;
-	double newt;
-	newt = SortSpikes(t, dt, T);
-	if (newt < 0) {
-		for (int i = 0; i < neuron_number_; i++) {
-			neurons_[i].UpdateNeuronalState(t, dt, external_excitatory_inputs_[i], external_inhibitory_inputs_[i]);
-		}
-	} else {
-		while (newt > 0) {
-			int IND = (T.front()).index;
-			Spike ADD_mutual;
-			ADD_mutual.mode = false;
-			ADD_mutual.function = (T.front()).type;
-			ADD_mutual.t = newt;
-			for (int j = 0; j < neuron_number_; j++) {
-				if (j == IND) {
-					neurons_[j].Fire(t, newt - t);
-				} else {
-					neurons_[j].UpdateNeuronalState(t, newt - t, external_excitatory_inputs_[j], external_inhibitory_inputs_[j]);
-					if (connectivity_matrix_.ReadMatrix(IND,j) != 0) {
-						neurons_[j].InSpike(ADD_mutual);
+	if (connectivity_matrix_.IsConnect()) {
+		vector<SpikeElement> T;
+		double newt;
+		newt = SortSpikes(t, dt, T);
+		if (newt < 0) {
+			for (int i = 0; i < neuron_number_; i++) {
+				neurons_[i].UpdateNeuronalState(t, dt, external_excitatory_inputs_[i], external_inhibitory_inputs_[i]);
+			}
+		} else {
+			while (newt > 0) {
+				int IND = (T.front()).index;
+				Spike ADD_mutual;
+				ADD_mutual.mode = false;
+				ADD_mutual.function = (T.front()).type;
+				ADD_mutual.t = newt;
+				for (int j = 0; j < neuron_number_; j++) {
+					if (j == IND) {
+						neurons_[j].Fire(t, newt - t);
+					} else {
+						neurons_[j].UpdateNeuronalState(t, newt - t, external_excitatory_inputs_[j], external_inhibitory_inputs_[j]);
+						if (connectivity_matrix_.ReadMatrix(IND,j) != 0) {
+							neurons_[j].InSpike(ADD_mutual);
+						}
 					}
 				}
+				dt = t + dt - newt;
+				t = newt;
+				T.clear();
+				newt = SortSpikes(t, dt, T);
 			}
-			dt = t + dt - newt;
-			t = newt;
-			T.clear();
-			newt = SortSpikes(t, dt, T);
+			for (int i = 0; i < neuron_number_; i++) {
+				neurons_[i].UpdateNeuronalState(t, dt, external_excitatory_inputs_[i], external_inhibitory_inputs_[i]);
+			}
 		}
+	} else {
 		for (int i = 0; i < neuron_number_; i++) {
 			neurons_[i].UpdateNeuronalState(t, dt, external_excitatory_inputs_[i], external_inhibitory_inputs_[i]);
 		}

@@ -3,7 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-from scipy.optimize	import curve_fit
+# from scipy.optimize	import curve_fit
 import random
 import os
 import pandas as pd

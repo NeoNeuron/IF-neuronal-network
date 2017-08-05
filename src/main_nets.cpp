@@ -5,9 +5,10 @@
 //	Description: test program for multi-network simulation;
 //*************************
 
-#include "../include/group.h"
+#include "../include/network.h"
 #include "../include/get-config.h"
 #include "../include/io.h"
+#include <iostream>
 #include <cstdlib>
 #include <cmath>
 #include <ctime>

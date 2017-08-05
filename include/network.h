@@ -4,8 +4,8 @@
 //	Date: 2017-03-08 15:47:39
 //	Description: define Struct SpikeElement and Class NeuronalNetwork;
 //***************
-#ifndef _IFNET_GROUP_H_
-#define _IFNET_GROUP_H_
+#ifndef _IFNET_NETWORK_H_
+#define _IFNET_NETWORK_H_
 
 #include"neuron.h"
 #include"connectivity_matrix.h"
@@ -146,4 +146,4 @@ public:
 
 void UpdateSystemState(NeuronalNetwork & pre_network, NeuronalNetwork & post_network, vector<vector<bool> > &connectivity_matrix, double t, double dt);
 
-#endif // _IFNET_GROUP_H_
+#endif // _IFNET_NETWORK_H_

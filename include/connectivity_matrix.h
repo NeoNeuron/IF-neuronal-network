@@ -8,10 +8,8 @@
 #ifndef _IFNET_CONNECTIVITY_MATRIX_H_
 #define _IFNET_CONNECTIVITY_MATRIX_H_
 
-#include<iostream>
-#include<fstream>
-#include<cstdlib>
-#include<vector>
+#include <string>
+#include <vector>
 
 using namespace std;
 
@@ -36,8 +34,6 @@ private:
 	void CalculateClusteringCoefficient();
 
 public:
-	//	INPUTS:
-
 	// Set size of network:
 	void SetNeuronNumber(int neuron_number);
 
@@ -61,6 +57,9 @@ public:
 
 	//	Output matrix_ to external file.
 	void OutMatrix(string path);
+
+	// Judge whether there is any connection;
+	bool IsConnect();
 };
 
 #endif // _IFNET_CONNECTIVITY_MATRIX_H_
