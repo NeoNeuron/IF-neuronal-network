@@ -31,8 +31,9 @@ timing_step = 0.25
 # initialize output data file:
 df_sol_mi_snr = pd.DataFrame({})
 df_sol_mi_pos = pd.DataFrame({})
-df_sol_sta_snr = pd.DataFrame({})
-df_sol_sta_pos = pd.DataFrame({})
+df_sol_mi_base = pd.DataFrame({})
+# df_sol_sta_snr = pd.DataFrame({})
+# df_sol_sta_pos = pd.DataFrame({})
 
 # df_mul_mi_snr = pd.DataFrame({})
 # df_mul_mi_pos = pd.DataFrame({})
@@ -41,8 +42,9 @@ df_sol_sta_pos = pd.DataFrame({})
 
 ll_sol_mi_snr = []
 ll_sol_mi_pos = []
-ll_sol_sta_snr = []
-ll_sol_sta_pos = []
+ll_sol_mi_base = []
+# ll_sol_sta_snr = []
+# ll_sol_sta_pos = []
 
 # ll_mul_mi_snr = []
 # ll_mul_mi_pos = []
@@ -71,12 +73,13 @@ while uf < ufrange[1]:
         subprocess.call(['./bin/lfp.out', './data/tmp/postI.txt', '0', time_range, 'lfp.csv'])
         # Calculate mutual information and STA
         subprocess.call(['./bin/mi.out', '1', str(timing_step), str(negative_time_delay) + ',' + str(positive_time_delay)])
-        subprocess.call(['./bin/sta.out', './data/raster/raster.csv', './data/lfp/lfp.csv', str(-timing_step * negative_time_delay) + ',' + str(timing_step * positive_time_delay)])
+        # subprocess.call(['./bin/sta.out', './data/raster/raster.csv', './data/lfp/lfp.csv', str(-timing_step * negative_time_delay) + ',' + str(timing_step * positive_time_delay)])
 		# run analysis
         mi_data = pd.read_csv('./data/mi/mi_sl.csv')
-        [sol_mi_snr, sol_mi_pos] = mylib.tdmi_parameters(mi_data)
+        [sol_mi_snr, sol_mi_pos, sol_mi_base] = mylib.tdmi_parameters(mi_data)
         ll_sol_mi_snr.append(sol_mi_snr)
         ll_sol_mi_pos.append(sol_mi_pos)
+        ll_sol_mi_base.append(sol_mi_base)
         mylib.plot(('%5.g-'%uf) + ('%5.g'%f) + '.png')
         # # Cauculate LFP from multi neuron
         # subprocess.call['./bin/lfp.out', './tmp/postI.txt', '0,1,2,3,4,5,6,7,8,9', str(time_lb) + ',' + str(time_ub), 'lfp.csv']
@@ -86,6 +89,7 @@ while uf < ufrange[1]:
         f += df
     df_sol_mi_snr[str(uf)] = ll_sol_mi_snr
     df_sol_mi_pos[str(uf)] = ll_sol_mi_pos
+    df_sol_mi_base[str(uf)] = ll_sol_mi_base
 
     # df_mul_mi_snr[str(uf)] = df_mul_mi_snr
     # df_mul_mi_pos[str(uf)] = df_mul_mi_pos
@@ -95,6 +99,7 @@ while uf < ufrange[1]:
     uf += duf
     ll_sol_mi_snr = []
     ll_sol_mi_pos = []
+    ll_sol_mi_base = []
 
     # ll_mul_mi_snr = []
     # ll_mul_mi_pos = []
@@ -105,3 +110,4 @@ while uf < ufrange[1]:
 # print data
 df_sol_mi_snr.to_csv(saving_dir + "sol_mi_snr.csv", float_format = '%.4f', index  = False)
 df_sol_mi_pos.to_csv(saving_dir + "sol_mi_pos.csv", float_format = '%.4f', index  = False)
+df_sol_mi_base.to_csv(saving_dir + "sol_mi_base.csv", float_format = '%.4f', index  = False)

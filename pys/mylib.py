@@ -100,6 +100,7 @@ def tdmi_parameters(mi):
 	Returns:
 	snr: signal-noise ratio
 	peak_position: postition of mutual information peak, True for postitive and False for negative;
+	base_level: the ratio of standard error and mean value of base line;
 	"""
 	time_series = mi['timelag']
 	signal_ordered = mi['ordered']
@@ -107,6 +108,7 @@ def tdmi_parameters(mi):
 	# calculate noise level
 	noise_mean = signal_random.mean()
 	noise_std = signal_random.std()
+	base_level = noise_std / noise_mean
 	# allocate maximum mutual information signal
 	signal_max_ind = signal_ordered.argmax()
 	signal_max = signal_ordered[signal_max_ind]
@@ -122,7 +124,7 @@ def tdmi_parameters(mi):
 	else:
 		snr = 'inf'
 		peak_position = 'nan'
-	return snr, peak_position
+	return snr, peak_position, base_level
 
 def MakeTitle(saving_filename):
 	"""
