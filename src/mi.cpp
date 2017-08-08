@@ -44,11 +44,10 @@ double PoissonGenerator(double rate, double t_last) {
 	return t_last - log(x) / rate;
 }
 
-void FindEdges(vector<double>& data, vector<double>& edges, int occupancy, int residue) {
+void FindEdges(vector<double>& data, vector<double>& edges, int occupancy) {
 	vector<double> data_copy = data;
-	data_copy.erase(data_copy.end() - residue, data_copy.end());
 	sort(data_copy.begin(), data_copy.end(), comp);
-	int N = floor(data_copy.size() / occupancy);
+	int N = data_copy.size() / occupancy;
 	edges.resize(N);
 	for (int i = 0; i < N; i++) {
 		edges[i] = data_copy[i*occupancy];
@@ -60,8 +59,7 @@ void JointPDF(vector<double>& x, vector<double>& y, vector<double>& x_edges, vec
 	int num_pairs = x.size();
 	int x_bin_number = x_edges.size();
 	int y_bin_number = y_edges.size();
-	vector<double> add(y_bin_number, 0);
-	jointpdf.resize(x_bin_number, add);
+	jointpdf.resize(x_bin_number, vector<double>(y_bin_number, 0));
 	int indx, indy;
 	for (int i = 0; i < num_pairs; i++) {
 		indx = floor(x_bin_number / 2);
@@ -99,8 +97,7 @@ void JointPDF(vector<bool>& binary_spikes, vector<double>& lfp, vector<double>& 
 	vector<vector<double> >& jointpdf) {
 	int bin_number = lfp_edges.size();
 	int num_pairs = lfp.size();
-	jointpdf.resize(2);
-	for (int i = 0; i < 2; i++) jointpdf[i].resize(lfp_edges.size(), 0);
+	jointpdf.resize(2, vector<double>(bin_number, 0));
 	int ind;
 	for (int i = 0; i < num_pairs; i++) {
 		// determine lfp's coordination;
@@ -126,55 +123,29 @@ void JointPDF(vector<bool>& binary_spikes, vector<double>& lfp, vector<double>& 
 	}
 }
 
-double Max(vector<double>& data) {
-	vector<double>::iterator it;
+template <class T> T Max(vector<T>& data) {
+	typename vector<T>::iterator it;
 	it = max_element(data.begin(), data.end());
 	return *it;
 }
 
-double Min(vector<double>& data) {
-	vector<double>::iterator it;
+template <class T> T Min(vector<T>& data) {
+	typename vector<T>::iterator it;
 	it = min_element(data.begin(), data.end());
 	return *it;
 }
 
-void FindMaxMin(vector<double>& data, double *max_and_min, double bin_width) {
-	double min, max;
-	min = Min(data);
-	max = Max(data);
-	min = floor(min / bin_width)*bin_width;
-	max = ceil(max / bin_width)*bin_width;
-	*max_and_min = max;
-	*(max_and_min + 1) = min;
-}
-
-void ConvertSpikeToBinary(vector<double>& spikes, vector<bool> & binary_spikes, double tmax, double dt) {
+void Spike2Bool(vector<double>& spikes, vector<bool> & binary_spikes, double tmax, double dt) {
 	int T = ceil(tmax / dt);
 	binary_spikes.resize(T, false);
 	for (vector<double>::iterator it = spikes.begin(); it != spikes.end(); it++) {
 		int index = floor(*it / dt);
-		if (index < T - 1) {
-			binary_spikes[index] = true;
-		}
+		if (index == T) index --;
+		binary_spikes[index] = true;
 	}
 }
 
-void ConvertBinaryToInt(vector<bool> & binary_spikes, vector<int> & spikeInt, int bins) {
-	spikeInt.clear();
-	int T = floor(binary_spikes.size() / bins);
-	int add_int;
-	for (int i = 0; i < T; i++) {
-		add_int = 0;
-		for (int j = 0; j < bins; j++) {
-			if (binary_spikes[bins*i + j] == true) {
-				add_int += pow(2, j);
-			}
-		}
-		spikeInt.push_back(add_int);
-	}
-}
-
-double BoolHistogram(vector<bool>& data) {
+double HistBool(vector<bool>& data) {
 	int count = 0;
 	for (vector<bool>::iterator it = data.begin(); it != data.end(); it++) {
 		if (*it) count += 1;
@@ -182,7 +153,7 @@ double BoolHistogram(vector<bool>& data) {
 	return count * 1.0 / data.size();
 }
 
-void IntHistogram(vector<int>& data, vector<double> & histogram, int min, int max) {
+void HistInt(vector<int>& data, vector<double> & histogram, int min, int max) {
 	int number = max - min + 1;
 	vector<int> count(number, 0);
 	int IND;
@@ -196,9 +167,8 @@ void IntHistogram(vector<int>& data, vector<double> & histogram, int min, int ma
 	}
 }
 
-void DoubleHistogram(vector<double> & data, vector<double> & histogram, double min, double max, double bin_width) {
-	int number;
-	number = ceil((max - min) / bin_width);
+void HistDouble(vector<double> & data, vector<double> & histogram, double min, double max, double bin_width) {
+	int number = ceil((max - min) / bin_width);
 	vector<int> count(number, 0);
 	int IND;
 	for (vector<double>::iterator it = data.begin(); it != data.end(); it++) {
@@ -220,8 +190,8 @@ double MI(vector<bool>& x, vector<bool>& y) {
 		int np = x.size();
 		// Histograms;
 		double px, py;
-		px = BoolHistogram(x);
-		py = BoolHistogram(y);
+		px = HistBool(x);
+		py = HistBool(y);
 		vector<double> Px(2), Py(2);
 		Px[0] = 1 - px;
 		Px[1] = px;
@@ -267,8 +237,8 @@ double MI(vector<double>& x, vector<double>& y, double* x_max_and_min, double* y
 	} else {
 		// Calculate single probabilities;
 		vector<double> Px, Py;
-		DoubleHistogram(x, Px, x_max_and_min[1], x_max_and_min[0], x_bin_size);
-		DoubleHistogram(y, Py, y_max_and_min[1], y_max_and_min[0], y_bin_size);
+		HistDouble(x, Px, x_max_and_min[1], x_max_and_min[0], x_bin_size);
+		HistDouble(y, Py, y_max_and_min[1], y_max_and_min[0], y_bin_size);
 
 		// 	Calculate conditional probability;
 		int time_bin_number = x.size(); // number of bins of time series;
@@ -311,18 +281,20 @@ double MI(vector<double>& x, vector<double>& y) {
 	// Calculate actual occupancy;
 	int bin_number = floor(sqrt(length / 5)); // bin_number: numberber of non-uniform bins;
 	int occupancy = floor(length / bin_number);
-	int x_residue = x.size() - bin_number*occupancy; // residue: remaining number of data that not used.
-	int y_residue = y.size() - bin_number*occupancy;
-	int data_size = bin_number*occupancy;
+	int num_pair = bin_number*occupancy;
+	vector<double> x_copy = x;
+	x_copy.erase(x_copy.begin() + num_pair, x_copy.end());
+	vector<double> y_copy;
+ 	y_copy.erase(y_copy.begin() + num_pair, y_copy.end());
 
 	// Find edges of histogram;
 	vector<double> x_edges, y_edges;
-	FindEdges(x, x_edges, occupancy, x_residue);
-	FindEdges(y, y_edges, occupancy, y_residue);
+	FindEdges(x_copy, x_edges, occupancy);
+	FindEdges(y_copy, y_edges, occupancy);
 
 	// 	Calculate conditional probability;
 	vector<vector<double> > jointpdf;
-	JointPDF(x, y, x_edges, y_edges, jointpdf);
+	JointPDF(x_copy, y_copy, x_edges, y_edges, jointpdf);
 
 	// Calculate mutual information;
 	double mi = 0;
@@ -332,11 +304,6 @@ double MI(vector<double>& x, vector<double>& y) {
 				mi += jointpdf[i][j] * log2(pow(bin_number, 2)*jointpdf[i][j]);
 			}
 		}
-	}
-	if (mi<0) {
-		cout << mi << endl;
-		cout << "Press ENTER to continue:" << endl;
-		cin.get();
 	}
 	return mi;
 }
@@ -349,14 +316,16 @@ double MI(vector<double>& x, vector<double>& y, string pdf_path) {
 	// Calculate actual occupancy;
 	int bin_number = floor(sqrt(length / 5)); // bin_number: numberber of non-uniform bins;
 	int occupancy = floor(length / bin_number);
-	int x_residue = x.size() - bin_number*occupancy; // residue: remaining number of data that not used.
-	int y_residue = y.size() - bin_number*occupancy;
-	int data_size = bin_number*occupancy;
+	int num_pair = bin_number*occupancy;
+	vector<double> x_copy = x;
+	x_copy.erase(x_copy.begin() + num_pair, x_copy.end());
+	vector<double> y_copy;
+ 	y_copy.erase(y_copy.begin() + num_pair, y_copy.end());
 
 	// Find edges of histogram;
 	vector<double> x_edges, y_edges;
-	FindEdges(x, x_edges, occupancy, x_residue);
-	FindEdges(y, y_edges, occupancy, y_residue);
+	FindEdges(x_copy, x_edges, occupancy);
+	FindEdges(y_copy, y_edges, occupancy);
 
 	// 	Calculate conditional probability;
 	vector<vector<double> > jointpdf;
@@ -372,74 +341,30 @@ double MI(vector<double>& x, vector<double>& y, string pdf_path) {
 			}
 		}
 	}
-	if (mi<0) {
-		cout << mi << endl;
-		cout << "Press ENTER to continue:" << endl;
-		cin.get();
-	}
 	return mi;
 }
 
-double MI(vector<bool>& binary_spikes, vector<double>& LFP, int time_bin_number, double LFP_max, double LFP_min, double bin_width) {
-	// Prepare historgram;
-	double p_spike;
-	p_spike = BoolHistogram(binary_spikes);
-	vector<double> LFP_histogram;
-	DoubleHistogram(LFP, LFP_histogram, LFP_min, LFP_max, bin_width);
-
-	// Calculate conditional probability;
-	int histogram_bin_number = LFP_histogram.size();
-	vector<int> count_xy_true;
-	vector<int> count_xy_false;
-	count_xy_true.resize(histogram_bin_number, 0);
-	count_xy_false.resize(histogram_bin_number, 0);
-	int ind;
-	for (int i = 0; i < time_bin_number; i++) {
-		ind = floor((LFP[i] - LFP_min) / bin_width);
-		if (binary_spikes[i] == true) count_xy_true[ind]++;
-		else count_xy_false[ind]++;
-	}
-
-	// Calculate mutual information;
-
-	double mi = 0;
-	for (int i = 0; i < histogram_bin_number; i++) {
-		if (LFP_histogram[i] != 0) {
-			if (count_xy_true[i] != 0) {
-				mi += count_xy_true[i] * 1.0 / time_bin_number*log2(count_xy_true[i] * 1.0 / time_bin_number / p_spike / LFP_histogram[i]);
-			}
-			if (count_xy_false[i] != 0) {
-				mi += count_xy_false[i] * 1.0 / time_bin_number*log2(count_xy_false[i] * 1.0 / time_bin_number / (1 - p_spike) / LFP_histogram[i]);
-			}
-		}
-	}
-	if (mi > 10000 or mi < 0) {
-		cout << mi << endl;
-		cout << "Press ENTER to continue:" << endl;
-		cin.get();
-	}
-	return mi;
-}
 
 double MI(vector<bool>& binary_spikes, vector<double>& LFP, int bin_number) {
 	// calculate the occupancy;
 	// int bin_number = floor(sqrt(LFP.size() / expected_occupancy)); // bin_number: numberber of non-uniform bins;
 	int occupancy = LFP.size() / bin_number;
-	int residue = LFP.size() % bin_number; // residue: remaining number of data that not used.
-	int data_size = LFP.size() - residue;
+	int num_pair = occupancy * bin_number;
+	vector<double> LFP_copy = LFP;
+	LFP_copy.erase(LFP_copy.begin() + num_pair, LFP_copy.end());
 
 	// calculate histogram;
 	vector<double> edges;
-	FindEdges(LFP, edges, occupancy, residue);
+	FindEdges(LFP_copy, edges, occupancy);
 	double p_spike;
-	p_spike = BoolHistogram(binary_spikes);
+	p_spike = HistBool(binary_spikes);
 	double pr_spikes[2]; // pr_spikes[0] = probability of spikes; pr_spikes[1] = probability of non-spikes;
 	pr_spikes[0] = p_spike;
 	pr_spikes[1] = 1 - p_spike;
 
 	// Calculate conditional probability;
 	vector<vector<double> > jointpdf;
-	JointPDF(binary_spikes, LFP, edges, jointpdf);
+	JointPDF(binary_spikes, LFP_copy, edges, jointpdf);
 
 	// Calculate mutual information;
 
@@ -451,18 +376,13 @@ double MI(vector<bool>& binary_spikes, vector<double>& LFP, int bin_number) {
 			}
 		}
 	}
-	if (mi<0) {
-		cout << mi << endl;
-		cout << "Press ENTER to continue:" << endl;
-		cin.get();
-	}
 	return mi;
 }
 
 void TDMI(vector<double>& x, vector<double>& y, double dt, double tmax, int negative_time_delay, int positive_time_delay, vector<double> & tdmi) {
 	vector<bool> x_bool, y_bool;
-	ConvertSpikeToBinary(x, x_bool, tmax, dt);
-	ConvertSpikeToBinary(y, y_bool, tmax, dt);
+	Spike2Bool(x, x_bool, tmax, dt);
+	Spike2Bool(y, y_bool, tmax, dt);
 	tdmi.resize(positive_time_delay + negative_time_delay + 1, 0);
 
 	// No shift;
@@ -560,51 +480,6 @@ void TDMI_adaptive(vector<double>& x, vector<double>& y, int negative_time_delay
 	}
 }
 
-void TDMI(vector<double>& spikes, vector<double>& LFP, double dt, double sampling_dt, double bin_width, int negative_time_delay, int positive_time_delay, vector<double>& tdmi) {
-	int repeat_number = negative_time_delay + positive_time_delay + 1;
-	tdmi.resize(repeat_number, 0);
-	double tmax = LFP.size()*sampling_dt;
-	vector<bool> binary_spikes;
-	ConvertSpikeToBinary(spikes, binary_spikes, tmax, dt);
-
-	//random_shuffle(binary_spikes.begin(), binary_spikes.end());
-
-	//	Calculate the mean local field potential;
-	int time_bin_number = binary_spikes.size();
-	int n = dt / sampling_dt; // number of LFP data point in single time step;
-	vector<double> mean_LFP(time_bin_number, 0);
-	for (int i = 0; i < time_bin_number; i++) {
-		for (int j = 0; j < n; j++) mean_LFP[i] += LFP[i*n + j];
-		mean_LFP[i] /= n;
-	}
-
-	// Measure Range of data;
-	double LFP_max_and_min[2];
-	FindMaxMin(mean_LFP, LFP_max_and_min, bin_width);
-
-	// No shift;
-	tdmi[negative_time_delay] = MI(binary_spikes, mean_LFP, time_bin_number, LFP_max_and_min[0], LFP_max_and_min[1], bin_width);
-
-	// Negative shift;
-	vector<bool> spike_copy = binary_spikes;
-	vector<double> LFP_copy = mean_LFP;
-	for (int i = 0; i < negative_time_delay; i++) {
-		spike_copy.erase(spike_copy.begin());
-		LFP_copy.erase(LFP_copy.end() - 1, LFP_copy.end());
-		tdmi[negative_time_delay - i - 1] = MI(spike_copy, LFP_copy, time_bin_number - 1, LFP_max_and_min[0], LFP_max_and_min[1], bin_width);
-	}
-
-	// Positive shift;
-	spike_copy = binary_spikes;
-	LFP_copy = mean_LFP;
-	for (int i = 0; i < positive_time_delay; i++) {
-		spike_copy.erase(spike_copy.end() - 1);
-		LFP_copy.erase(LFP_copy.begin(), LFP_copy.begin() + 1);
-		tdmi[negative_time_delay + i + 1] = MI(spike_copy, LFP_copy, time_bin_number - 1, LFP_max_and_min[0], LFP_max_and_min[1], bin_width);
-	}
-}
-
-
 void TDMI(vector<double>& spikes, vector<double>& LFP, double dt, double sampling_dt, int negative_time_delay, int positive_time_delay, vector<double>& tdmi, bool random_switch) {
 	int dn = dt / sampling_dt; // number of LFP data points within single time step;
 	int time_bin_number = floor(LFP.size() / dn); // number of reduced LFP data point;
@@ -623,7 +498,7 @@ void TDMI(vector<double>& spikes, vector<double>& LFP, double dt, double samplin
 	// prepare the spiking train;
 	double tmax = mean_LFP.size() * dt;
 	vector<bool> binary_spikes;
-	ConvertSpikeToBinary(spikes, binary_spikes, tmax, dt);
+	Spike2Bool(spikes, binary_spikes, tmax, dt);
 
 	if (random_switch == true) {
 		random_shuffle(binary_spikes.begin(), binary_spikes.end());

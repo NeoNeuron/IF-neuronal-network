@@ -28,7 +28,7 @@ double PoissonGenerator(double rate, double t_last);
 //	INT occupancy: number of data points occupied in each bin;
 //	INT residue: number of data points at the end of the vector which is not considered into histogram;
 //	Return: none;
-void FindEdges(vector<double>& data, vector<double>& edges, int occupancy, int residue);
+void FindEdges(vector<double>& data, vector<double>& edges, int occupancy);
 
 //  Joint probability function with adaptive partition of x and y; Iteration starts from the middle of the sorted sequence;
 //  VECTOR<DOUBLE> x: variable x;
@@ -47,18 +47,11 @@ void JointPDF(vector<bool>& binary_spikes, vector<double>& lfp, vector<double>& 
 
 // Find maximum value in data;
 // Return max;
-double Max(vector<double>& data);
+template <class T> T Max(vector<T>& data);
 
 // Find minimum value in data;
 // Return min;
-double Min(vector<double>& data);
-
-//	Find Max and Min;
-//	VECTOR<DOUBLE> data: original data;
-//	DOUBLE* max_and_min: number set of maximun and minimum. max_and_min[0] = maximum; max_and_min[1] = minimum;
-//	DOUBLE bin_width: bin size of the histogram of data;
-//	Return: none;
-void FindMaxMin(vector<double> &data, double* max_and_min, double bin_width);
+template <class T> T Min(vector<T>& data);
 
 //	Convert double spike train to binary sequence;
 //	VECTOR<DOUBLE> spikes: original spike train;
@@ -66,17 +59,11 @@ void FindMaxMin(vector<double> &data, double* max_and_min, double bin_width);
 //	DOUBLE tmax: maximum time of time range;
 //	DOUBLE dt: the size of time step that a binary value considered;
 //	Return: none;
-void ConvertSpikeToBinary(vector<double> & spikes, vector<bool> & binary_spikes, double tmax, double dt);
-
-// 	Convert binary sequence to ints;
-// 	VECTOR<BOOL> binary_spikes: original binary spikes;
-//	VECTOR<INT> int_spikes: int representation of spike's data;
-//	INT bin_size: number of bool value contained in single int;
-void ConvertBinaryToInt(vector<bool> & binary_spikes, vector<int> & int_spikes, int bin_size);
+void Spike2Bool(vector<double> & spikes, vector<bool> & binary_spikes, double tmax, double dt);
 
 // 	Histogram of discrete bools;
 //	Return: the probability for TRUE;
-double BoolHistogram(vector<bool> & data);
+double HistBool(vector<bool> & data);
 
 // 	Histogram of discrete ints;
 //	VECTOR<INT> data: original int data;
@@ -84,7 +71,7 @@ double BoolHistogram(vector<bool> & data);
 //	INT min: lower limit of int data; [minimum value]
 //	INT max: upper limit of int data; [maximum value]
 //	Return: none;
-void IntHistogram(vector<int> & data, vector<double> & histogram, int min, int max);
+void HistInt(vector<int> & data, vector<double> & histogram, int min, int max);
 
 // 	Histogram of continues variables;
 //	VECTOR<DOUBLE> data: original double data;
@@ -93,7 +80,7 @@ void IntHistogram(vector<int> & data, vector<double> & histogram, int min, int m
 //	DOUBLE max: upper limit of int data; [maximum value]
 //	DOUBLE bin_width: bin width of histogram; it is uniformly binned;
 //	Return: none;
-void DoubleHistogram(vector<double> & data, vector<double> & histogram, double min, double max, double bin_width);
+void HistDouble(vector<double> & data, vector<double> & histogram, double min, double max, double bin_width);
 
 // 	Mutual information of two binary spike trains;
 //	VECTOR<BOOL> x, y: tow original bool sequence;
@@ -111,17 +98,7 @@ double MI(vector<double>& x, vector<double>& y, double* x_max_and_min, double* y
 //	VECTOR<DOUBLE> x, y: two original double sequences;
 //	Return: value of mutual information;
 double MI(vector<double>& x, vector<double>& y);
-
 double MI(vector<double>& x, vector<double>& y, string pdf_path);
-
-//	Mutual information between binary spike train and local field potential; the scheme of histogram is those with equally sized bins;
-//	VECTOR<BOOL> binary_spikes: spike train with binary format;
-//	VECTOR<DOUBLE> LFP: orignal local field potential(LFP);
-//	INT time_bin_number: number of bins of time series;
-//	DOUBLE LFP_max, LFP_min: maximum and minimum value of LFP;
-//	DOUBLE bin_width: bin width of LPF histogram;
-//	Return: value of mutual information;
-double MI(vector<bool> &binary_spikes, vector<double> &LFP, int time_bin_number, double LFP_max, double LFP_min, double bin_width);
 
 // 	Mutual information between binary spiking train and LFP; [Based on histogram scheme which has identical occupancy for each bin;
 //	VECTOR<BOOL> binary_spikes: original spike train with binary version;
@@ -138,9 +115,6 @@ void TDMI_uniform(vector<double>& x, vector<double>& y, int negative_time_delay,
 
 // Delayed mutual information of two double vector, wiht adaptive partition;
 void TDMI_adaptive(vector<double>& x, vector<double>& y, int negative_time_delay, int positive_time_delay, vector<double> & tdmi);
-
-// Delayed mutual information of spiking train and LFP, with uniform partitions;
-void TDMI(vector<double>& spikes, vector<double>& LFP, double dt, double sampling_dt, double bin_width, int negative_time_delay, int positive_time_delay, vector<double> & tdmi);
 
 // Delayed mutual information of spiking train and LFP, with adaptive partitions;
 void TDMI(vector<double>& spikes, vector<double>& LFP, double dt, double sampling_dt, int negative_time_delay, int positive_time_delay, vector<double> & tdmi, bool random_switch);
