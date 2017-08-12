@@ -25,25 +25,6 @@ void int2str(const int &int_temp,string &string_temp) {
 	string_temp=stream.str();
 }
 
-double GaussKernel() {
-	double U = -log(1 - rand() / (RAND_MAX*1.0));
-	double V = 2 * PI * rand() / (RAND_MAX*1.0);
-	double number = sqrt(2 * U)*cos(V);
-	while (abs(number) > 1e10) {
-		U = -log(1 - rand() / (RAND_MAX*1.0));
-		V = 2 * PI * rand() / (RAND_MAX*1.0);
-		number = sqrt(2 * U)*cos(V);
-	}
-	return number;
-}
-
-double PoissonGenerator(double rate, double t_last) {
-	double x;
-	x = rand() / (RAND_MAX + 1.0);
-	while (abs(x) > 1e10) x = rand() / (RAND_MAX + 1.0);
-	return t_last - log(x) / rate;
-}
-
 void FindEdges(vector<double>& data, vector<double>& edges, int occupancy) {
 	vector<double> data_copy = data;
 	sort(data_copy.begin(), data_copy.end(), comp);
@@ -123,14 +104,14 @@ void JointPDF(vector<bool>& binary_spikes, vector<double>& lfp, vector<double>& 
 	}
 }
 
-template <class T> T Max(vector<T>& data) {
-	typename vector<T>::iterator it;
+double Max(vector<double>& data) {
+	typename vector<double>::iterator it;
 	it = max_element(data.begin(), data.end());
 	return *it;
 }
 
-template <class T> T Min(vector<T>& data) {
-	typename vector<T>::iterator it;
+double Min(vector<double>& data) {
+	typename vector<double>::iterator it;
 	it = min_element(data.begin(), data.end());
 	return *it;
 }
@@ -263,11 +244,6 @@ double MI(vector<double>& x, vector<double>& y, double* x_max_and_min, double* y
 					mi += Pxy * log2(Pxy / (Px[i] * Py[j]));
 				}
 			}
-		}
-		if (mi<0) {
-			cout << mi << endl;
-			cout << "Press ENTER to continue:" << endl;
-			cin.get();
 		}
 		return mi;
 	}
@@ -503,19 +479,19 @@ void TDMI(vector<double>& spikes, vector<double>& LFP, double dt, double samplin
 	if (random_switch == true) {
 		random_shuffle(binary_spikes.begin(), binary_spikes.end());
 	}
-
 	int repeat_number = negative_time_delay + positive_time_delay + 1;
 	tdmi.resize(repeat_number, 0);
-	int progress_counter = 0;
-	double progress;
+	cout << "mark" << endl;
+	string str_ini(55, ' ');
+	cout << str_ini << ']';
 	char cr = (char)13;
+	cout << ">> processing:[";
+	double progress, dp = repeat_number * 0.025;
+
 	// No shift;
 	tdmi[negative_time_delay] = MI(binary_spikes, mean_LFP, bin_number);
-	progress_counter ++;
-	progress = progress_counter*100.0/repeat_number;
-	cout << cr << ">> Processing ... ";
-	printf("%6.2f",progress);
-	cout << "%";
+	if (floor(progress + dp) - floor(progress) == 1) cout << '#';
+	progress += dp;
 
 
 	// Negative shift;
@@ -525,11 +501,8 @@ void TDMI(vector<double>& spikes, vector<double>& LFP, double dt, double samplin
 		spikes_copy.erase(spikes_copy.begin());
 		LFP_copy.erase(LFP_copy.end() - 1);
 		tdmi[negative_time_delay - i - 1] = MI(spikes_copy, LFP_copy, bin_number);
-		progress_counter ++;
-		progress = progress_counter*100.0/repeat_number;
-		cout << cr << ">> Processing ... ";
-		printf("%6.2f",progress);
-		cout << "%";
+		if (floor(progress + dp) - floor(progress) == 1) cout << '#';
+		progress += dp;
 	}
 
 	// Positive shift;
@@ -539,11 +512,9 @@ void TDMI(vector<double>& spikes, vector<double>& LFP, double dt, double samplin
 		spikes_copy.erase(spikes_copy.end() - 1);
 		LFP_copy.erase(LFP_copy.begin());
 		tdmi[negative_time_delay + i + 1] = MI(spikes_copy, LFP_copy, bin_number);
-		progress_counter ++;
-		progress = progress_counter*100.0/repeat_number;
-		cout << cr << ">> Processing ... ";
-		printf("%6.2f",progress);
-		cout << "%";
+		if (floor(progress + dp) - floor(progress) == 1) cout << '#';
+		progress += dp;
 	}
 	cout << endl;
+
 }

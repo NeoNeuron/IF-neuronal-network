@@ -27,6 +27,31 @@ int SetOption() {
 	return option;
 }
 
+//	Gaussian kernel:
+//	Return: random number obey the standard Gaussion distribution;
+double GaussKernel() {
+	double U = -log(1 - rand() / (RAND_MAX*1.0));
+	double V = 2 * PI * rand() / (RAND_MAX*1.0);
+	double number = sqrt(2 * U)*cos(V);
+	while (abs(number) > 1e10) {
+		U = -log(1 - rand() / (RAND_MAX*1.0));
+		V = 2 * PI * rand() / (RAND_MAX*1.0);
+		number = sqrt(2 * U)*cos(V);
+	}
+	return number;
+}
+
+//	Poisson generator:
+//	DOUBLE rate: mean Poisson rate;
+//	DOUBLE t_last: last time point for Poisson events;
+//	Return: time point for next Poisson events;
+double PoissonGenerator(double rate, double t_last) {
+	double x;
+	x = rand() / (RAND_MAX + 1.0);
+	while (abs(x) > 1e10) x = rand() / (RAND_MAX + 1.0);
+	return t_last - log(x) / rate;
+}
+
 int main() {
 	int option;
 	option = SetOption();

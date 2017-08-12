@@ -9,18 +9,7 @@
 
 #include <string>
 #include <vector>
-
 using namespace std;
-
-//	Gaussian kernel:
-//	Return: random number obey the standard Gaussion distribution;
-double GaussKernel();
-
-//	Poisson generator:
-//	DOUBLE rate: mean Poisson rate;
-//	DOUBLE t_last: last time point for Poisson events;
-//	Return: time point for next Poisson events;
-double PoissonGenerator(double rate, double t_last);
 
 //	Find Edges: Find edges of bins with adaptive partition, ie. each bin is equally occupied;
 //	VECTOR<DOUBLE> data: original data;
@@ -44,14 +33,6 @@ void JointPDF(vector<double>& x, vector<double>& y, vector<double>& x_edges, vec
 //  VECTOR<DOUBLE> lfp_edges: edges for adaptive partition of x;
 //  VECTOR<VECTOR<DOUBLE> jointpdf: joint probability distribution function of spike train and lfp;
 void JointPDF(vector<bool>& binary_spikes, vector<double>& lfp, vector<double>& lfp_edges, vector<vector<double> >& jointpdf);
-
-// Find maximum value in data;
-// Return max;
-template <class T> T Max(vector<T>& data);
-
-// Find minimum value in data;
-// Return min;
-template <class T> T Min(vector<T>& data);
 
 //	Convert double spike train to binary sequence;
 //	VECTOR<DOUBLE> spikes: original spike train;
