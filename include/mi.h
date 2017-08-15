@@ -79,7 +79,6 @@ double MI(vector<double>& x, vector<double>& y, double* x_max_and_min, double* y
 //	VECTOR<DOUBLE> x, y: two original double sequences;
 //	Return: value of mutual information;
 double MI(vector<double>& x, vector<double>& y);
-double MI(vector<double>& x, vector<double>& y, string pdf_path);
 
 // 	Mutual information between binary spiking train and LFP; [Based on histogram scheme which has identical occupancy for each bin;
 //	VECTOR<BOOL> binary_spikes: original spike train with binary version;

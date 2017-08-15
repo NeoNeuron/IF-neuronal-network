@@ -50,6 +50,9 @@ public:
 	// INPUTS:
 	void SetConnectingDensity(int density);
 
+	// Set interneuronal coupling strength;
+	void SetS(bool function, double val);
+
 	// 	Initialize neuronal types in the network;
 	//	DOUBLE p: the probability of the presence of excitatory neuron;
 	//	DOUBLE seed: seed for random number generator;

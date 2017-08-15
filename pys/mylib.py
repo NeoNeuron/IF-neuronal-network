@@ -94,37 +94,51 @@ def mean_rate(path, index, tmax):
 	mean_rate = len(raster)*1.0 / tmax
 	return mean_rate
 
-def tdmi_parameters(mi):
+def snr(mi):
 	"""
 	mi: DataFame containing 'timelag', 'ordered' and 'random'
 	Returns:
 	snr: signal-noise ratio
-	peak_position: postition of mutual information peak, True for postitive and False for negative;
-	base_level: the ratio of standard error and mean value of base line;
 	"""
-	time_series = mi['timelag']
-	signal_ordered = mi['ordered']
-	signal_random = mi['random']
 	# calculate noise level
-	noise_mean = signal_random.mean()
-	noise_std = signal_random.std()
-	base_level = noise_std / noise_mean
+	noise_mean = mi['random'].mean()
 	# allocate maximum mutual information signal
-	signal_max_ind = signal_ordered.argmax()
-	signal_max = signal_ordered[signal_max_ind]
-	peak_time = time_series[signal_max_ind]
-	if peak_time > 0:
-		peak_position = True
-	else:
-		peak_position = False
+	signal_max = mi['ordered'].max()
 
 	if noise_mean != 0:
 		# calculate the signal-noise ratio in TDMI data;
 		snr = signal_max / noise_mean
 	else:
 		snr = 'inf'
-		peak_position = 'nan'
-	return snr, peak_position, base_level
+	return snr
+
+def peakpos(mi):
+	"""
+	mi: DataFame containing 'timelag', 'ordered' and 'random'
+	Returns:
+	peak_pos: postition of mutual information peak, True for postitive and False for negative;
+	base_level: the ratio of standard error and mean value of base line;
+	"""
+	# calculate noise level
+	signal_max_ind = mi['ordered'].argmax()
+	peak_time = mi['timelag'][signal_max_ind]
+	if peak_time > 0:
+		peak_pos = True
+	else:
+		peak_pos = False
+	return peak_pos
+
+def baseline(mi):
+	"""
+	mi: DataFame containing 'timelag', 'ordered' and 'random'
+	Returns:
+	noise_mean: mean value of base line;
+	noise std: standard error of base line;
+	"""
+	# calculate noise level
+	noise_mean = mi['random'].mean()
+	noise_std = mi['random'].std()
+	return noise_mean, noise_std
 
 def MakeTitle(saving_filename):
 	"""
@@ -221,18 +235,18 @@ def plot(filename):
 	sta = pd.read_csv('data/sta.csv')
 	mi = pd.read_csv('data/mi/mi_sl.csv')
 	lcc = pd.read_csv('data/lcc/lcc.csv')
-	plt.figure(figsize = (15,5), dpi = 75)
-	plt.subplot(1,3,1)
+	plt.figure(figsize = (12,5), dpi = 75)
+	plt.subplot(1,2,1)
 	plt.plot(sta['timelag'], sta['sta'])
 	plt.xlabel('time-delay(ms)')
 	plt.ylabel('LFP')
 	plt.grid(True)
-	plt.subplot(1,3,2)
-	plt.plot(lcc['timelag'], lcc['lcc'])
-	plt.xlabel('time-delay(ms)')
-	plt.ylabel('Pearson\' Correlation')
-	plt.grid(True)
-	plt.subplot(1,3,3)
+	# plt.subplot(1,2,2)
+	# plt.plot(lcc['timelag'], lcc['lcc'])
+	# plt.xlabel('time-delay(ms)')
+	# plt.ylabel('Pearson\' Correlation')
+	# plt.grid(True)
+	plt.subplot(1,2,2)
 	plt.plot(mi['timelag'], mi['ordered'])
 	plt.plot(mi['timelag'], mi['random'])
 	plt.xlabel('time-delay(ms)')
@@ -240,3 +254,12 @@ def plot(filename):
 	plt.grid(True)
 	plt.savefig('./data/figure/' + filename)
 	# plt.show()
+
+def evalpeak(mi):
+	peak_value = mi['ordered'].max()
+	[noise_mean, noise_std] = baseline(mi)
+	if noise_mean == 0:
+		deviate_level = 0
+	else:
+		deviate_level = (peak_value - noise_mean) / noise_std
+	return deviate_level

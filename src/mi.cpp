@@ -129,7 +129,7 @@ void Spike2Bool(vector<double>& spikes, vector<bool> & binary_spikes, double tma
 double HistBool(vector<bool>& data) {
 	int count = 0;
 	for (vector<bool>::iterator it = data.begin(); it != data.end(); it++) {
-		if (*it) count += 1;
+		if (*it) count ++;
 	}
 	return count * 1.0 / data.size();
 }
@@ -200,11 +200,6 @@ double MI(vector<bool>& x, vector<bool>& y) {
 				}
 				else continue;
 			}
-		}
-		if (mi<0) {
-			cout << mi << endl;
-			cout << "Press ENTER to continue:" << endl;
-			cin.get();
 		}
 		return mi;
 	}
@@ -284,43 +279,6 @@ double MI(vector<double>& x, vector<double>& y) {
 	return mi;
 }
 
-double MI(vector<double>& x, vector<double>& y, string pdf_path) {
-	//	Compare the length of x & y;
-	int length;
-	if (x.size() > y.size()) length = y.size();
-	else length = x.size();
-	// Calculate actual occupancy;
-	int bin_number = floor(sqrt(length / 5)); // bin_number: numberber of non-uniform bins;
-	int occupancy = floor(length / bin_number);
-	int num_pair = bin_number*occupancy;
-	vector<double> x_copy = x;
-	x_copy.erase(x_copy.begin() + num_pair, x_copy.end());
-	vector<double> y_copy;
- 	y_copy.erase(y_copy.begin() + num_pair, y_copy.end());
-
-	// Find edges of histogram;
-	vector<double> x_edges, y_edges;
-	FindEdges(x_copy, x_edges, occupancy);
-	FindEdges(y_copy, y_edges, occupancy);
-
-	// 	Calculate conditional probability;
-	vector<vector<double> > jointpdf;
-	JointPDF(x, y, x_edges, y_edges, jointpdf);
-	Print2D(pdf_path, "trunc", jointpdf);
-
-	// Calculate mutual information;
-	double mi = 0;
-	for (int i = 0; i < bin_number; i++) {
-		for (int j = 0; j < bin_number; j++) {
-			if (jointpdf[i][j] != 0) {
-				mi += jointpdf[i][j] * log2(pow(bin_number, 2)*jointpdf[i][j]);
-			}
-		}
-	}
-	return mi;
-}
-
-
 double MI(vector<bool>& binary_spikes, vector<double>& LFP, int bin_number) {
 	// calculate the occupancy;
 	// int bin_number = floor(sqrt(LFP.size() / expected_occupancy)); // bin_number: numberber of non-uniform bins;
@@ -334,22 +292,21 @@ double MI(vector<bool>& binary_spikes, vector<double>& LFP, int bin_number) {
 	FindEdges(LFP_copy, edges, occupancy);
 	double p_spike;
 	p_spike = HistBool(binary_spikes);
-	double pr_spikes[2]; // pr_spikes[0] = probability of spikes; pr_spikes[1] = probability of non-spikes;
-	pr_spikes[0] = p_spike;
-	pr_spikes[1] = 1 - p_spike;
 
 	// Calculate conditional probability;
 	vector<vector<double> > jointpdf;
 	JointPDF(binary_spikes, LFP_copy, edges, jointpdf);
 
 	// Calculate mutual information;
-
 	double mi = 0; // Pxy = P(x,y);
-	for (int i = 0; i < 2; i++) {
-		for (int j = 0; j< bin_number; j++) {
-			if (jointpdf[i][j] != 0) {
-				mi += jointpdf[i][j] *log2(bin_number*jointpdf[i][j] / pr_spikes[i]);
-			}
+	for (int i = 0; i< bin_number; i++) {
+		if (jointpdf[0][i] != 0) {
+			mi += jointpdf[0][i] *log2(bin_number*jointpdf[0][i] / p_spike);
+		}
+	}
+	for (int i = 0; i< bin_number; i++) {
+		if (jointpdf[1][i] != 0) {
+			mi += jointpdf[1][i] *log2(bin_number*jointpdf[1][i] / (1 - p_spike));
 		}
 	}
 	return mi;
@@ -420,27 +377,16 @@ void TDMI_uniform(vector<double>& x, vector<double>& y, int negative_time_delay,
 void TDMI_adaptive(vector<double>& x, vector<double>& y, int negative_time_delay, int positive_time_delay, vector<double> & tdmi) {
 	int repeat_number = positive_time_delay + negative_time_delay + 1;
 	tdmi.resize(repeat_number, 0);
-
-	string pdf_path;
-	int index = 0;
 	// Negative shift;
 	vector<double> x_copy = x, y_copy = y;
 	for (int i = 0; i < negative_time_delay; i++) {
 		x_copy.erase(x_copy.begin(), x_copy.begin() + 1);
 		y_copy.erase(y_copy.end() - 1, y_copy.end());
-		pdf_path.clear();
-		int2str(index, pdf_path);
-		pdf_path = "../../results/jointpdfs/jpdf_" + pdf_path;
-		index ++;
-		tdmi[negative_time_delay - i - 1] = MI(x_copy, y_copy, pdf_path);
+		tdmi[negative_time_delay - i - 1] = MI(x_copy, y_copy);
 	}
 
 	// No shift;
-	pdf_path.clear();
-	int2str(index, pdf_path);
-	pdf_path = "../../results/jointpdfs/jpdf_" + pdf_path;
-	index ++;
-	tdmi[negative_time_delay] = MI(x, y, pdf_path);
+	tdmi[negative_time_delay] = MI(x, y);
 
 	// Positive shift;
 	x_copy = x;
@@ -448,11 +394,7 @@ void TDMI_adaptive(vector<double>& x, vector<double>& y, int negative_time_delay
 	for (int i = 0; i < positive_time_delay; i++) {
 		x_copy.erase(x_copy.end() - 1, x_copy.end());
 		y_copy.erase(y_copy.begin(), y_copy.begin() + 1);
-		pdf_path.clear();
-		int2str(index, pdf_path);
-		pdf_path = "../../results/jointpdfs/jpdf_" + pdf_path;
-		index ++;
-		tdmi[negative_time_delay + i + 1] = MI(x_copy, y_copy, pdf_path);
+		tdmi[negative_time_delay + i + 1] = MI(x_copy, y_copy);
 	}
 }
 
@@ -481,18 +423,9 @@ void TDMI(vector<double>& spikes, vector<double>& LFP, double dt, double samplin
 	}
 	int repeat_number = negative_time_delay + positive_time_delay + 1;
 	tdmi.resize(repeat_number, 0);
-	cout << "mark" << endl;
-	string str_ini(55, ' ');
-	cout << str_ini << ']';
-	char cr = (char)13;
-	cout << ">> processing:[";
-	double progress, dp = repeat_number * 0.025;
 
 	// No shift;
 	tdmi[negative_time_delay] = MI(binary_spikes, mean_LFP, bin_number);
-	if (floor(progress + dp) - floor(progress) == 1) cout << '#';
-	progress += dp;
-
 
 	// Negative shift;
 	vector<bool> spikes_copy = binary_spikes;
@@ -501,8 +434,6 @@ void TDMI(vector<double>& spikes, vector<double>& LFP, double dt, double samplin
 		spikes_copy.erase(spikes_copy.begin());
 		LFP_copy.erase(LFP_copy.end() - 1);
 		tdmi[negative_time_delay - i - 1] = MI(spikes_copy, LFP_copy, bin_number);
-		if (floor(progress + dp) - floor(progress) == 1) cout << '#';
-		progress += dp;
 	}
 
 	// Positive shift;
@@ -512,9 +443,5 @@ void TDMI(vector<double>& spikes, vector<double>& LFP, double dt, double samplin
 		spikes_copy.erase(spikes_copy.end() - 1);
 		LFP_copy.erase(LFP_copy.begin());
 		tdmi[negative_time_delay + i + 1] = MI(spikes_copy, LFP_copy, bin_number);
-		if (floor(progress + dp) - floor(progress) == 1) cout << '#';
-		progress += dp;
 	}
-	cout << endl;
-
 }

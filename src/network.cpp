@@ -47,6 +47,12 @@ void NeuronalNetwork::SetConnectingDensity(int density){
 	connectivity_matrix_.SetConnectingDensity(connecting_density_);
 }
 
+void NeuronalNetwork::SetS(bool function, double val) {
+	for (int i = 0; i < neuron_number_; i ++) { 
+		neurons_[i].SetSynapticStrength(function, val);
+	}
+}
+
 void NeuronalNetwork::InitializeNeuronalType(double p, int seed) {
 	srand(seed);
 	double x = 0;
@@ -115,7 +121,7 @@ void NeuronalNetwork::InitializeExternalPoissonProcess(bool function, double rat
 
 void NeuronalNetwork::SetF(bool function, double val) {
 	for (int i = 0; i < neuron_number_; i ++) {
-		neurons_[i].SetFeedforwardConductance(function, val);
+		neurons_[i].SetFeedforwardStrength(function, val);
 	}
 }
 

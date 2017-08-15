@@ -70,22 +70,25 @@ int main(int argc, const char* argv[]) {
 	} else if (mode == 1) {
 		// INPUT NEURONAL DATA:
 		vector<double> raster, lfp;
-
+		vector<double> tdmi_ordered;
+		vector<double> tdmi_random;
 		// DATA OF PRELAYER NEURON:
 		string path;
 		path = "./data/raster/raster.csv";
 		Read1D(path, 0, 1, raster);
-		path = "./data/lfp/lfp.csv";
-		Read1D(path, 0, 1, lfp);
+		if (raster.size() == 0) {
+			tdmi_ordered.resize(negative_time_delay + positive_time_delay + 1, 0);
+			tdmi_random.resize(negative_time_delay + positive_time_delay + 1, 0);
+		} else {
+			path = "./data/lfp/lfp.csv";
+			Read1D(path, 0, 1, lfp);
 
-		double sampling_dt = 0.03125;
-		cout << ">> Calculating ordered TDMI ... " << endl;
-		vector<double> tdmi_ordered;
-		TDMI(raster, lfp, dt, sampling_dt, negative_time_delay, positive_time_delay, tdmi_ordered, false);
-		cout << ">> Calculating swapped TDMI ... " << endl;
-		vector<double> tdmi_random;
-		TDMI(raster, lfp, dt, sampling_dt, negative_time_delay, positive_time_delay, tdmi_random, true);
-
+			double sampling_dt = 0.03125;
+			cout << ">> Calculating ordered TDMI ... " << endl;
+			TDMI(raster, lfp, dt, sampling_dt, negative_time_delay, positive_time_delay, tdmi_ordered, false);
+			cout << ">> Calculating swapped TDMI ... " << endl;
+			TDMI(raster, lfp, dt, sampling_dt, negative_time_delay, positive_time_delay, tdmi_random, true);
+		}
 		//	Output data:
 		ofstream data_out;
 		cout << ">> Outputing data ... " << endl;

@@ -52,6 +52,8 @@ int main(int argc, const char* argv[]) {
 		// Generate networks;
 		net.Rewire(rewiring_probability, rewiring_seed, true);
 	}
+	// Set interneuronal coupling strength;
+	net.SetS(true, atof(m_map_config["SynapticStrengthExcitatory"].c_str()));
 	// initialize the network;
 	net.InitializeNeuronalType(atof(m_map_config["TypeProbability"].c_str()), atoi(m_map_config["TypeSeed"].c_str()));
 	cout << "in the network." << endl;
@@ -62,40 +64,42 @@ int main(int argc, const char* argv[]) {
 	net.SetDrivingType(type);
 	net.InitializeExternalPoissonProcess(true, atof(m_map_config["DrivingRateExcitatory"].c_str()), atof(m_map_config["DrivingRateInhibitory"].c_str()), maximum_time, atoi(m_map_config["ExternalDrivingSeed"].c_str()));
 	net.InitializeExternalPoissonProcess(false, 0, 0, maximum_time, 0);
+	// Set driving strength;
+	net.SetF(true, atof(m_map_config["DrivingStrength"].c_str()));
 
 	// SETUP DYNAMICS:
 	double t = 0, dt = atof(m_map_config["TimingStep"].c_str()), tmax = maximum_time;
 	// Define file path for output data;
-	string V_path = dir + "V.csv";
+	// string V_path = dir + "V.csv";
 	string I_path = dir + "I.csv";
 	// Initialize files:
 	ofstream V, I;
-	V.open(V_path.c_str());
-	V.close();
+	// V.open(V_path.c_str());
+	// V.close();
 
 	I.open(I_path.c_str());
 	I.close();
 
-	char cr = (char)13;
-	double progress;
+	// char cr = (char)13;
+	// double progress;
 	while (t < tmax) {
 		net.UpdateNetworkState(t, dt);
 		t += dt;
 		// Output temporal data;
-		net.OutPotential(V_path);
+		// net.OutPotential(V_path);
 		net.OutCurrent(I_path);
 
-		progress = t * 100.0 / tmax;
-		cout << cr;
-		printf(">> Processing ... %6.2f", progress);
-		cout << "%";
+		// progress = t * 100.0 / tmax;
+		// cout << cr;
+		// printf(">> Processing ... %6.2f", progress);
+		// cout << "%";
 	}
 	cout << endl;
 
-	string neuron_path, mat_path;
-	neuron_path = dir + "neuron.csv";
-	mat_path = dir + "mat.csv";
-	net.Save(neuron_path, mat_path);
+	// string neuron_path, mat_path;
+	// neuron_path = dir + "neuron.csv";
+	// mat_path = dir + "mat.csv";
+	// net.Save(neuron_path, mat_path);
 
 	// OUTPUTS:
 	string raster_path = dir + "raster.csv";

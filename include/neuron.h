@@ -203,6 +203,10 @@ public:
 	//	Set driving type: true for external, false for internal;
 	void SetDrivingType(bool x);
 
+	void SetSynapticStrength(bool function, double S);
+
+	void SetFeedforwardStrength(bool function, double F);
+
 	//	Set Poisson Rate: homogeneous Poisson driving rate of internal driving type;
 	//	BOOL function: type of Poisson drive, true for excitatory, false for inhibitory;
 	void SetPoissonRate(bool function, double rate);
@@ -265,8 +269,6 @@ public:
 
   //  Output Spikes before t;
 	void GetNewSpikes(double t, vector<Spike> &x);
-
-	void SetFeedforwardConductance(bool function, double F);
 
 	// Total membrane current;
 	double OutTotalCurrent();

@@ -286,6 +286,16 @@ void Neuron::SetDrivingType(bool x) {
 	driven_type_ = x;
 }
 
+void Neuron::SetSynapticStrength(bool function, double S) {
+	if (function)	pyramidal_synaptic_intensity_ = S;
+	else interneuronal_synaptic_intensity_ = S;
+}
+
+void Neuron::SetFeedforwardStrength(bool function, double F) {
+	if (function)	feedforward_excitatory_intensity_ = F;
+	else feedforward_inhibitory_intensity_ = F;
+}
+
 void Neuron::SetPoissonRate(bool function, double rate) {
 	if (function == true) {
 		excitatory_poisson_rate_ = rate;
@@ -523,14 +533,6 @@ void Neuron::InSpike(Spike x) {
 		sort(synaptic_driven_.begin(),synaptic_driven_.end(),compPoisson);
 	}
 	// cout << x.t << endl;
-}
-
-void Neuron::SetFeedforwardConductance(bool function, double F) {
-	if (function == true)	{
-		feedforward_excitatory_intensity_ = F;
-	} else {
-		feedforward_inhibitory_intensity_ = F;
-	}
 }
 
 double Neuron::OutTotalCurrent() {
