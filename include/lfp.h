@@ -48,12 +48,4 @@ void LFP(double* t_range, vector<int> & neuron_list, string current_path, vector
 //	Return: none;
 void OutLFP(string path, vector<double>& lfp);
 
-// 	Output spike train;
-//	Description: output the spike train of chosen neuron within chosen time range; spiking time points are rearranged which starts from 0;
-//	STRING filename: output filename;
-//	VECTOR<DOUBLE> spikes: the total spike train of target neuron;
-//	DOUBLE* t_range: time period used in calculation, with unit ms;
-//	Return: none;
-void OutSpikeTrain(string filename, vector<double>& spikes, double* t_range);
-
 #endif // _IFNET_LFP_H_

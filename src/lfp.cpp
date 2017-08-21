@@ -194,20 +194,3 @@ void LFP(double* t_range, vector<int> & neuron_list, string current_path, vector
 void OutLFP(string path, vector<double>& lfp) {
 	Print1D(path, "trunc", 1, lfp);
 }
-
-void OutSpikeTrain(string filename, vector<double>& spikes, double* t_range) {
-	vector<double> spikes_copy = spikes;
-	vector<double>::iterator it = spikes_copy.begin();
-	while (it != spikes_copy.end()) {
-		if (*it <= t_range[0]) it = spikes_copy.erase(it);
-		else if (*it > t_range[1]) {
-			spikes_copy.erase(it, spikes_copy.end());
-			break;
-		} else {
-			*it -= t_range[0];
-			it++;
-		}
-	}
-	string path = "./data/raster/" + filename;
-	Print1D(path, "trunc", 1, spikes_copy);
-}

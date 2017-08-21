@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import sys
 
 sta = pd.read_csv('data/sta.csv')
-mi = pd.read_csv('data/mi/mi_sl.csv')
+mi = pd.read_csv('data/mi/mi_bd.csv')
 # lcc = pd.read_csv('data/lcc/lcc.csv')
 plt.figure(figsize = (15,5), dpi = 75)
 plt.subplot(1,2,1)
@@ -23,5 +23,5 @@ plt.plot(mi['timelag'], mi['random'])
 plt.xlabel('time-delay(ms)')
 plt.ylabel('MI(bits)')
 plt.grid(True)
-plt.savefig('./reports/Jul20/' + sys.argv[1])
+# plt.savefig('./reports/Jul20/' + sys.argv[1])
 plt.show()

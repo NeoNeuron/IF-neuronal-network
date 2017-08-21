@@ -10,22 +10,23 @@
 #include <algorithm>
 #include <iomanip>
 #include <cstdlib>
+#include <cmath>
 #include <stdexcept>
 using namespace std;
 
 //	Function of calculating LFP with point current source model in 1-D loop network case;
 //	arguments:
-//	argv[1] = loading path of neural data;
+//	argv[1] = path of neural data;
 //	argv[2] = list of indices of connected neurons, seperated by comma, that contribute to LFP;
 //	argv[3] = time range, seperated by comma, with unit in milliseconds;
-//	argv[4] = filename of output raster file;
+//  argv[4] = binning size of binary time series of spike train;
+//	argv[5] = path of output raster file;
 int main(int argc, const char* argv[]) {
-	if (argc != 5) {
+	if (argc != 6) {
 		throw runtime_error("wrong number of args");
 	}
 	cout << "==========" << endl;
 	//	Defined folder path;
-	string path = argv[1];
 	//	Analyze listing series;
 	string list_str =  argv[2];
 	vector<int> list;
@@ -56,16 +57,23 @@ int main(int argc, const char* argv[]) {
 	printf(">> Time range = (%.2f, %.2f] ms\n", t_range[0], t_range[1]);
 
 	cout << ">> Calculating LFP ..." << endl;
-	int total_neuron_number = atoi(argv[6]);
 	vector<double> lfp;
-	// LFP(t_range, total_neuron_number, list, potential_path, excitatory_conductance_path, inhibitory_conductance_path, lfp);
-	LFP(t_range, list, path, lfp);
+	LFP(t_range, list, argv[1], lfp);
+
+	// rearrange LFP data;
+	double dt_sampling = 0.03125;
+	int dn = atof(argv[4]) / dt_sampling; // number of LFP data points within single time step;
+	int num_bin = floor((t_range[1] - t_range[0]) / atof(argv[4])); // number of reduced LFP data point;
+
+	vector<double> mean_lfp(num_bin, 0);
+	for (int i = 0; i < num_bin; i++) {
+		for (int j = 0; j < dn; j++) mean_lfp[i] += lfp[i*dn + j];
+		mean_lfp[i] /= dn;
+	}
 
 	//	Output lfp:
 	cout << ">> Outputing LFP ..." << endl;
-	string out_dir = "./data/lfp/";
-	string lfp_path = out_dir + argv[4];
-	OutLFP(lfp_path, lfp);
+	OutLFP(argv[5], mean_lfp);
 	cout << ">> Done" << endl << "==========" << endl;
 	return 0;
 }

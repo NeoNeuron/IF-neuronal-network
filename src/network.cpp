@@ -48,7 +48,7 @@ void NeuronalNetwork::SetConnectingDensity(int density){
 }
 
 void NeuronalNetwork::SetS(bool function, double val) {
-	for (int i = 0; i < neuron_number_; i ++) { 
+	for (int i = 0; i < neuron_number_; i ++) {
 		neurons_[i].SetSynapticStrength(function, val);
 	}
 }
@@ -64,7 +64,7 @@ void NeuronalNetwork::InitializeNeuronalType(double p, int seed) {
 			counter++;
 		} else neurons_[i].SetNeuronType(false);
 	}
-	printf(">> There are %d excitatory neurons and %d inhibitory neurons ", counter, neuron_number_-counter);
+	printf(">> %d excitatory and %d inhibitory neurons ", counter, neuron_number_-counter);
 }
 
 void NeuronalNetwork::InitializeInternalPoissonRate(bool function, double rate) {

@@ -17,7 +17,7 @@ using namespace std;
 //	INT occupancy: number of data points occupied in each bin;
 //	INT residue: number of data points at the end of the vector which is not considered into histogram;
 //	Return: none;
-void FindEdges(vector<double>& data, vector<double>& edges, int occupancy);
+void FindEdges(const vector<double>& data, vector<double>& edges, int occupancy);
 
 //  Joint probability function with adaptive partition of x and y; Iteration starts from the middle of the sorted sequence;
 //  VECTOR<DOUBLE> x: variable x;
@@ -33,14 +33,6 @@ void JointPDF(vector<double>& x, vector<double>& y, vector<double>& x_edges, vec
 //  VECTOR<DOUBLE> lfp_edges: edges for adaptive partition of x;
 //  VECTOR<VECTOR<DOUBLE> jointpdf: joint probability distribution function of spike train and lfp;
 void JointPDF(vector<bool>& binary_spikes, vector<double>& lfp, vector<double>& lfp_edges, vector<vector<double> >& jointpdf);
-
-//	Convert double spike train to binary sequence;
-//	VECTOR<DOUBLE> spikes: original spike train;
-//	VECTOR<BOOL> binary_spikes: binary sequence; true for having spike; false for no spike;
-//	DOUBLE tmax: maximum time of time range;
-//	DOUBLE dt: the size of time step that a binary value considered;
-//	Return: none;
-void Spike2Bool(vector<double> & spikes, vector<bool> & binary_spikes, double tmax, double dt);
 
 // 	Histogram of discrete bools;
 //	Return: the probability for TRUE;
@@ -85,7 +77,7 @@ double MI(vector<double>& x, vector<double>& y);
 //	VECTOR<DOUBLE> LFP: local field potential;
 //	INT bin_number: number of bins of historgram of LFP;
 //	Return: valude of Mutual information;
-double MI(vector<bool> &binary_spikes, vector<double> &LFP, int bin_number);
+double MI(vector<bool>& bool_series, vector<double>& double_series, int bin_number);
 
 // Time-delayed mutual information between two spike trains;
 void TDMI(vector<double>& x, vector<double>& y, double dt, double tmax, int negative_time_delay, int positive_time_delay, vector<double> & tdmi);
@@ -97,6 +89,6 @@ void TDMI_uniform(vector<double>& x, vector<double>& y, int negative_time_delay,
 void TDMI_adaptive(vector<double>& x, vector<double>& y, int negative_time_delay, int positive_time_delay, vector<double> & tdmi);
 
 // Delayed mutual information of spiking train and LFP, with adaptive partitions;
-void TDMI(vector<double>& spikes, vector<double>& LFP, double dt, double sampling_dt, int negative_time_delay, int positive_time_delay, vector<double> & tdmi, bool random_switch);
+void TDMI(vector<bool>& bool_series, vector<double>& double_series, int negative_time_delay, int positive_time_delay, vector<double> & tdmi, bool random_switch);
 
 #endif // _IFNET_MI_H_

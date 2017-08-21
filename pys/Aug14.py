@@ -18,7 +18,7 @@ uf = ufrange[0]
 
 # prepare pathes;
 loading_dir = "./data/tmp/"
-saving_dir = './data/Aug14/'
+saving_dir = './data/list/'
 
 # setting preliminary parameters
 time_lb = 1000
@@ -66,14 +66,14 @@ while uf < ufrange[1]:
         # Execute simulation
         subprocess.call(["./bin/net.out", loading_dir])
         # Generate spike train
-        subprocess.call(['./bin/raster.out', './data/tmp/raster.csv', '0', time_range, 'raster.csv'])
+        subprocess.call(['./bin/spike.out', './data/tmp/raster.csv', '0', time_range, str(timing_step), './data/spike/spike.csv'])
         # Cauculate LFP from single neuron
-        subprocess.call(['./bin/lfp.out', './data/tmp/I.csv', '0', time_range, 'lfp.csv'])
+        subprocess.call(['./bin/lfp.out', './data/tmp/I.csv', '2', time_range, str(timing_step), './data/lfp/lfp.csv'])
         # Calculate mutual information and STA
-        subprocess.call(['./bin/mi.out', '1', str(timing_step), str(negative_time_delay) + ',' + str(positive_time_delay)])
-        subprocess.call(['./bin/sta.out', './data/raster/raster.csv', './data/lfp/lfp.csv', str(-timing_step * negative_time_delay) + ',' + str(timing_step * positive_time_delay)])
+        subprocess.call(['./bin/mi_bd.out', './data/spike/spike.csv', './data/lfp/lfp.csv', str(negative_time_delay) + ',' + str(positive_time_delay)])
+        subprocess.call(['./bin/sta.out', './data/spike/spike.csv', './data/lfp/lfp.csv', str(negative_time_delay) + ',' + str(positive_time_delay)])
 		# run analysis
-        mi_data = pd.read_csv('./data/mi/mi_sl.csv')
+        mi_data = pd.read_csv('./data/mi/mi_bd.csv')
         mi_snr = mylib.snr(mi_data)
         mi_pos = mylib.peakpos(mi_data)
         mi_ci = mylib.evalpeak(mi_data)
