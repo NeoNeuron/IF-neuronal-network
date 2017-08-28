@@ -16,34 +16,31 @@ using namespace std;
 
 //	Read 2 dimensional information;
 	//	Read 2-D data from *.csv files; data type can be int or double;
+	//	STRING path: path of target file;
+	//	VECTOR<VECTOR<T> > data: container of data;
 	//	Return: none;
 template <class T> void Read2D(string path, vector<vector<T> >& data) {
 	data.clear();
 	ifstream ifile;
 	ifile.open(path.c_str());
-	string s, ss;
+	string s;
 	vector<T> add_T;
-	string::size_type pos;
+	string::size_type last_pos = 0, current_pos = 0;
 	while (getline(ifile, s)) {
 		add_T.clear();
-		pos = s.find_first_of(',', 0);
-		while (pos != s.npos) {
-			ss = s.substr(0, pos);
-			if (ss.find('.') == string::npos) add_T.push_back(atoi(ss.c_str()));
-			else add_T.push_back(atof(ss.c_str()));
-			s.erase(0, pos + 1);
-			ss.clear();
-			pos = s.find_first_of(',', 0);
+		current_pos = s.find_first_of(',', last_pos);
+		while (current_pos != s.npos) {
+			if (s.find('.') == string::npos) add_T.push_back(atoi(s.c_str()) + last_pos);
+			else add_T.push_back(atof(s.c_str()) + last_pos);
+			last_pos = current_pos + 1;
+			current_pos = s.find_first_of(',', last_pos);
 		}
-		pos = s.find_first_of('\n', 0);
-		if (pos == 0) continue;
-		else {
-			ss = s.substr(0, pos);
-			if (ss.find('.') == string::npos) add_T.push_back(atoi(ss.c_str()));
-			else add_T.push_back(atof(ss.c_str()));
+		current_pos = s.find_first_of('\n', last_pos);
+		if (current_pos != last_pos) {
+			if (s.find('.') == string::npos) add_T.push_back(atoi(s.c_str()) + last_pos);
+			else add_T.push_back(atof(s.c_str()) + last_pos);
 		}
 		data.push_back(add_T);
-		s.clear();
 	}
 	ifile.close();
 }
@@ -61,66 +58,57 @@ template <class T> void Read1D(string path, int index, int axis, vector<T>& data
   ifile.open(path.c_str());
   if (axis == 0) {
   	// prepare input file stream;
-  	string s, ss;
-    string::size_type pos;
-    data.clear();
+  	string s;
+    string::size_type last_pos = 0, current_pos = 0;
   	int getline_counter = 0;
   	while (getline(ifile, s)) {
   		if (getline_counter == index) {
-  			pos = s.find_first_of(',', 0);
-  			while (pos != s.npos) {
-  				ss = s.substr(0, pos);
-					if (ss.find('.') == string::npos) data.push_back(atoi(ss.c_str()));
-					else data.push_back(atof(ss.c_str()));
-  				s.erase(0, pos + 1);
-  				ss.clear();
-  				pos = s.find_first_of(',', 0);
+  			current_pos = s.find_first_of(',', last_pos);
+  			while (current_pos != s.npos) {
+  				if (s.find('.') == string::npos) data.push_back(atoi(s.c_str()) + last_pos);
+					else data.push_back(atof(s.c_str()) + last_pos);
+					last_pos = current_pos + 1;
+  				current_pos = s.find_first_of(',', last_pos);
   			}
-  			pos = s.find_first_of('\n', 0);
-  			if (pos != 0) {
-  				ss = s.substr(0, pos);
-					if (ss.find('.') == string::npos) data.push_back(atoi(ss.c_str()));
-					else data.push_back(atof(ss.c_str()));
+  			current_pos = s.find_first_of('\n', last_pos);
+  			if (current_pos != last_pos) {
+					if (s.find('.') == string::npos) data.push_back(atoi(s.c_str()) + last_pos);
+					else data.push_back(atof(s.c_str()) + last_pos);
   			}
   			break;
   		}
-      s.clear();
   		getline_counter ++;
   	}
   } else {
     // prepare input file stream;
-  	string s, ss;
-  	string::size_type pos;
+  	string s;
+		string::size_type last_pos = 0, current_pos = 0;
   	int column_counter;
     bool whether_out;
   	while (getline(ifile, s)) {
-      pos = s.find_first_of(',', 0);
+      current_pos = s.find_first_of(',', last_pos);
       whether_out = false;
 			column_counter = 0;
-			while (pos != s.npos) {
+			while (current_pos != s.npos) {
   			if (column_counter == index) {
-  				ss = s.substr(0, pos);
-					if (ss.find('.') == string::npos) data.push_back(atoi(ss.c_str()));
-					else data.push_back(atof(ss.c_str()));
+					if (s.find('.') == string::npos) data.push_back(atoi(s.c_str()) + last_pos);
+					else data.push_back(atof(s.c_str()) + last_pos);
           whether_out = true;
   				break;
   			}
-  			s.erase(0, pos + 1);
-        pos = s.find_first_of(',', 0);
+				last_pos = current_pos + 1;
+        current_pos = s.find_first_of(',', last_pos);
         column_counter ++;
   		}
       if (whether_out == false) {
 				if (column_counter == index) {
-	        pos = s.find_first_of('\n', 0);
-	    		if (pos == 0) continue;
-	    		else {
-	    			ss = s.substr(0, pos);
-						if (ss.find('.') == string::npos) data.push_back(atoi(ss.c_str()));
-						else data.push_back(atof(ss.c_str()));
+	        current_pos = s.find_first_of('\n', last_pos);
+	    		if (current_pos != last_pos) {
+						if (s.find('.') == string::npos) data.push_back(atoi(s.c_str()) + last_pos);
+						else data.push_back(atof(s.c_str()) + last_pos);
 	    		}
 				}
       }
-      s.clear();
   	}
   }
   ifile.close();
