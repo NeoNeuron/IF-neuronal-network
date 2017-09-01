@@ -10,35 +10,72 @@
 #include <fstream>
 #include <iomanip>
 #include <ctime>
-#include <cmath>
-#include <algorithm>
 #include <stdexcept>
 
 using namespace std;
 // compact function to calculate mutual information between multi-type signal
 //	arguments:
-//	argv[1] = mode code;
-//	argv[2] = timing step for TDMI;
-//	argv[3] = delay time range;
+//	argv[1] = path for time series x, m by n, indicate m variables with n trials;
+//	argv[2] = path for time series y;
+//	argv[3] = index of x variable in series;
+//	argv[4] = delayed time range, seperated by comma;
 int main(int argc, const char* argv[]) {
-	if (argc != 4) throw runtime_error("wrong number of args");
+	if (argc != 5) throw runtime_error("wrong number of args");
 	clock_t start, finish;
 	start = clock();
 	// Preparing input args;
-	vector<double> double_series_1, double_series_2;
-	Read1D(argv[1], 0, 1, double_series_1);
-	Read1D(argv[2], 0, 1, double_series_2);
-  double dt = atof(argv[2]);
-  string range = argv[3];
-  string::size_type pos = range.find_first_of(',', 0 );
-  int negative_time_delay = atoi(range.substr(0, pos).c_str());
-  range.erase(0, pos + 1);
-  int positive_time_delay = atoi(range.c_str());
+	vector<vector<double> > double_series_1, double_series_2;
+	Read2D(argv[1], double_series_1);
+	Read2D(argv[2], double_series_2);
+	int indx = atoi(argv[3]);
+  string range = argv[4];
+  int negative_time_delay = atoi(range.c_str());
+	string::size_type pos = range.find_first_of(',', 0 );
+  int positive_time_delay = atoi(range.c_str() + pos + 1);
   range = "";
 
-  vector<double> tdmi;
-	cout << ">> Calculating ordered TDMI ... " << endl;
-	TDMI_adaptive(double_series_1, double_series_2, negative_time_delay, positive_time_delay, tdmi);
+
+	for (vector<vector<double> >::iterator it = double_series_1.begin(); it != double_series_1.end(); it ++) {
+		for (vector<double>::iterator itt = it->begin(); itt != it->end(); itt ++) {
+			cout << *itt << '\t';
+		}
+		cout << endl;
+	}
+
+	cout << endl;
+	cout << endl;
+
+	for (vector<vector<double> >::iterator it = double_series_2.begin(); it != double_series_2.end(); it ++) {
+		for (vector<double>::iterator itt = it->begin(); itt != it->end(); itt ++) {
+			cout << *itt << '\t';
+		}
+		cout << endl;
+	}
+	cout << endl;
+	cout << endl;
+
+	vector<double> s1 = double_series_1[indx];
+
+	for (vector<double>::iterator it = s1.begin(); it != s1.end(); it ++) {
+		cout << *it << '\t';
+	}
+	cout << endl;
+	cout << s1.size() << endl;
+
+
+
+	vector<vector<double> > s2(double_series_2.begin() + indx - negative_time_delay, double_series_2.begin() + indx + positive_time_delay + 1);
+	for (vector<vector<double> >::iterator it = s2.begin(); it != s2.end(); it ++) {
+		for (vector<double>::iterator itt = it->begin(); itt != it->end(); itt ++) {
+			cout << *itt << '\t';
+		}
+		cout << endl;
+	}
+	cout << s2.size()	<< ',' << s2[0].size() << '\n';
+
+	vector<double> tdmi;
+	cout << ">> Calculating TDMI ... " << endl;
+	TDMI(s1, s2, tdmi);
 
   // Output data:
 	ofstream data_out;

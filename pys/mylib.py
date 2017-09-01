@@ -101,9 +101,9 @@ def snr(mi):
 	snr: signal-noise ratio
 	"""
 	# calculate noise level
-	noise_mean = mi['random'].mean()
+	noise_mean = mi['shuffle'].mean()
 	# allocate maximum mutual information signal
-	signal_max = mi['ordered'].max()
+	signal_max = mi['mi'].max()
 
 	if noise_mean != 0:
 		# calculate the signal-noise ratio in TDMI data;
@@ -120,7 +120,7 @@ def peakpos(mi):
 	base_level: the ratio of standard error and mean value of base line;
 	"""
 	# calculate noise level
-	signal_max_ind = mi['ordered'].argmax()
+	signal_max_ind = mi['mi'].argmax()
 	peak_time = mi['timelag'][signal_max_ind]
 	if peak_time > 0:
 		peak_pos = True
@@ -136,8 +136,8 @@ def baseline(mi):
 	noise std: standard error of base line;
 	"""
 	# calculate noise level
-	noise_mean = mi['random'].mean()
-	noise_std = mi['random'].std()
+	noise_mean = mi['shuffle'].mean()
+	noise_std = mi['shuffle'].std()
 	return noise_mean, noise_std
 
 def MakeTitle(saving_filename):
@@ -247,8 +247,8 @@ def plot(filename):
 	# plt.ylabel('Pearson\' Correlation')
 	# plt.grid(True)
 	plt.subplot(1,2,2)
-	plt.plot(mi['timelag'], mi['ordered'])
-	plt.plot(mi['timelag'], mi['random'])
+	plt.plot(mi['timelag'], mi['mi'])
+	plt.plot(mi['timelag'], mi['shuffle'])
 	plt.xlabel('time-delay')
 	plt.ylabel('MI(bits)')
 	plt.grid(True)
@@ -256,7 +256,7 @@ def plot(filename):
 	# plt.show()
 
 def evalpeak(mi):
-	peak_value = mi['ordered'].max()
+	peak_value = mi['mi'].max()
 	[noise_mean, noise_std] = baseline(mi)
 	if noise_mean == 0:
 		deviate_level = 0

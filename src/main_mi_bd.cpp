@@ -52,7 +52,7 @@ int main(int argc, const char* argv[]) {
 	ofstream data_out;
 	cout << ">> Outputing data ... " << endl;
 	data_out.open("./data/mi/mi_bd.csv");
-	data_out << "timelag,ordered,random" << endl;
+	data_out << "timelag,mi,shuffle" << endl;
 	for (int i = 0; i < negative_time_delay + positive_time_delay + 1; i++) {
 		data_out << (i - negative_time_delay) << ',' << (double)tdmi_ordered[i] << ',' << (double)tdmi_random[i];
 		if (i < positive_time_delay + negative_time_delay) data_out << endl;

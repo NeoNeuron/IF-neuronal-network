@@ -267,7 +267,7 @@ void NeuronalNetwork::Save(string neuron_file, string connecting_matrix_file) {
 		data << (double)add.membrane_potential_ << ',';
 		data << (double)add.ge << ',';
 		data << (double)add.gi << ',';
-		data << (double)add.remaining_refractory_time << endl;
+		data << (double)add.remaining_refractory_time << '\n';
 	}
 	data.close();
 	connectivity_matrix_.OutMatrix(connecting_matrix_file);

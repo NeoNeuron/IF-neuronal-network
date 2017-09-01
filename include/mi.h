@@ -17,7 +17,7 @@ using namespace std;
 //	INT occupancy: number of data points occupied in each bin;
 //	INT residue: number of data points at the end of the vector which is not considered into histogram;
 //	Return: none;
-void FindEdges(const vector<double>& data, vector<double>& edges, int occupancy);
+void FindEdges(vector<double>& data, vector<double>& edges, int occupancy);
 
 //  Joint probability function with adaptive partition of x and y; Iteration starts from the middle of the sorted sequence;
 //  VECTOR<DOUBLE> x: variable x;
@@ -33,6 +33,8 @@ void JointPDF(vector<double>& x, vector<double>& y, vector<double>& x_edges, vec
 //  VECTOR<DOUBLE> lfp_edges: edges for adaptive partition of x;
 //  VECTOR<VECTOR<DOUBLE> jointpdf: joint probability distribution function of spike train and lfp;
 void JointPDF(vector<bool>& binary_spikes, vector<double>& lfp, vector<double>& lfp_edges, vector<vector<double> >& jointpdf);
+
+void JointPDF(vector<double>& x, vector<double>& y, double x_bin_width, double y_bin_width, vector<vector<double> >& jointpdf);
 
 // 	Histogram of discrete bools;
 //	Return: the probability for TRUE;
@@ -53,7 +55,7 @@ void HistInt(vector<int> & data, vector<double> & histogram, int min, int max);
 //	DOUBLE max: upper limit of int data; [maximum value]
 //	DOUBLE bin_width: bin width of histogram; it is uniformly binned;
 //	Return: none;
-void HistDouble(vector<double> & data, vector<double> & histogram, double min, double max, double bin_width);
+void HistDouble(vector<double> & data, vector<double> & histogram, double bin_width);
 
 // 	Mutual information of two binary spike trains;
 //	VECTOR<BOOL> x, y: tow original bool sequence;
@@ -82,11 +84,8 @@ double MI(vector<bool>& bool_series, vector<double>& double_series, int bin_numb
 // Time-delayed mutual information between two spike trains;
 void TDMI(vector<double>& x, vector<double>& y, double dt, double tmax, int negative_time_delay, int positive_time_delay, vector<double> & tdmi);
 
-// Delayed mutual information of two double vector, by applying histogram scheme with equal bin size;
-void TDMI_uniform(vector<double>& x, vector<double>& y, int negative_time_delay, int positive_time_delay, vector<double> & tdmi);
-
-// Delayed mutual information of two double vector, wiht adaptive partition;
-void TDMI_adaptive(vector<double>& x, vector<double>& y, int negative_time_delay, int positive_time_delay, vector<double> & tdmi);
+// Delayed mutual information of two double series, wiht adaptive partition;
+void TDMI(vector<double>& x, vector<vector<double> >& y, vector<double>& tdmi);
 
 // Delayed mutual information of spiking train and LFP, with adaptive partitions;
 void TDMI(vector<bool>& bool_series, vector<double>& double_series, int negative_time_delay, int positive_time_delay, vector<double> & tdmi, bool random_switch);

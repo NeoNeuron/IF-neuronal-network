@@ -3,7 +3,10 @@ g++ src/get-config.cpp src/neuron.cpp src/network.cpp src/connectivity_matrix.cp
 g++ src/get-config.cpp src/neuron.cpp src/network.cpp src/connectivity_matrix.cpp src/main_nets.cpp -o bin/nets.out
 g++ src/spike.cpp src/main_spike.cpp -o bin/spike.out
 g++ src/lfp.cpp src/main_lfp.cpp -o bin/lfp.out
+g++ src/mi.cpp src/main_mi.cpp -o bin/mi.out
 g++ src/mi.cpp src/main_mi_dd.cpp -o bin/mi_dd.out
 g++ src/mi.cpp src/main_mi_bd.cpp -o bin/mi_bd.out
-g++ src/lcc.cpp src/main_lcc.cpp -o bin/lcc.out
+g++ src/cc.cpp src/main_cc.cpp -o bin/cc.out
 g++ src/sta.cpp src/main_sta.cpp -o bin/sta.out
+g++ src/surrogate.cpp src/main_surrogate.cpp -o bin/surrogate.out
+g++ src/surrogate.cpp src/main_surrogate2d.cpp -o bin/surrogate2d.out

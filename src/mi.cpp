@@ -19,21 +19,34 @@ bool comp(const double &a, const double &b) {
 	return a < b;
 }
 
-void int2str(const int &int_temp,string &string_temp) {
-	stringstream stream;
-	stream << int_temp;
-	string_temp=stream.str();
+double Max(vector<double>& data) {
+	vector<double>::iterator it;
+	it = max_element(data.begin(), data.end());
+	return *it;
 }
 
-void FindEdges(const vector<double>& data, vector<double>& edges, int occupancy) {
+double Min(vector<double>& data) {
+	vector<double>::iterator it;
+	it = min_element(data.begin(), data.end());
+	return *it;
+}
+
+// void int2str(const int &int_temp,string &string_temp) {
+// 	stringstream stream;
+// 	stream << int_temp;
+// 	string_temp=stream.str();
+// }
+
+void FindEdges(vector<double>& data, vector<double>& edges, int occupancy) {
 	vector<double> data_copy = data;
 	sort(data_copy.begin(), data_copy.end(), comp);
-	int N = data_copy.size() / occupancy;
+	size_t N = floor(data_copy.size() / occupancy);
 	edges.resize(N);
-	for (int i = 0; i < N; i++) {
+	for (size_t i = 0; i < N; i++) {
 		edges[i] = data_copy[i*occupancy];
+		cout << i << ' ';
 	}
-	data_copy.clear();
+	cout << '\n';
 }
 
 void JointPDF(vector<double>& x, vector<double>& y, vector<double>& x_edges, vector<double>& y_edges, vector<vector<double> >& jointpdf) {
@@ -74,6 +87,23 @@ void JointPDF(vector<double>& x, vector<double>& y, vector<double>& x_edges, vec
 	}
 }
 
+void JointPDF(vector<double>& x, vector<double>& y, double x_bin_width, double y_bin_width, vector<vector<double> >& jointpdf) {
+	size_t num_pairs = x.size();
+	double x_max = Max(x);
+	double x_min = Min(x);
+	double y_max = Max(y);
+	double y_min = Min(y);
+	size_t x_bin_number = ceil((x_max - x_min) / x_bin_width);
+	size_t y_bin_number = ceil((y_max - y_min) / y_bin_width);
+	jointpdf.resize(x_bin_number, vector<double>(y_bin_number, 0));
+	int indx, indy;
+	for (int i = 0; i < num_pairs; i++) {
+		indx = floor((x[i] - x_min) / x_bin_width);
+		indy = floor((y[i] - y_min) / y_bin_width);
+		jointpdf[indx][indy] += 1.0 / num_pairs;
+	}
+}
+
 void JointPDF(vector<bool>& binary_spikes, vector<double>& lfp, vector<double>& lfp_edges,
 	vector<vector<double> >& jointpdf) {
 	int bin_number = lfp_edges.size();
@@ -104,18 +134,6 @@ void JointPDF(vector<bool>& binary_spikes, vector<double>& lfp, vector<double>& 
 	}
 }
 
-double Max(vector<double>& data) {
-	typename vector<double>::iterator it;
-	it = max_element(data.begin(), data.end());
-	return *it;
-}
-
-double Min(vector<double>& data) {
-	typename vector<double>::iterator it;
-	it = min_element(data.begin(), data.end());
-	return *it;
-}
-
 double HistBool(vector<bool>& data) {
 	int count = 0;
 	for (vector<bool>::iterator it = data.begin(); it != data.end(); it++) {
@@ -138,12 +156,14 @@ void HistInt(vector<int>& data, vector<double> & histogram, int min, int max) {
 	}
 }
 
-void HistDouble(vector<double> & data, vector<double> & histogram, double min, double max, double bin_width) {
-	int number = ceil((max - min) / bin_width);
+void HistDouble(vector<double> & data, vector<double> & histogram, double bin_width) {
+	double dmax = Max(data);
+	double dmin = Min(data);
+	size_t number = ceil((dmax -dmin) / bin_width);
 	vector<int> count(number, 0);
 	int IND;
 	for (vector<double>::iterator it = data.begin(); it != data.end(); it++) {
-		IND = floor((*it - min) / bin_width);
+		IND = floor((*it - dmin) / bin_width);
 		if (IND == number) IND --;
 		count[IND] ++;
 	}
@@ -188,7 +208,6 @@ double MI(vector<bool>& x, vector<bool>& y) {
 				if (count_xy[i][j] != 0) {
 					mi += count_xy[i][j] * 1.0 / np*log2(count_xy[i][j] * 1.0 / np / Px[i] / Py[j]);
 				}
-				else continue;
 			}
 		}
 		return mi;
@@ -203,8 +222,8 @@ double MI(vector<double>& x, vector<double>& y, double* x_max_and_min, double* y
 	} else {
 		// Calculate single probabilities;
 		vector<double> Px, Py;
-		HistDouble(x, Px, x_max_and_min[1], x_max_and_min[0], x_bin_size);
-		HistDouble(y, Py, y_max_and_min[1], y_max_and_min[0], y_bin_size);
+		HistDouble(x, Px, x_bin_size);
+		HistDouble(y, Py, y_bin_size);
 
 		// 	Calculate conditional probability;
 		int time_bin_number = x.size(); // number of bins of time series;
@@ -234,35 +253,83 @@ double MI(vector<double>& x, vector<double>& y, double* x_max_and_min, double* y
 	}
 }
 
+// // Mutual information with uniformly binning histogram;
+// double MI(vector<double>& x, vector<double>& y) {
+// 	//	Compare the length of x & y;
+// 	int length;
+// 	vector<double> x_copy = x, y_copy = y;
+// 	if (x_copy.size() > y_copy.size()) {
+// 		length = y_copy.size();
+// 		x_copy.erase(x_copy.begin() + length, x_copy.end());
+// 	} else {
+// 		length = x_copy.size();
+// 		y_copy.erase(y_copy.begin() + length, y_copy.end());
+// 	}
+// 	// Calculate actual occupancy;
+// 	double bin_width = 0.01;
+// 	// Find edges of histogram;
+// 	vector<double> x_hist, y_hist;
+// 	HistDouble(x_copy, x_hist, bin_width);
+// 	HistDouble(y_copy, y_hist, bin_width);
+//
+// 	// cout << x_hist.size() << ',' << y_hist.size() << '\n';
+//
+// 	// 	Calculate conditional probability;
+// 	vector<vector<double> > jointpdf;
+// 	JointPDF(x_copy, y_copy, bin_width, bin_width, jointpdf);
+//
+// 	// Calculate mutual information;
+// 	double mi = 0;
+// 	for (size_t i = 0; i < x_hist.size(); i++) {
+// 		for (size_t j = 0; j < y_hist.size(); j++) {
+// 			if (jointpdf[i][j] != 0) {
+// 				mi += jointpdf[i][j] * log2(jointpdf[i][j] / (x_hist[i] * y_hist[j]));
+// 			}
+// 		}
+// 	}
+// 	return mi;
+// }
+
 double MI(vector<double>& x, vector<double>& y) {
 	//	Compare the length of x & y;
+	cout << x.size() << ',' << y.size() << endl;
 	int length;
-	if (x.size() > y.size()) length = y.size();
-	else length = x.size();
+	vector<double> x_copy = x, y_copy = y;
+	if (x.size() > y.size()) {
+		length = y.size();
+		x_copy.erase(x_copy.begin() + length, x_copy.end());
+	} else if (x.size() < y.size()) {
+		length = x.size();
+		y_copy.erase(y_copy.begin() + length, y_copy.end());
+	} else {
+		length = x.size();
+	}
+	cout << "mark\n";
 	// Calculate actual occupancy;
 	int bin_number = floor(sqrt(length / 5)); // bin_number: numberber of non-uniform bins;
-	int occupancy = floor(length / bin_number);
-	int num_pair = bin_number*occupancy;
-	vector<double> x_copy = x;
-	x_copy.erase(x_copy.begin() + num_pair, x_copy.end());
-	vector<double> y_copy;
- 	y_copy.erase(y_copy.begin() + num_pair, y_copy.end());
+	cout << length << ',' << bin_number << '\n';
 
+	cout << "mark\n";
+	int occupancy = floor(length / bin_number);
+	cout << occupancy << '\n';
+	cout << "mark\n";
 	// Find edges of histogram;
 	vector<double> x_edges, y_edges;
 	FindEdges(x_copy, x_edges, occupancy);
 	FindEdges(y_copy, y_edges, occupancy);
 
+	cout << "mark\n";
 	// 	Calculate conditional probability;
 	vector<vector<double> > jointpdf;
 	JointPDF(x_copy, y_copy, x_edges, y_edges, jointpdf);
 
+	cout << "mark\n";
 	// Calculate mutual information;
 	double mi = 0;
 	for (int i = 0; i < bin_number; i++) {
 		for (int j = 0; j < bin_number; j++) {
 			if (jointpdf[i][j] != 0) {
-				mi += jointpdf[i][j] * log2(pow(bin_number, 2)*jointpdf[i][j]);
+				mi += jointpdf[i][j] * log(pow(bin_number, 2)*jointpdf[i][j]);
 			}
 		}
 	}
@@ -325,62 +392,11 @@ void TDMI(vector<bool>& x, vector<bool>& y, double dt, double tmax, int negative
 	}
 }
 
-void TDMI_uniform(vector<double>& x, vector<double>& y, int negative_time_delay, int positive_time_delay, vector<double> & tdmi) {
-	int num_reps = positive_time_delay + negative_time_delay + 1;
-	tdmi.resize(num_reps, 0);
-	// Measure the boundaries;
-	int length = x.size();
-	int numofpart = floor(sqrt(length));
-	double x_max_and_min[2], y_max_and_min[2];
-	x_max_and_min[0] = Max(x);
-	x_max_and_min[1] = Min(x);
-	y_max_and_min[0] = Max(y);
-	y_max_and_min[1] = Min(y);
-	double x_bin_size = (x_max_and_min[0] - x_max_and_min[1]) / numofpart;
-	double y_bin_size = (y_max_and_min[0] - y_max_and_min[1]) / numofpart;
-
-	// No shift;
-	tdmi[negative_time_delay] = MI(x, y, x_max_and_min, y_max_and_min, x_bin_size, y_bin_size);
-
-	// Negative shift;
-	vector<double> x_copy = x, y_copy = y;
-	for (int i = 0; i < negative_time_delay; i++) {
-		x_copy.erase(x_copy.begin(), x_copy.begin() + 1);
-		y_copy.erase(y_copy.end() - 1, y_copy.end());
-		tdmi[negative_time_delay - i - 1] = MI(x_copy, y_copy, x_max_and_min, y_max_and_min, x_bin_size, y_bin_size);
-	}
-
-	// Positive shift;
-	x_copy = x;
-	y_copy = y;
-	for (int i = 0; i < positive_time_delay; i++) {
-		x_copy.erase(x_copy.end() - 1, x_copy.end());
-		y_copy.erase(y_copy.begin(), y_copy.begin() + 1);
-		tdmi[negative_time_delay + i + 1] = MI(x_copy, y_copy, x_max_and_min, y_max_and_min, x_bin_size, y_bin_size);
-	}
-}
-
-void TDMI_adaptive(vector<double>& x, vector<double>& y, int negative_time_delay, int positive_time_delay, vector<double> & tdmi) {
-	int num_reps = positive_time_delay + negative_time_delay + 1;
-	tdmi.resize(num_reps, 0);
-	// Negative shift;
-	vector<double> x_copy = x, y_copy = y;
-	for (int i = 0; i < negative_time_delay; i++) {
-		x_copy.erase(x_copy.begin(), x_copy.begin() + 1);
-		y_copy.erase(y_copy.end() - 1, y_copy.end());
-		tdmi[negative_time_delay - i - 1] = MI(x_copy, y_copy);
-	}
-
-	// No shift;
-	tdmi[negative_time_delay] = MI(x, y);
-
-	// Positive shift;
-	x_copy = x;
-	y_copy = y;
-	for (int i = 0; i < positive_time_delay; i++) {
-		x_copy.erase(x_copy.end() - 1, x_copy.end());
-		y_copy.erase(y_copy.begin(), y_copy.begin() + 1);
-		tdmi[negative_time_delay + i + 1] = MI(x_copy, y_copy);
+void TDMI(vector<double>& x, vector<vector<double> >& y, vector<double> & tdmi) {
+	tdmi.resize(y.size(), 0);
+	for (size_t i = 0; i < y.size(); i++) {
+		tdmi[i] = MI(x, y[i]);
+		cout << i << '\n';
 	}
 }
 
