@@ -16,7 +16,7 @@ void OutPotential(string filename, vector<double>& v, double* t_range) {
     v_copy[i - tmin] = v[i];
   }
 	string path = "./data/potential/" + filename;
-	Print1D(path, "trunc", 1, v_copy);
+	Print1D(path, v_copy, "trunc", 1);
 }
 
 // Arguments:
@@ -40,7 +40,7 @@ int main(int argc, const char* argv[]) {
     range_str = "";
     // Load target spike train;
     vector<double> v;
-    Read1D(path, index, 1, v);
+    Read1D(path, v, index, 1);
     // Output spike train;
     OutPotential(argv[4], v, range);
   }

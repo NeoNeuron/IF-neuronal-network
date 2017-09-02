@@ -6,6 +6,7 @@
 //***************
 #include <cstdlib>
 #include <fstream>
+#include <sstream>
 #include <iomanip>
 using namespace std;
 
@@ -16,92 +17,61 @@ using namespace std;
 	//	Return: none;
 template <class T> void Read2D(string path, vector<vector<T> >& data) {
   data.clear();
-	ifstream ifile;
-	ifile.open(path.c_str());
-	string s;
+	ifstream ifile(path.c_str());
+	string s, buffer;
 	vector<T> add_T;
-	string::size_type last_pos = 0, current_pos = 0;
 	while (getline(ifile, s)) {
 		add_T.clear();
-		current_pos = s.find_first_of(',', last_pos);
-		while (current_pos != s.npos) {
-			if (s.find('.') == string::npos) add_T.push_back(atoi(s.c_str()) + last_pos);
-			else add_T.push_back(atof(s.c_str()) + last_pos);
-			last_pos = current_pos + 1;
-			current_pos = s.find_first_of(',', last_pos);
-		}
-		current_pos = s.find_first_of('\n', last_pos);
-		if (current_pos != last_pos) {
-			if (s.find('.') == string::npos) add_T.push_back(atoi(s.c_str()) + last_pos);
-			else add_T.push_back(atof(s.c_str()) + last_pos);
+    istringstream s_input(s);
+		while (getline(s_input, buffer, ',')) {
+      if (buffer.find('.') == string::npos) {
+        add_T.push_back(atoi(buffer.c_str()));
+      } else add_T.push_back(atof(buffer.c_str()));
 		}
 		data.push_back(add_T);
 	}
 	ifile.close();
 }
 
-template <class T> void Read1D(string path, int index, int axis, vector<T>& data) {
+template <class T> void Read1D(string path, vector<T>& data, int index, int axis) {
   data.clear();
   // open data file;
-  ifstream ifile;
-  ifile.open(path.c_str());
+  ifstream ifile(path.c_str());
   if (axis == 0) {
-  	string s;
-    string::size_type last_pos = 0, current_pos = 0;
+  	string s, buffer;
   	int getline_counter = 0;
   	while (getline(ifile, s)) {
   		if (getline_counter == index) {
-  			current_pos = s.find_first_of(',', last_pos);
-  			while (current_pos != s.npos) {
-  				if (s.find('.') == string::npos) data.push_back(atoi(s.c_str()) + last_pos);
-					else data.push_back(atof(s.c_str()) + last_pos);
-					last_pos = current_pos + 1;
-  				current_pos = s.find_first_of(',', last_pos);
+  			istringstream s_input(s);
+  			while (getline(s_input, buffer, ',')) {
+  				if (buffer.find('.') == string::npos) {
+            data.push_back(atoi(buffer.c_str()));
+					} else data.push_back(atof(buffer.c_str()));
   			}
-  			current_pos = s.find_first_of('\n', last_pos);
-  			if (current_pos != last_pos) {
-					if (s.find('.') == string::npos) data.push_back(atoi(s.c_str()) + last_pos);
-					else data.push_back(atof(s.c_str()) + last_pos);
-  			}
-  			break;
   		}
   		getline_counter ++;
   	}
   } else {
-  	string s;
-		string::size_type last_pos = 0, current_pos = 0;
+  	string s, buffer;
   	int column_counter;
-    bool whether_out;
   	while (getline(ifile, s)) {
-      current_pos = s.find_first_of(',', last_pos);
-      whether_out = false;
 			column_counter = 0;
-			while (current_pos != s.npos) {
+      istringstream s_input(s);
+			while (getline(s_input, buffer, ',') {
   			if (column_counter == index) {
-					if (s.find('.') == string::npos) data.push_back(atoi(s.c_str()) + last_pos);
-					else data.push_back(atof(s.c_str()) + last_pos);
-          whether_out = true;
+					if (buffer.find('.') == string::npos) {
+            data.push_back(atoi(buffer.c_str()));
+					} else data.push_back(atof(buffer.c_str()));
   				break;
   			}
-				last_pos = current_pos + 1;
-        current_pos = s.find_first_of(',', last_pos);
         column_counter ++;
   		}
-      if (whether_out == false) {
-				if (column_counter == index) {
-	        current_pos = s.find_first_of('\n', last_pos);
-	    		if (current_pos != last_pos) {
-						if (s.find('.') == string::npos) data.push_back(atoi(s.c_str()) + last_pos);
-						else data.push_back(atof(s.c_str()) + last_pos);
-	    		}
-				}
-      }
   	}
   }
   ifile.close();
 }
 
-template <class T> void Print2D(string path, string mode, vector<vector<T> >& data) {
+template <class T> void Print2D(string path, vector<vector<T> >& data, string mode) {
 	ofstream ofile;
 	if (mode == "app") ofile.open(path.c_str(), ios::app);
 	else if (mode == "trunc") ofile.open(path.c_str());
@@ -114,7 +84,7 @@ template <class T> void Print2D(string path, string mode, vector<vector<T> >& da
 	ofile.close();
 }
 
-template <class T> void Print1D(string path, string mode, int axis, vector<T>& data) {
+template <class T> void Print1D(string path, vector<T>& data, string mode, int axis) {
 	ofstream ofile;
 	if (mode == "app") ofile.open(path.c_str(), ios::app);
 	else if (mode == "trunc") ofile.open(path.c_str());

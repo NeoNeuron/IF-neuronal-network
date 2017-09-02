@@ -19,8 +19,8 @@ int main(int argc, const char* argv[]) {
 	if (argc != 3) throw runtime_error("wrong number of args");
 	// Preparing input args;
 	vector<double> x, y;
-	Read1D(argv[1], 0, 1, x);
-	Read1D(argv[2], 0, 1, y);
+	Read1D(argv[1], x, 0, 1);
+	Read1D(argv[2], y, 0, 1);
 
   double mi = MI(x, y);
   // Output data:

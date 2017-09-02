@@ -14,6 +14,6 @@ int main(int argc, const char* argv[]) {
   Read2D(argv[1], data);
   int axis = atoi(argv[3]);
   Shuffle2D1D(data, axis);
-  Print2D(argv[2], "trunc", data);
+  Print2D(argv[2], data, "trunc");
   return 0;
 }

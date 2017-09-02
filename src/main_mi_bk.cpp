@@ -47,9 +47,9 @@ int main(int argc, const char* argv[]) {
 		vector<double> raster_x, raster_y;
 		string path;
 		path = "./data/raster/raster_x.csv";
-		Read1D(path, 0, 1, raster_x);
+		Read1D(path, raster_x, 0, 1);
 		path = "./data/raster/raster_y.csv";
-		Read1D(path, 0, 1, raster_y);
+		Read1D(path, raster_y, 0, 1);
 
 		double tmax;
 		if (raster_x.back() > raster_y.back()) tmax = ceil(raster_x.back());
@@ -75,13 +75,13 @@ int main(int argc, const char* argv[]) {
 		// DATA OF PRELAYER NEURON:
 		string path;
 		path = "./data/raster/raster.csv";
-		Read1D(path, 0, 1, raster);
+		Read1D(path, raster, 0, 1);
 		if (raster.size() == 0) {
 			tdmi_ordered.resize(negative_time_delay + positive_time_delay + 1, 0);
 			tdmi_random.resize(negative_time_delay + positive_time_delay + 1, 0);
 		} else {
 			path = "./data/lfp/lfp.csv";
-			Read1D(path, 0, 1, lfp);
+			Read1D(path, lfp, 0, 1);
 
 			double sampling_dt = 0.03125;
 			cout << ">> Calculating ordered TDMI ... " << endl;
@@ -106,9 +106,9 @@ int main(int argc, const char* argv[]) {
 		// DATA OF PRELAYER NEURON:
 		string path;
 		path = "./data/lfp/lfp_x.csv";
-		Read1D(path, 0, 1, lfp_x);
+		Read1D(path, lfp_x, 0, 1);
 		path = "./data/lfp/lfp_y.csv";
-		Read1D(path, 0, 1, lfp_y);
+		Read1D(path, lfp_y, 0, 1);
 
 		double sampling_dt = 0.03125;
 		// take average;
@@ -141,9 +141,9 @@ int main(int argc, const char* argv[]) {
 		// DATA OF PRELAYER NEURON:
 		string path;
 		path = "./data/raster/raster.csv";
-		Read1D(path, 0, 1, raster);
+		Read1D(path, raster, 0, 1);
 		path = "./data/potential/potential.csv";
-		Read1D(path, 0, 1, potential);
+		Read1D(path, potential, 0, 1);
 
 		double sampling_dt = 0.03125;
 		cout << ">> Calculating ordered TDMI ... " << endl;
@@ -170,9 +170,9 @@ int main(int argc, const char* argv[]) {
 		// DATA OF PRELAYER NEURON:
 		string path;
 		path = "./data/potential/potential_x.csv";
-		Read1D(path, 0, 1, potential_x);
+		Read1D(path, potential_x, 0, 1);
 		path = "./data/potential/potential_y.csv";
-		Read1D(path, 0, 1, potential_y);
+		Read1D(path, potential_y, 0, 1);
 
 		double sampling_dt = 0.03125;
 		// take average;

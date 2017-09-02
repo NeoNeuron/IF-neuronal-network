@@ -12,12 +12,12 @@ int main(int argc, const char* argv[]) {
   // prepare data loading system;
   vector<double> x;
   vector<vector<double> > y;
-  Read1D(argv[1], 0, 1, x);
+  Read1D(argv[1], x, 0, 1);
   Read2D(argv[2], y);
   // Main calculation:
   vector<double> cc;
   Correlation(x, y, cc);
   // output results:
-  Print1D("./data/cc/cc.csv", "trunc", 1, cc);
+  Print1D("./data/cc/cc.csv", cc, "trunc", 1);
   return 0;
 }

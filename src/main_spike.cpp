@@ -16,7 +16,7 @@ int main(int argc, const char* argv[]) {
   if (argc != 6) throw runtime_error("wrong number of args");
   // load data inputing arguments;
   vector<double> spikes;
-  Read1D(argv[1], atoi(argv[2]), 0, spikes);
+  Read1D(argv[1], spikes, atoi(argv[2]), 0);
   string range_str = argv[3];
   string::size_type pos = range_str.find_first_of(',', 0);
   double range[2];

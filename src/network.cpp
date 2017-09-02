@@ -222,7 +222,7 @@ void NeuronalNetwork::OutPotential(string path) {
 	for (int i = 0; i < neuron_number_; i++) {
 		potential[i] = neurons_[i].GetPotential();
 	}
-	Print1D(path, "app", 0, potential);
+	Print1D(path, potential, "app", 0);
 }
 
 void NeuronalNetwork::OutConductance(string path, bool function) {
@@ -236,7 +236,7 @@ void NeuronalNetwork::OutConductance(string path, bool function) {
 			conductance[i] = neurons_[i].GetConductance(false);
 		}
 	}
-  Print1D(path, "app", 0, conductance);
+  Print1D(path, conductance, "app", 0);
 }
 
 void NeuronalNetwork::OutCurrent(string path) {
@@ -244,7 +244,7 @@ void NeuronalNetwork::OutCurrent(string path) {
 	for (int i = 0; i < neuron_number_; i++) {
 		current[i] = neurons_[i].OutTotalCurrent();
 	}
-	Print1D(path, "app", 0, current);
+	Print1D(path, current, "app", 0);
 }
 
 void NeuronalNetwork::OutPartialCurrent(string path, bool type) {
@@ -252,7 +252,7 @@ void NeuronalNetwork::OutPartialCurrent(string path, bool type) {
 	for (int i = 0; i < neuron_number_; i++) {
 		current[i] = neurons_[i].OutLeakyCurrent() + neurons_[i].OutSynapticCurrent(type);
 	}
-	Print1D(path, "app", 0, current);
+	Print1D(path, current, "app", 0);
 }
 
 
@@ -281,7 +281,7 @@ void NeuronalNetwork::OutSpikeTrains(string path) {
 		neurons_[i].OutSpikeTrain(add_spike_train);
 		spikes[i] = add_spike_train;
 	}
-	Print2D(path, "trunc", spikes);
+	Print2D(path, spikes, "trunc");
 }
 
 void NeuronalNetwork::GetNewSpikes(double t, vector<vector<Spike> >& data) {

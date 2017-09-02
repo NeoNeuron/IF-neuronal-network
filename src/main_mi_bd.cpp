@@ -27,8 +27,8 @@ int main(int argc, const char* argv[]) {
 	// INPUT NEURONAL DATA:
 	vector<bool> bool_series;
 	vector<double> double_series;
-	Read1D(argv[1], 0, 1, bool_series);
-	Read1D(argv[2], 0, 1, double_series);
+	Read1D(argv[1], bool_series, 0, 1);
+	Read1D(argv[2], double_series, 0, 1);
 	// Set time range;
 	string range = argv[3];
 	string::size_type pos = range.find_first_of(',', 0 );

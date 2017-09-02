@@ -92,7 +92,7 @@ int main(int argc, const char* argv[]) {
 
 	// OUTPUTS:
 	string path = "./data/tuninng.csv";
-	Print2D(path, "trunc", firing_rates);
+	Print2D(path, firing_rates, "trunc");
 
 	return 0;
 }

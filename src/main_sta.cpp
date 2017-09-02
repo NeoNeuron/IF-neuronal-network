@@ -17,8 +17,8 @@ int main(int argc, const char* argv[]) {
   // input spike train and lfp;
   vector<bool> spike_train;
   vector<double> conti_seq;
-  Read1D(argv[1], 0, 1, spike_train);
-  Read1D(argv[2], 0, 1, conti_seq);
+  Read1D(argv[1], spike_train, 0, 1);
+  Read1D(argv[2], conti_seq, 0, 1);
   // load range of time delay;
   string tau_range = argv[3];
   string::size_type pos = tau_range.find_first_of(',', 0);
@@ -72,6 +72,6 @@ int main(int argc, const char* argv[]) {
     odata[i][0] = -ntd + i;
     odata[i][1] = sta[i];
   }
-  Print2D("./data/sta.csv", "app", odata);
+  Print2D("./data/sta.csv", odata, "app");
   return 0;
 }

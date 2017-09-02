@@ -192,5 +192,5 @@ void LFP(double* t_range, vector<int> & neuron_list, string current_path, vector
 }
 
 void OutLFP(string path, vector<double>& lfp) {
-	Print1D(path, "trunc", 1, lfp);
+	Print1D(path, lfp, "trunc", 1);
 }
