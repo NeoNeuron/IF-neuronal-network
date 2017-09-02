@@ -57,7 +57,7 @@ template <class T> void Read1D(string path, vector<T>& data, int index, int axis
   	while (getline(ifile, s)) {
 			column_counter = 0;
       istringstream s_input(s);
-			while (getline(s_input, buffer, ',') {
+			while (getline(s_input, buffer, ',')) {
   			if (column_counter == index) {
 					if (buffer.find('.') == string::npos) {
             data.push_back(atoi(buffer.c_str()));

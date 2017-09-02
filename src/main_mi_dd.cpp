@@ -35,43 +35,41 @@ int main(int argc, const char* argv[]) {
   range = "";
 
 
-	for (vector<vector<double> >::iterator it = double_series_1.begin(); it != double_series_1.end(); it ++) {
-		for (vector<double>::iterator itt = it->begin(); itt != it->end(); itt ++) {
-			cout << *itt << '\t';
-		}
-		cout << endl;
-	}
-
-	cout << endl;
-	cout << endl;
-
-	for (vector<vector<double> >::iterator it = double_series_2.begin(); it != double_series_2.end(); it ++) {
-		for (vector<double>::iterator itt = it->begin(); itt != it->end(); itt ++) {
-			cout << *itt << '\t';
-		}
-		cout << endl;
-	}
-	cout << endl;
-	cout << endl;
+	// for (vector<vector<double> >::iterator it = double_series_1.begin(); it != double_series_1.end(); it ++) {
+	// 	for (vector<double>::iterator itt = it->begin(); itt != it->end(); itt ++) {
+	// 		cout << *itt << '\t';
+	// 	}
+	// 	cout << endl;
+	// }
+	//
+	// cout << endl;
+	// cout << endl;
+	//
+	// for (vector<vector<double> >::iterator it = double_series_2.begin(); it != double_series_2.end(); it ++) {
+	// 	for (vector<double>::iterator itt = it->begin(); itt != it->end(); itt ++) {
+	// 		cout << *itt << '\t';
+	// 	}
+	// 	cout << endl;
+	// }
+	// cout << endl;
+	// cout << endl;
 
 	vector<double> s1 = double_series_1[indx];
 
-	for (vector<double>::iterator it = s1.begin(); it != s1.end(); it ++) {
-		cout << *it << '\t';
-	}
-	cout << endl;
-	cout << s1.size() << endl;
-
-
+	// for (vector<double>::iterator it = s1.begin(); it != s1.end(); it ++) {
+	// 	cout << *it << '\t';
+	// }
+	// cout << endl;
+	// cout << s1.size() << endl;
 
 	vector<vector<double> > s2(double_series_2.begin() + indx - negative_time_delay, double_series_2.begin() + indx + positive_time_delay + 1);
-	for (vector<vector<double> >::iterator it = s2.begin(); it != s2.end(); it ++) {
-		for (vector<double>::iterator itt = it->begin(); itt != it->end(); itt ++) {
-			cout << *itt << '\t';
-		}
-		cout << endl;
-	}
-	cout << s2.size()	<< ',' << s2[0].size() << '\n';
+	// for (vector<vector<double> >::iterator it = s2.begin(); it != s2.end(); it ++) {
+	// 	for (vector<double>::iterator itt = it->begin(); itt != it->end(); itt ++) {
+	// 		cout << *itt << '\t';
+	// 	}
+	// 	cout << endl;
+	// }
+	// cout << s2.size()	<< ',' << s2[0].size() << '\n';
 
 	vector<double> tdmi;
 	cout << ">> Calculating TDMI ... " << endl;
