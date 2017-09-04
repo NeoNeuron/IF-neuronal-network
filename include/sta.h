@@ -10,6 +10,4 @@
 #include <vector>
 using namespace std;
 
-double Product(vector<bool>& bool_series, vector<double>& double_series);
-
 #endif // _IFNET_STA_H_

@@ -7,7 +7,6 @@
 #include "../include/stationary.h"
 #include "../include/io.h"
 #include <iostream>
-#include <fstream>
 #include <stdexcept>
 
 using namespace std;
@@ -19,11 +18,8 @@ int main(int argc, const char* argv[]) {
 	// Preparing input args;
 	vector<vector<double> > x;
 	Read2D(argv[1], x);
-	vector<double> means;
-	vector<vector<double> > covs;
-	Rule1(x, means);
-	Print1D("./data/stationary/stat_means.csv", means, "trunc", 1);
-	Rule2(x, covs, 100);
-  Print2D("./data/stationary/stat_covs.csv", covs, "trunc");
+	vector<double> stds;
+	Stds(x, stds);
+	Print1D("./data/stationary/stds.csv", stds, "trunc", 1);
 	return 0;
 }
