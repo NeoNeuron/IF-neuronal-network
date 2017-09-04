@@ -15,10 +15,4 @@ void Spike2Bool(vector<double> & spikes, vector<bool> & binary_spikes, double tm
 // Truncate spikes withn selected time range;
 void Truncate(vector<double>& spikes, double* t_range);
 
-// 	Output spike train;
-//	STRING filename: output filename;
-//	VECTOR<DOUBLE> spikes: the total spike train of target neuron;
-//	Return: none;
-void OutSpikeTrain(string path, vector<bool>& spikes);
-
 #endif

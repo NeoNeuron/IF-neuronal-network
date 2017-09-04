@@ -9,20 +9,22 @@
 using namespace std;
 
 // Arguments:
-// argv[1] = path of the raster data file;
-// argv[2] = index of target neuron;
-// argv[3] = time range of spikes; if None, then consider the whole range of spikes;
-// argv[4] = binning size of binary time series of spike train;
-// argv[5] = filename of output raster file;
+// argv[1] = path of the rasters data file;
+// argv[2] = time range of spikes; if None, then consider the whole range of spikes;
+// argv[3] = binning size of binary time series of spike train;
+// argv[4] = filename of output raster file;
 int main(int argc, const char* argv[]) {
   if (argc != 6) throw runtime_error("wrong number of args");
   // load data inputing arguments;
-  vector<double> spikes;
-  Read1D(argv[1], spikes, atoi(argv[2]), 0);
-  string range_str = argv[3];
+  vector<vector<double> > spikes;
+  Read2D(argv[1], spikes);
+  string range_str = argv[2];
   double range[2];
   if (range_str == "None") {
-    vector<double>::iterator p_spike = max_element(spikes.begin(), spikes.end());
+    vector<double>::iterator p_spike;
+    for (vector<vector<double> >::iterator it = spikes.begin(); it != spikes.end(); it ++) {
+      p_spike = max_element(it->begin(), it->end());
+    }
     range[1] = ceil(*p_spike);
     p_spike = min_element(spikes.begin(), spikes.end());
     range[0] = floor(*p_spike);
@@ -34,11 +36,13 @@ int main(int argc, const char* argv[]) {
     Truncate(spikes, range);
   }
   // Convert double to binary;
-  vector<bool> binary_spikes;
+  vector<vector<bool> > binary_spikes(spikes.size());
   double tmax = range[1] - range[0];
-  double dt = atof(argv[4]);
-  Spike2Bool(spikes, binary_spikes, tmax, dt);
+  double dt = atof(argv[3]);
+  for (size_t i = 0; i < binary_spikes.size(); i ++) {
+    Spike2Bool(spikes[i], binary_spikes[i], tmax, dt);
+  }
   // Output spike train;
-  Print1D(argv[5], spikes, "trunc", 1);
+  Print2D(argv[4], spikes, "trunc");
   return 0;
 }

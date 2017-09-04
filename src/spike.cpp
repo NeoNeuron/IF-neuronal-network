@@ -26,7 +26,3 @@ void Truncate(vector<double>& spikes, double* t_range) {
 		}
 	}
 }
-
-void OutSpikeTrain(string path, vector<bool>& spikes) {
-	Print1D(path, spikes, "trunc", 1);
-}
