@@ -19,10 +19,8 @@ template <class T> double Std(vector<T>& x) {
 }
 
 double PCC(vector<double>& x, vector<double>& y) {
-  double x_mean = Mean(x);
-  double y_mean = Mean(y);
   double product = inner_product(x.begin(), x.end(), y.begin(), 0.0);
-  return (product / x.size() - x_mean * y_mean) / (Std(x) * Std(y));
+  return (product / x.size() - Mean(x) * Mean(y)) / (Std(x) * Std(y));
 }
 
 void Correlation(vector<double>& x, vector<vector<double> >& y, vector<double>& cc) {

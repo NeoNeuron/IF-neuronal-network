@@ -44,9 +44,7 @@ void FindEdges(vector<double>& data, vector<double>& edges, int occupancy) {
 	edges.resize(N);
 	for (size_t i = 0; i < N; i++) {
 		edges[i] = data_copy[i*occupancy];
-		cout << i << ' ';
 	}
-	cout << '\n';
 }
 
 void JointPDF(vector<double>& x, vector<double>& y, vector<double>& x_edges, vector<double>& y_edges, vector<vector<double> >& jointpdf) {
@@ -214,47 +212,8 @@ double MI(vector<bool>& x, vector<bool>& y) {
 	}
 }
 
-double MI(vector<double>& x, vector<double>& y, double* x_max_and_min, double* y_max_and_min, double x_bin_size, double y_bin_size) {
-	// total time period of X and Y;
-	if (x.size() != y.size()) {
-		cout << "Error: x and y don't have the same length." << endl;
-		return 0;
-	} else {
-		// Calculate single probabilities;
-		vector<double> Px, Py;
-		HistDouble(x, Px, x_bin_size);
-		HistDouble(y, Py, y_bin_size);
-
-		// 	Calculate conditional probability;
-		int time_bin_number = x.size(); // number of bins of time series;
-		vector<int> add(Py.size(), 0);
-		vector<vector<int> > count_xy(Px.size(), add);
-		int indx, indy;
-		for (int i = 0; i < time_bin_number; i++) {
-			indx = floor((x[i] - x_max_and_min[1]) / x_bin_size);
-			indy = floor((y[i] - y_max_and_min[1]) / y_bin_size);
-			if (indx == Px.size()) indx --;
-			if (indy == Py.size()) indy --;
-			count_xy[indx][indy]++;
-		}
-
-		// Calculate mutual information;
-		double mi = 0;
-		double Pxy;
-		for (int i = 0; i < Px.size(); i++) {
-			for (int j = 0; j < Py.size(); j++) {
-				if (count_xy[i][j] != 0) {
-					Pxy = count_xy[i][j] * 1.0 / time_bin_number;
-					mi += Pxy * log2(Pxy / (Px[i] * Py[j]));
-				}
-			}
-		}
-		return mi;
-	}
-}
-
 // // Mutual information with uniformly binning histogram;
-// double MI(vector<double>& x, vector<double>& y) {
+// double MI(vector<double>& x, vector<double>& y, double x_bin_width, double y_bin_width) {
 // 	//	Compare the length of x & y;
 // 	int length;
 // 	vector<double> x_copy = x, y_copy = y;
@@ -266,11 +225,10 @@ double MI(vector<double>& x, vector<double>& y, double* x_max_and_min, double* y
 // 		y_copy.erase(y_copy.begin() + length, y_copy.end());
 // 	}
 // 	// Calculate actual occupancy;
-// 	double bin_width = 0.01;
 // 	// Find edges of histogram;
 // 	vector<double> x_hist, y_hist;
-// 	HistDouble(x_copy, x_hist, bin_width);
-// 	HistDouble(y_copy, y_hist, bin_width);
+// 	HistDouble(x_copy, x_hist, x_bin_width);
+// 	HistDouble(y_copy, y_hist, y_bin_width);
 //
 // 	// cout << x_hist.size() << ',' << y_hist.size() << '\n';
 //
@@ -292,7 +250,6 @@ double MI(vector<double>& x, vector<double>& y, double* x_max_and_min, double* y
 
 double MI(vector<double>& x, vector<double>& y) {
 	//	Compare the length of x & y;
-	cout << x.size() << ',' << y.size() << endl;
 	int length;
 	vector<double> x_copy = x, y_copy = y;
 	if (x.size() > y.size()) {
@@ -304,26 +261,18 @@ double MI(vector<double>& x, vector<double>& y) {
 	} else {
 		length = x.size();
 	}
-	cout << "mark\n";
 	// Calculate actual occupancy;
 	int bin_number = floor(sqrt(length / 5)); // bin_number: numberber of non-uniform bins;
-	cout << length << ',' << bin_number << '\n';
-
-	cout << "mark\n";
 	int occupancy = floor(length / bin_number);
-	cout << occupancy << '\n';
-	cout << "mark\n";
 	// Find edges of histogram;
 	vector<double> x_edges, y_edges;
 	FindEdges(x_copy, x_edges, occupancy);
 	FindEdges(y_copy, y_edges, occupancy);
 
-	cout << "mark\n";
 	// 	Calculate conditional probability;
 	vector<vector<double> > jointpdf;
 	JointPDF(x_copy, y_copy, x_edges, y_edges, jointpdf);
 
-	cout << "mark\n";
 	// Calculate mutual information;
 	double mi = 0;
 	for (int i = 0; i < bin_number; i++) {
@@ -396,7 +345,6 @@ void TDMI(vector<double>& x, vector<vector<double> >& y, vector<double> & tdmi) 
 	tdmi.resize(y.size(), 0);
 	for (size_t i = 0; i < y.size(); i++) {
 		tdmi[i] = MI(x, y[i]);
-		cout << i << '\n';
 	}
 }
 

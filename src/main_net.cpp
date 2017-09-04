@@ -18,11 +18,9 @@ using namespace std;
 
 //	Simulation program for single network system;
 //	arguments:
-//	argv[1] = Outputing directory for neural data;
+//	argv[1] = Outputing directory for neur al data;
 int main(int argc, const char* argv[]) {
-	if (argc != 2) {
-		throw runtime_error("wrong number of args");
-	}
+	if (argc != 2) throw runtime_error("wrong number of args");
 	clock_t start, finish;
 	start = clock();
 	// 	Setup directory for output files;
@@ -109,7 +107,7 @@ int main(int argc, const char* argv[]) {
 
 	// COUNTS:
 	double ToTtime;
-	ToTtime = (finish - start) / CLOCKS_PER_SEC;
+	ToTtime = (finish - start)*1.0 / CLOCKS_PER_SEC;
 	printf(">> It takes %.2fs\n", ToTtime);
 	return 0;
 }

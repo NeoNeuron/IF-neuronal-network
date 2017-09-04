@@ -379,6 +379,54 @@ void Neuron::GetNewSpikes(double t, vector<Spike>& x) {
 	}
 }
 
+double Neuron::UpdateNeuronalState(double t, double dt) {
+	double tmax = t + dt;
+	GenerateInternalPoisson(true, tmax, false);
+	GenerateInternalPoisson(false, tmax, false);
+	excitatory_conductance_1_ = excitatory_conductance_;
+	inhibitory_conductance_1_ = inhibitory_conductance_;
+	membrane_potential_temp_ = membrane_potential_;
+	remaining_refractory_period_temp_ = remaining_refractory_period_;
+	if (synaptic_driven_.size() == 0) {
+		PrimelyUpdateState(false, false, false, t, dt, false);
+	} else {
+		if (tmax < synaptic_driven_.begin()->t) {
+			PrimelyUpdateState(false, false, false, t, dt, false);
+		} else if (t == synaptic_driven_.begin()->t) {
+			for (vector<Spike>::iterator iter = synaptic_driven_.begin(); iter != synaptic_driven_.end(); iter++) {
+				if (iter->t >= tmax) break;
+				if (iter + 1 == synaptic_driven_.end() || (iter + 1)->t >= tmax) {
+					PrimelyUpdateState(true, iter->mode, iter->function, iter->t, tmax - iter->t, false);
+				} else {
+					PrimelyUpdateState(true, iter->mode, iter->function, iter->t, (iter + 1)->t - iter->t, false);
+				}
+			}
+		} else if (t< synaptic_driven_.begin()->t && tmax > synaptic_driven_.begin()->t) {
+			PrimelyUpdateState(false, false, false, t, synaptic_driven_.begin()->t - t, false);
+			for (vector<Spike>::iterator iter = synaptic_driven_.begin(); iter != synaptic_driven_.end(); iter++) {
+				if (iter->t >= tmax) break;
+				if (iter + 1 == synaptic_driven_.end() || (iter + 1)->t >= tmax) {
+					PrimelyUpdateState(true, iter->mode, iter->function, iter->t, tmax - iter->t, false);
+				} else {
+					PrimelyUpdateState(true, iter->mode, iter->function, iter->t, (iter + 1)->t - iter->t, false);
+				}
+			}
+		}
+	}
+	excitatory_conductance_ = excitatory_conductance_3_;
+	inhibitory_conductance_ = inhibitory_conductance_3_;
+	membrane_potential_ = membrane_potential_temp_;
+	remaining_refractory_period_ = remaining_refractory_period_temp_;
+	if (synaptic_driven_.size() != 0) {
+		vector<Spike>::iterator it = synaptic_driven_.begin();
+		while (it->t < tmax) {
+			it = synaptic_driven_.erase(it);
+			if (it == synaptic_driven_.end()) break;
+		}
+	}
+	return membrane_potential_;
+}
+
 double Neuron::UpdateNeuronalState(double t, double dt, vector<double> & inPE, vector<double> & inPI) {
 	double tmax = t + dt;
 	if (driven_type_ == true) {

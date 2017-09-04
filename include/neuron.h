@@ -236,6 +236,7 @@ public:
 	//	VECTOR<DOUBLE> inPE: external excitatory Poisson sequence;
 	//	VECTOR<DOUBLE> inPI: external inhibitory Poisson sequence;
 	//	Return: membrane potential at t = t + dt;
+	double UpdateNeuronalState(double t, double dt);
 	double UpdateNeuronalState(double t, double dt, vector<double> & inPE, vector<double> & inPI);
 
 	//	Temporally update neuronal state;

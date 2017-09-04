@@ -67,7 +67,7 @@ double MI(vector<bool>& x, vector<bool>& y);
 //	DOUBLE* x_max_and_min, y_max_and_min: set of maximum and minimum value; *_max_and_min[0] = *_max; *_max_and_min[1] = *_min;
 //	DOUBLE x_bin_width, y_bin_width: bin width of histograms of x and y;
 //	Return: value of mutual information;
-double MI(vector<double>& x, vector<double>& y, double* x_max_and_min, double* y_max_and_min, double x_bin_width, double y_bin_width);
+double MI(vector<double>& x, vector<double>& y, double x_bin_width, double y_bin_width);
 
 // 	Mutual information of two double sequences;
 //	VECTOR<DOUBLE> x, y: two original double sequences;
