@@ -32,9 +32,9 @@ int main(int argc, const char* argv[]) {
 	string net_config_path = "./doc/config_net.ini";
   map<string, string> m_map_config;
   ReadConfig(net_config_path,m_map_config);
-  cout << ">> [Config.ini]:" << endl;
+  cout << ">> [Config.ini]:\n#####";
 	PrintConfig(m_map_config);
-	cout << endl;
+	cout << "\n#####\n";
 	// load neuron number;
 	int neuron_number = atoi(m_map_config["NeuronNumber"].c_str());
 	NeuronalNetwork net(neuron_number);
@@ -60,8 +60,13 @@ int main(int argc, const char* argv[]) {
 	bool type;
 	istringstream(m_map_config["DrivingType"]) >> boolalpha >> type;
 	net.SetDrivingType(type);
-	net.InitializeExternalPoissonProcess(true, atof(m_map_config["DrivingRateExcitatory"].c_str()), atof(m_map_config["DrivingRateInhibitory"].c_str()), maximum_time, atoi(m_map_config["ExternalDrivingSeed"].c_str()));
-	net.InitializeExternalPoissonProcess(false, 0, 0, maximum_time, 0);
+	if (type) {
+		net.InitializeExternalPoissonProcess(true, atof(m_map_config["DrivingRateExcitatory"].c_str()), atof(m_map_config["DrivingRateInhibitory"].c_str()), maximum_time, atoi(m_map_config["ExternalDrivingSeed"].c_str()));
+		net.InitializeExternalPoissonProcess(false, 0, 0, maximum_time, 0);
+	} else {
+		srand(time(NULL));
+		net.InitializeInternalPoissonRate(true, atof(m_map_config["DrivingRateExcitatory"].c_str()));
+	}
 	// Set driving strength;
 	net.SetF(true, atof(m_map_config["DrivingStrength"].c_str()));
 
@@ -92,7 +97,7 @@ int main(int argc, const char* argv[]) {
 		// printf(">> Processing ... %6.2f", progress);
 		// cout << "%";
 	}
-	cout << endl;
+	// cout << endl;
 
 	// string neuron_path, mat_path;
 	// neuron_path = dir + "neuron.csv";

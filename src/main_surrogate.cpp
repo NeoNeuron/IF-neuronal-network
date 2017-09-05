@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdexcept>
 #include "../include/surrogate.h"
 #include "../include/io.h"
 using namespace std;

@@ -13,3 +13,5 @@ g++ src/surrogate.cpp src/main_surrogate.cpp -o bin/surrogate.out
 g++ src/surrogate.cpp src/main_surrogate2d.cpp -o bin/surrogate2d.out
 g++ src/stationary.cpp src/main_means.cpp -o bin/means.out
 g++ src/stationary.cpp src/main_stds.cpp -o bin/stds.out
+g++ src/main_transpose.cpp -o bin/transpose.out
+g++ src/data_split.cpp -o bin/split.out
