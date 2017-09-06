@@ -16,7 +16,7 @@ void Spike2Bool(vector<double>& spikes, vector<bool> & binary_spikes, double tma
 void Truncate(vector<double>& spikes, double* range) {
 	vector<double> spikes_temp;
 	for (vector<double>::iterator it = spikes.begin(); it < spikes.end(); it ++) {
-		if (*it > range[0] && *it <= range[1]) spikes_temp.push_back(*it);
+		if (*it > range[0] && *it <= range[1]) spikes_temp.push_back(*it - range[0]);
 		else if (*it > range[1]) break;
 	}
 	spikes.clear();
