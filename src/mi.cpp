@@ -85,15 +85,35 @@ void JointPDF(vector<double>& x, vector<double>& y, vector<double>& x_edges, vec
 	}
 }
 
-void JointPDF(vector<double>& x, vector<double>& y, double x_bin_width, double y_bin_width, vector<vector<double> >& jointpdf) {
+void JointPDF(vector<bool>& x, vector<bool>& y, vector<vector<double> >& jointpdf) {
+	size_t num_pairs = x.size();
+	count_xy.resize(2, vector<int>(2, 0));
+	for (int i = 0; i < np; i++) {
+		if (x[i]) {
+			if (y[i]) count_xy[1][1] ++;
+			else count_xy[1][0] ++;
+		} else {
+			if (y[i]) count_xy[0][1] ++;
+			else count_xy[0][0] ++;
+		}
+	}
+	jointpdf.resize(2, vector<double>(2, 0.0));
+	for (int i = 0; i < 2; i++) {
+		for (int j = 0; j < 2; j++) {
+		jointpdf[i][j] +=  count_xy[i][j] * 1.0 / num_pairs;
+		}
+	}
+}
+
+void JointPDF(vector<double>& x, vector<double>& y, size_t x_bin_num, size_t y_bin_num, vector<vector<double> >& jointpdf) {
 	size_t num_pairs = x.size();
 	double x_max = Max(x);
 	double x_min = Min(x);
 	double y_max = Max(y);
 	double y_min = Min(y);
-	size_t x_bin_number = ceil((x_max - x_min) / x_bin_width);
-	size_t y_bin_number = ceil((y_max - y_min) / y_bin_width);
-	jointpdf.resize(x_bin_number, vector<double>(y_bin_number, 0));
+	double x_bin_width = (x_max - x_min) / x_bin_num;
+	double y_bin_width = (y_max - y_min) / y_bin_num;
+	jointpdf.resize(x_bin_num, vector<double>(y_bin_num, 0.0));
 	int indx, indy;
 	for (int i = 0; i < num_pairs; i++) {
 		indx = floor((x[i] - x_min) / x_bin_width);
@@ -102,8 +122,21 @@ void JointPDF(vector<double>& x, vector<double>& y, double x_bin_width, double y
 	}
 }
 
-void JointPDF(vector<bool>& binary_spikes, vector<double>& lfp, vector<double>& lfp_edges,
-	vector<vector<double> >& jointpdf) {
+void JointPDF(vector<bool>& binary_spikes, vector<double>& lfp, double bin_num, vector<vector<double> >& jointpdf) {
+	int num_pairs = lfp.size();
+	jointpdf.resize(2, vector<double>(bin_num, 0.0));
+	int ind;
+	lfp_min = Min(lfp);
+	for (int i = 0; i < num_pairs; i++) {
+		// determine lfp's coordination;
+		ind = floor((lfp[i] - lfp_min) / bin_width)
+		// determine spike's coordination;
+		if (binary_spikes[i]) jointpdf[0][ind] += 1.0 / num_pairs;
+		else jointpdf[1][ind] += 1.0 / num_pairs;
+	}
+}
+
+void JointPDF(vector<bool>& binary_spikes, vector<double>& lfp, vector<double>& lfp_edges, vector<vector<double> >& jointpdf) {
 	int bin_number = lfp_edges.size();
 	int num_pairs = lfp.size();
 	jointpdf.resize(2, vector<double>(bin_number, 0));
@@ -131,6 +164,19 @@ void JointPDF(vector<bool>& binary_spikes, vector<double>& lfp, vector<double>& 
 		}
 	}
 }
+
+void MarginalPDF(vector<vector<double> >& jointpdf, vector<double>& p1, vector<double>& p2) {
+	p1.resize(jointpdf.size());
+	p2.clear();
+	p2.resize(jointpdf.begin() -> size(), 0.0);
+	for (vector<vector<double> >::iterator it = jointpdf.begin(); it != jointpdf.end(); it ++) {
+		p1[i] = accumulate(it -> begin(), it -> end(), 0,0);
+		for (vector<double>::iterator itt = it -> begin(); itt -> end(); itt ++) {
+			p2[i] += *itt;
+		}
+	}
+}
+
 
 double HistBool(vector<bool>& data) {
 	int count = 0;
@@ -177,34 +223,18 @@ double MI(vector<bool>& x, vector<bool>& y) {
 		return 0;
 	} else {
 		int np = x.size();
-		// Histograms;
-		double px, py;
-		px = HistBool(x);
-		py = HistBool(y);
-		vector<double> Px(2), Py(2);
-		Px[0] = 1 - px;
-		Px[1] = px;
-		Py[0] = 1 - py;
-		Py[1] = py;
-
-		vector<int> add(2, 0);
-		vector<vector<int> > count_xy(2, add);
-		for (int i = 0; i < np; i++) {
-			if (x[i]) {
-				if (y[i]) count_xy[1][1] ++;
-				else count_xy[1][0] ++;
-			} else {
-				if (y[i]) count_xy[0][1] ++;
-				else count_xy[0][0] ++;
-			}
-		}
-
+		// Joint Probability Histograms;
+		vector<vector<double> > joint_xy;
+		JointPDF(x, y, joint_xy);
+		// Marginal distribution;
+		vector<double> px, py;
+		MarginalPDF(joint_xy, px, py);
 		// Mutual information;
-		double mi = 0;
+		double mi = 0.0;
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 2; j++) {
-				if (count_xy[i][j] != 0) {
-					mi += count_xy[i][j] * 1.0 / np*log2(count_xy[i][j] * 1.0 / np / Px[i] / Py[j]);
+				if (abs(joint_xy[i][j]) < 1e-20) {
+					mi += joint_xy[i][j]*log(joint_xy[i][j] / px[i] / py[j]);
 				}
 			}
 		}
@@ -212,41 +242,36 @@ double MI(vector<bool>& x, vector<bool>& y) {
 	}
 }
 
-// // Mutual information with uniformly binning histogram;
-// double MI(vector<double>& x, vector<double>& y, double x_bin_width, double y_bin_width) {
-// 	//	Compare the length of x & y;
-// 	int length;
-// 	vector<double> x_copy = x, y_copy = y;
-// 	if (x_copy.size() > y_copy.size()) {
-// 		length = y_copy.size();
-// 		x_copy.erase(x_copy.begin() + length, x_copy.end());
-// 	} else {
-// 		length = x_copy.size();
-// 		y_copy.erase(y_copy.begin() + length, y_copy.end());
-// 	}
-// 	// Calculate actual occupancy;
-// 	// Find edges of histogram;
-// 	vector<double> x_hist, y_hist;
-// 	HistDouble(x_copy, x_hist, x_bin_width);
-// 	HistDouble(y_copy, y_hist, y_bin_width);
-//
-// 	// cout << x_hist.size() << ',' << y_hist.size() << '\n';
-//
-// 	// 	Calculate conditional probability;
-// 	vector<vector<double> > jointpdf;
-// 	JointPDF(x_copy, y_copy, bin_width, bin_width, jointpdf);
-//
-// 	// Calculate mutual information;
-// 	double mi = 0;
-// 	for (size_t i = 0; i < x_hist.size(); i++) {
-// 		for (size_t j = 0; j < y_hist.size(); j++) {
-// 			if (jointpdf[i][j] != 0) {
-// 				mi += jointpdf[i][j] * log2(jointpdf[i][j] / (x_hist[i] * y_hist[j]));
-// 			}
-// 		}
-// 	}
-// 	return mi;
-// }
+// Mutual information with uniformly binning histogram;
+double MI(vector<double>& x, vector<double>& y, double x_bin_num, double y_bin_num) {
+	//	Compare the length of x & y;
+	int length;
+	vector<double> x_copy = x, y_copy = y;
+	if (x_copy.size() > y_copy.size()) {
+		length = y_copy.size();
+		x_copy.erase(x_copy.begin() + length, x_copy.end());
+	} else {
+		length = x_copy.size();
+		y_copy.erase(y_copy.begin() + length, y_copy.end());
+	}
+	// Calculate joint probability distribution function;
+	vector<vector<double> > jointpdf;
+	JointPDF(x_copy, y_copy, x_bin_num, y_bin_num, jointpdf);
+	// Marginal probability distribution function;
+	vector<double> px, py;
+	MarginalPDF(jointpdf, px, py);
+
+	// Calculate mutual information;
+	double mi = 0.0;
+	for (size_t i = 0; i < px.size(); i++) {
+		for (size_t j = 0; j < py.size(); j++) {
+			if (abs(jointpdf[i][j])) < 1e-20) {
+				mi += jointpdf[i][j] * log(jointpdf[i][j] / px[i] / py[j]);
+			}
+		}
+	}
+	return mi;
+}
 
 double MI(vector<double>& x, vector<double>& y) {
 	//	Compare the length of x & y;
@@ -274,11 +299,35 @@ double MI(vector<double>& x, vector<double>& y) {
 	JointPDF(x_copy, y_copy, x_edges, y_edges, jointpdf);
 
 	// Calculate mutual information;
-	double mi = 0;
+	double mi = 0.0;
 	for (int i = 0; i < bin_number; i++) {
 		for (int j = 0; j < bin_number; j++) {
-			if (jointpdf[i][j] != 0) {
+			if (abs(jointpdf[i][j]) < 1e-20) {
 				mi += jointpdf[i][j] * log(pow(bin_number, 2)*jointpdf[i][j]);
+			}
+		}
+	}
+	return mi;
+}
+
+double MI(vector<bool>& bool_series, vector<double>& double_series, int bin_num) {
+	// calculate the occupancy;
+	size_t num_pair = double_series.size();
+	double bin_width = (Max(double_series) - Min(double_series)) / bin_num;
+
+	// Calculate joint probability distribution function;
+	vector<vector<double> > jointpdf;
+	JointPDF(bool_series, double_copy, bin_num, jointpdf);
+	// calculate histogram;
+	vector<double> p_spike, p_double;
+	MarginalPDF(jointpdf, p_spike, p_double);
+
+	// Calculate mutual information;
+	double mi = 0.0; // Pxy = P(x,y);
+	for (int i = 0; i< 2; i++) {
+		for (int j = 0; j< bin_num; j++) {
+			if (abs(jointpdf[i][j]) < 1e-20) {
+				mi += jointpdf[i][j] *log(jointpdf[i][j] / p_spike[i] / p_double[j]);
 			}
 		}
 	}
@@ -295,23 +344,21 @@ double MI(vector<bool>& bool_series, vector<double>& double_series, int num_bin)
 	// calculate histogram;
 	vector<double> edges;
 	FindEdges(double_copy, edges, occupancy);
-	double p_spike;
-	p_spike = HistBool(bool_series);
+	double* p_spike(2);
+	p_spike[0] = HistBool(bool_series);
+	p_spike[1] = 1 - p_spike[0];
 
 	// Calculate conditional probability;
 	vector<vector<double> > jointpdf;
 	JointPDF(bool_series, double_copy, edges, jointpdf);
 
 	// Calculate mutual information;
-	double mi = 0; // Pxy = P(x,y);
+	double mi = 0.0; // Pxy = P(x,y);
 	for (int i = 0; i< num_bin; i++) {
-		if (jointpdf[0][i] != 0) {
-			mi += jointpdf[0][i] *log2(num_bin*jointpdf[0][i] / p_spike);
-		}
-	}
-	for (int i = 0; i< num_bin; i++) {
-		if (jointpdf[1][i] != 0) {
-			mi += jointpdf[1][i] *log2(num_bin*jointpdf[1][i] / (1 - p_spike));
+		for (int j = 0, j < num_bin, j++) {
+			if (abs(jointpdf[i][j]) < 1e-20) {
+				mi += jointpdf[i][j] *log(num_bin*jointpdf[i][j] / p_spike[i]);
+			}
 		}
 	}
 	return mi;
