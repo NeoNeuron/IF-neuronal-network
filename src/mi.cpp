@@ -118,18 +118,22 @@ void JointPDF(vector<double>& x, vector<double>& y, size_t x_bin_num, size_t y_b
 	for (int i = 0; i < num_pairs; i++) {
 		indx = floor((x[i] - x_min) / x_bin_width);
 		indy = floor((y[i] - y_min) / y_bin_width);
+		if (indx == x_bin_num) indx = x_bin_num - 1;
+		if (indy == y_bin_num) indy = y_bin_num - 1;
 		jointpdf[indx][indy] += 1.0 / num_pairs;
 	}
 }
 
 void JointPDF(vector<bool>& binary_spikes, vector<double>& lfp, double bin_num, vector<vector<double> >& jointpdf) {
-	int num_pairs = lfp.size();
+	size_t num_pairs = lfp.size();
 	jointpdf.resize(2, vector<double>(bin_num, 0.0));
+	double lfp_min = Min(lfp);
+	double bin_width = (Max(lfp) - lfp_min) / bin_num;
 	int ind;
-	lfp_min = Min(lfp);
-	for (int i = 0; i < num_pairs; i++) {
+	for (size_t i = 0; i < num_pairs; i++) {
 		// determine lfp's coordination;
 		ind = floor((lfp[i] - lfp_min) / bin_width)
+		if (ind == bin_num) ind = bin_num - 1;
 		// determine spike's coordination;
 		if (binary_spikes[i]) jointpdf[0][ind] += 1.0 / num_pairs;
 		else jointpdf[1][ind] += 1.0 / num_pairs;
@@ -222,7 +226,6 @@ double MI(vector<bool>& x, vector<bool>& y) {
 		cout << "ERROR: x and y don't have the same length." << endl;
 		return 0;
 	} else {
-		int np = x.size();
 		// Joint Probability Histograms;
 		vector<vector<double> > joint_xy;
 		JointPDF(x, y, joint_xy);
@@ -245,32 +248,27 @@ double MI(vector<bool>& x, vector<bool>& y) {
 // Mutual information with uniformly binning histogram;
 double MI(vector<double>& x, vector<double>& y, double x_bin_num, double y_bin_num) {
 	//	Compare the length of x & y;
-	int length;
-	vector<double> x_copy = x, y_copy = y;
-	if (x_copy.size() > y_copy.size()) {
-		length = y_copy.size();
-		x_copy.erase(x_copy.begin() + length, x_copy.end());
+	if (x.size() != y.size()) {
+		cout << "ERROR: x and y don't have the same length." << endl;
+		return 0;
 	} else {
-		length = x_copy.size();
-		y_copy.erase(y_copy.begin() + length, y_copy.end());
-	}
-	// Calculate joint probability distribution function;
-	vector<vector<double> > jointpdf;
-	JointPDF(x_copy, y_copy, x_bin_num, y_bin_num, jointpdf);
-	// Marginal probability distribution function;
-	vector<double> px, py;
-	MarginalPDF(jointpdf, px, py);
-
-	// Calculate mutual information;
-	double mi = 0.0;
-	for (size_t i = 0; i < px.size(); i++) {
-		for (size_t j = 0; j < py.size(); j++) {
-			if (abs(jointpdf[i][j])) < 1e-20) {
-				mi += jointpdf[i][j] * log(jointpdf[i][j] / px[i] / py[j]);
+		// Calculate joint probability distribution function;
+		vector<vector<double> > jointpdf;
+		JointPDF(x, y, x_bin_num, y_bin_num, jointpdf);
+		// Marginal probability distribution function;
+		vector<double> px, py;
+		MarginalPDF(jointpdf, px, py);
+		// Calculate mutual information;
+		double mi = 0.0;
+		for (size_t i = 0; i < px.size(); i++) {
+			for (size_t j = 0; j < py.size(); j++) {
+				if (abs(jointpdf[i][j])) < 1e-20) {
+					mi += jointpdf[i][j] * log(jointpdf[i][j] / px[i] / py[j]);
+				}
 			}
 		}
+		return mi;
 	}
-	return mi;
 }
 
 double MI(vector<double>& x, vector<double>& y) {
@@ -283,9 +281,7 @@ double MI(vector<double>& x, vector<double>& y) {
 	} else if (x.size() < y.size()) {
 		length = x.size();
 		y_copy.erase(y_copy.begin() + length, y_copy.end());
-	} else {
-		length = x.size();
-	}
+	} else length = x.size();
 	// Calculate actual occupancy;
 	int bin_number = floor(sqrt(length / 5)); // bin_number: numberber of non-uniform bins;
 	int occupancy = floor(length / bin_number);
@@ -293,11 +289,9 @@ double MI(vector<double>& x, vector<double>& y) {
 	vector<double> x_edges, y_edges;
 	FindEdges(x_copy, x_edges, occupancy);
 	FindEdges(y_copy, y_edges, occupancy);
-
 	// 	Calculate conditional probability;
 	vector<vector<double> > jointpdf;
 	JointPDF(x_copy, y_copy, x_edges, y_edges, jointpdf);
-
 	// Calculate mutual information;
 	double mi = 0.0;
 	for (int i = 0; i < bin_number; i++) {
@@ -314,14 +308,12 @@ double MI(vector<bool>& bool_series, vector<double>& double_series, int bin_num)
 	// calculate the occupancy;
 	size_t num_pair = double_series.size();
 	double bin_width = (Max(double_series) - Min(double_series)) / bin_num;
-
 	// Calculate joint probability distribution function;
 	vector<vector<double> > jointpdf;
 	JointPDF(bool_series, double_copy, bin_num, jointpdf);
 	// calculate histogram;
 	vector<double> p_spike, p_double;
 	MarginalPDF(jointpdf, p_spike, p_double);
-
 	// Calculate mutual information;
 	double mi = 0.0; // Pxy = P(x,y);
 	for (int i = 0; i< 2; i++) {
@@ -334,57 +326,37 @@ double MI(vector<bool>& bool_series, vector<double>& double_series, int bin_num)
 	return mi;
 }
 
-double MI(vector<bool>& bool_series, vector<double>& double_series, int num_bin) {
-	// calculate the occupancy;
-	int occupancy = double_series.size() / num_bin;
-	int num_pair = occupancy * num_bin;
-	vector<double> double_copy = double_series;
-	double_copy.erase(double_copy.begin() + num_pair, double_copy.end());
+// double MI(vector<bool>& bool_series, vector<double>& double_series, int bin_num) {
+// 	// calculate the occupancy;
+// 	int occupancy = double_series.size() / bin_num;
+// 	int num_pair = occupancy * bin_num;
+// 	vector<double> double_copy = double_series;
+// 	double_copy.erase(double_copy.begin() + num_pair, double_copy.end());
+// 	// calculate histogram;
+// 	vector<double> edges;
+// 	FindEdges(double_copy, edges, occupancy);
+// 	double* p_spike(2);
+// 	p_spike[0] = HistBool(bool_series);
+// 	p_spike[1] = 1 - p_spike[0];
+// 	// Calculate conditional probability;
+// 	vector<vector<double> > jointpdf;
+// 	JointPDF(bool_series, double_copy, edges, jointpdf);
+// 	// Calculate mutual information;
+// 	double mi = 0.0; // Pxy = P(x,y);
+// 	for (int i = 0; i< bin_num; i++) {
+// 		for (int j = 0, j < bin_num, j++) {
+// 			if (abs(jointpdf[i][j]) < 1e-20) {
+// 				mi += jointpdf[i][j] *log(bin_num*jointpdf[i][j] / p_spike[i]);
+// 			}
+// 		}
+// 	}
+// 	return mi;
+// }
 
-	// calculate histogram;
-	vector<double> edges;
-	FindEdges(double_copy, edges, occupancy);
-	double* p_spike(2);
-	p_spike[0] = HistBool(bool_series);
-	p_spike[1] = 1 - p_spike[0];
-
-	// Calculate conditional probability;
-	vector<vector<double> > jointpdf;
-	JointPDF(bool_series, double_copy, edges, jointpdf);
-
-	// Calculate mutual information;
-	double mi = 0.0; // Pxy = P(x,y);
-	for (int i = 0; i< num_bin; i++) {
-		for (int j = 0, j < num_bin, j++) {
-			if (abs(jointpdf[i][j]) < 1e-20) {
-				mi += jointpdf[i][j] *log(num_bin*jointpdf[i][j] / p_spike[i]);
-			}
-		}
-	}
-	return mi;
-}
-
-void TDMI(vector<bool>& x, vector<bool>& y, double dt, double tmax, int negative_time_delay, int positive_time_delay, vector<double> & tdmi) {
-	tdmi.resize(positive_time_delay + negative_time_delay + 1, 0);
-
-	// No shift;
-	tdmi[negative_time_delay] = MI(x, y);
-
-	// Negative shift;
-	vector<bool> x_copy = x, y_copy = y;
-	for (int i = 0; i < negative_time_delay; i++) {
-		x_copy.erase(x_copy.begin());
-		y_copy.erase(y_copy.end() - 1);
-		tdmi[negative_time_delay - i - 1] = MI(x_copy, y_copy);
-	}
-
-	// Positive shift;
-	x_copy = x;
-	y_copy = y;
-	for (int i = 0; i < positive_time_delay; i++) {
-		x_copy.erase(x_copy.end() - 1);
-		y_copy.erase(y_copy.begin());
-		tdmi[negative_time_delay + i + 1] = MI(x_copy, y_copy);
+void TDMI(vector<bool>& x, vector<vector<bool> >& y, vector<double> & tdmi) {
+	tdmi.resize(y.size(), 0);
+	for (size_t i = 0; i < y.size(); i++) {
+		tdmi[i] = MI(x, y[i]);
 	}
 }
 
@@ -395,37 +367,48 @@ void TDMI(vector<double>& x, vector<vector<double> >& y, vector<double> & tdmi) 
 	}
 }
 
-void TDMI(vector<bool>& bool_series, vector<double>& double_series, int negative_time_delay, int positive_time_delay, vector<double>& tdmi, bool random_switch) {
-	int num_reps = negative_time_delay + positive_time_delay + 1;
+void TDMI(vector<bool>& bool_series, vector<vector<double> >& double_series, vector<double>& tdmi, size_t bin_num) {
+	size_t num_reps = double_series.size() + 1;
 	tdmi.resize(num_reps, 0);
-	int N = bool_series.size(); // number of reduced LFP data point;
-	int num_spike = count(bool_series.begin(), bool_series.end(), true);
-	int num_bin;
-	if (num_spike != 0) {
-		if (num_spike < 5) num_bin = 1;
-		else num_bin = floor(num_spike / 5); // expected_occupancy = 5;
-		if (random_switch == true) {
-			random_shuffle(bool_series.begin(), bool_series.end());
-		}
-		// No shift;
-		tdmi[negative_time_delay] = MI(bool_series, double_series, num_bin);
-
-		// Negative shift;
-		vector<bool> bool_copy = bool_series;
-		vector<double> double_copy = double_series;
-		for (int i = 0; i < negative_time_delay; i++) {
-			bool_copy.erase(bool_copy.begin());
-			double_copy.erase(double_copy.end() - 1);
-			tdmi[negative_time_delay - i - 1] = MI(bool_copy, double_copy, num_bin);
-		}
-
-		// Positive shift;
-		bool_copy = bool_series;
-		double_copy = double_series;
-		for (int i = 0; i < positive_time_delay; i++) {
-			bool_copy.erase(bool_copy.end() - 1);
-			double_copy.erase(double_copy.begin());
-			tdmi[negative_time_delay + i + 1] = MI(bool_copy, double_copy, num_bin);
-		}
+	size_t num_bin;
+	for (size_t i = 0; i < double_series.size(); i++) {
+		tdmi[i] = MI(bool_copy, double_copy, num_bin);
 	}
+
+
 }
+
+// void TDMI(vector<bool>& bool_series, vector<double>& double_series, int negative_time_delay, int positive_time_delay, vector<double>& tdmi, bool random_switch) {
+// 	int num_reps = negative_time_delay + positive_time_delay + 1;
+// 	tdmi.resize(num_reps, 0);
+// 	int N = bool_series.size(); // number of reduced LFP data point;
+// 	int num_spike = count(bool_series.begin(), bool_series.end(), true);
+// 	int num_bin;
+// 	if (num_spike != 0) {
+// 		if (num_spike < 5) num_bin = 1;
+// 		else num_bin = floor(num_spike / 5); // expected_occupancy = 5;
+// 		if (random_switch == true) {
+// 			random_shuffle(bool_series.begin(), bool_series.end());
+// 		}
+// 		// No shift;
+// 		tdmi[negative_time_delay] = MI(bool_series, double_series, num_bin);
+//
+// 		// Negative shift;
+// 		vector<bool> bool_copy = bool_series;
+// 		vector<double> double_copy = double_series;
+// 		for (int i = 0; i < negative_time_delay; i++) {
+// 			bool_copy.erase(bool_copy.begin());
+// 			double_copy.erase(double_copy.end() - 1);
+// 			tdmi[negative_time_delay - i - 1] = MI(bool_copy, double_copy, num_bin);
+// 		}
+//
+// 		// Positive shift;
+// 		bool_copy = bool_series;
+// 		double_copy = double_series;
+// 		for (int i = 0; i < positive_time_delay; i++) {
+// 			bool_copy.erase(bool_copy.end() - 1);
+// 			double_copy.erase(double_copy.begin());
+// 			tdmi[negative_time_delay + i + 1] = MI(bool_copy, double_copy, num_bin);
+// 		}
+// 	}
+// }

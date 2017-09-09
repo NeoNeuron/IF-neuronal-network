@@ -92,14 +92,14 @@ double MI(vector<double>& x, vector<double>& y);
 // VECTOR<DOUBLE> LFP: local field potential;
 // INT bin_number: number of bins of historgram of LFP;
 // Return: valude of Mutual information;
-double MI(vector<bool>& bool_series, vector<double>& double_series, int bin_number);
+double MI(vector<bool>& bool_series, vector<double>& double_series, int num_bin);
 
-// Mutual information between binary spiking train and LFP, with adaptive binning size (identical occupancy for each bin);
-// VECTOR<BOOL> binary_spikes: original spike train with binary version;
-// VECTOR<DOUBLE> LFP: local field potential;
-// INT bin_number: number of bins of historgram of LFP;
-// Return: valude of Mutual information;
-double MI(vector<bool>& bool_series, vector<double>& double_series, int bin_number);
+// // Mutual information between binary spiking train and LFP, with adaptive binning size (identical occupancy for each bin);
+// // VECTOR<BOOL> binary_spikes: original spike train with binary version;
+// // VECTOR<DOUBLE> LFP: local field potential;
+// // INT bin_number: number of bins of historgram of LFP;
+// // Return: valude of Mutual information;
+// double MI(vector<bool>& bool_series, vector<double>& double_series, int num_bin);
 
 // Time-delayed mutual information between two spike trains;
 void TDMI(vector<double>& x, vector<double>& y, double dt, double tmax, int negative_time_delay, int positive_time_delay, vector<double> & tdmi);
@@ -108,6 +108,9 @@ void TDMI(vector<double>& x, vector<double>& y, double dt, double tmax, int nega
 void TDMI(vector<double>& x, vector<vector<double> >& y, vector<double>& tdmi);
 
 // Delayed mutual information of spiking train and LFP, with adaptive partitions;
-void TDMI(vector<bool>& bool_series, vector<double>& double_series, int negative_time_delay, int positive_time_delay, vector<double> & tdmi, bool random_switch);
+void TDMI(vector<bool>& bool_series, vector<vector<double> >& double_series, vector<double> & tdmi, size_t bin_num);
+
+// // Delayed mutual information of spiking train and LFP, with adaptive partitions;
+// void TDMI(vector<bool>& bool_series, vector<double>& double_series, int negative_time_delay, int positive_time_delay, vector<double> & tdmi, bool random_switch);
 
 #endif // _IFNET_MI_H_
