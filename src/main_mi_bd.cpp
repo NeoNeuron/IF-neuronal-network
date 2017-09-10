@@ -4,7 +4,7 @@
 //	Date: 2017-06-03
 //	Description: Mutual information analysis program; version 1.0
 //***************
-#include "../include/mi.h"
+#include "../include/mi_uniform.h"
 #include "../include/io.h"
 #include <iostream>
 #include <fstream>
@@ -19,43 +19,41 @@ using namespace std;
 //	arguments:
 //	argv[1] = path for bool series;
 //	argv[2] = path for double series;
-//	argv[3] = range of timelag;
+//  argv[3] = index of x variable;
+//	argv[4] = range of timelag;
+//	argv[5] = bin number of pdf of the double variable;
 int main(int argc, const char* argv[]) {
-	if (argc != 4) throw runtime_error("wrong number of args");
+	if (argc != 6) throw runtime_error("wrong number of args");
 	clock_t start, finish;
 	start = clock();
 	// INPUT NEURONAL DATA:
-	vector<bool> bool_series;
-	vector<double> double_series;
-	Read1D(argv[1], bool_series, 0, 1);
-	Read1D(argv[2], double_series, 0, 1);
+	vector<vector<bool> > bool_series;
+	vector<vector<double> > double_series;
+	Read2D(argv[1], bool_series);
+	Read2D(argv[2], double_series);
 	// Set time range;
-	string range = argv[3];
+	size_t indx = atoi(argv[3]);
+	string range = argv[4];
 	string::size_type pos = range.find_first_of(',', 0 );
 	int negative_time_delay = atoi(range.substr(0, pos).c_str());
 	range.erase(0, pos + 1);
 	int positive_time_delay = atoi(range.c_str());
 	range = "";
-	// int number = 0;
-	// for (vector<bool>::iterator it = bool_series.begin(); it != bool_series.end(); it ++) {
-	// 	if (*it) number ++;
-	// }
-	// cout << number << endl;
-	vector<double> tdmi_ordered;
-	vector<double> tdmi_random;
-	cout << ">> Calculating ordered TDMI ... " << endl;
-	TDMI(bool_series, double_series, negative_time_delay, positive_time_delay, tdmi_ordered, false);
-	cout << ">> Calculating swapped TDMI ... " << endl;
-	TDMI(bool_series, double_series, negative_time_delay, positive_time_delay, tdmi_random, true);
+
+	vector<bool> bool_copy = bool_series[indx];
+	vector<vector<double> > double_copy(double_series.begin() + indx - negative_time_delay, double_series.begin() + indx + positive_time_delay + 1);
+
+	size_t bin_num = atoi(argv[5]);
+	vector<double> tdmi;
+	TDMI(bool_copy, double_copy, tdmi, bin_num);
 
 	//	Output data:
 	ofstream data_out;
 	cout << ">> Outputing data ... " << endl;
 	data_out.open("./data/mi/mi_bd.csv");
-	data_out << "timelag,mi,shuffle" << endl;
+	data_out << "timelag,mi" << endl;
 	for (int i = 0; i < negative_time_delay + positive_time_delay + 1; i++) {
-		data_out << (i - negative_time_delay) << ',' << (double)tdmi_ordered[i] << ',' << (double)tdmi_random[i];
-		if (i < positive_time_delay + negative_time_delay) data_out << endl;
+		data_out << (i - negative_time_delay) << ',' << (double)tdmi[i] << '\n';
 	}
 	data_out.close();
 

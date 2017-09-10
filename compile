@@ -4,9 +4,9 @@ g++ src/get-config.cpp src/neuron.cpp src/network.cpp src/connectivity_matrix.cp
 g++ src/spike.cpp src/main_spike.cpp -o bin/spike.out
 g++ src/spike.cpp src/main_spike2d.cpp -o bin/spike2.out
 g++ src/lfp.cpp src/main_lfp.cpp -o bin/lfp.out
-g++ src/mi.cpp src/main_mi.cpp -o bin/mi.out
-g++ src/mi.cpp src/main_mi_dd.cpp -o bin/mi_dd.out
-g++ src/mi.cpp src/main_mi_bd.cpp -o bin/mi_bd.out
+g++ src/mi_uniform.cpp src/main_mi.cpp -o bin/mi.out
+g++ src/mi_uniform.cpp src/main_mi_dd.cpp -o bin/mi_dd.out
+g++ src/mi_uniform.cpp src/main_mi_bd.cpp -o bin/mi_bd.out
 g++ src/stationary.cpp src/main_ac.cpp -o bin/ac.out
 # g++ src/sta.cpp src/main_sta.cpp -o bin/sta.out
 g++ src/surrogate.cpp src/main_surrogate.cpp -o bin/surrogate.out

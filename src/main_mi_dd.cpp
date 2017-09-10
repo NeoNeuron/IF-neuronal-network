@@ -4,10 +4,9 @@
 //	Date: 2017-06-03
 //	Description: Mutual information analysis program; version 1.0
 //***************
-#include "../include/mi.h"
+#include "../include/mi_uniform.h"
 #include "../include/io.h"
 #include <iostream>
-#include <fstream>
 #include <iomanip>
 #include <ctime>
 #include <stdexcept>
@@ -19,8 +18,10 @@ using namespace std;
 //	argv[2] = path for time series y;
 //	argv[3] = index of x variable in series;
 //	argv[4] = delayed time range, seperated by comma;
+//  argv[5] = bin number of variable x;
+//  argv[6] = bin number of variable y;
 int main(int argc, const char* argv[]) {
-	if (argc != 5) throw runtime_error("wrong number of args");
+	if (argc != 7) throw runtime_error("wrong number of args");
 	clock_t start, finish;
 	start = clock();
 	// Preparing input args;
@@ -37,13 +38,12 @@ int main(int argc, const char* argv[]) {
 	vector<double> s1 = double_series_1[indx];
 	vector<vector<double> > s2(double_series_2.begin() + indx - negative_time_delay, double_series_2.begin() + indx + positive_time_delay + 1);
 
+	size_t x_bin_num = atoi(argv[5]), y_bin_num = atoi(argv[6]);
 	vector<double> tdmi;
-	cout << ">> Calculating TDMI ... " << endl;
-	TDMI(s1, s2, tdmi);
+	TDMI(s1, s2, tdmi, x_bin_num, y_bin_num);
 
   // Output data:
 	ofstream data_out;
-	cout << ">> Outputing data ... " << endl;
 	data_out.open("./data/mi/mi_dd.csv");
 	data_out << "timelag,mi," << endl;
 	for (int i = 0; i < negative_time_delay + positive_time_delay + 1; i++) {
