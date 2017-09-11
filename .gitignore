@@ -12,3 +12,6 @@ results/*
 
 # ignore python lib object
 *.pyc
+
+# ignore c/c++ objective files
+obj/*

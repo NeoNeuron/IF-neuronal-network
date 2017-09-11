@@ -1,7 +1,6 @@
 #include <iostream>
 #include <algorithm>
 #include <ctime>
-#include <fftw3.h>
 #include "../include/surrogate.h"
 using namespace std;
 
