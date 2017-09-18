@@ -39,6 +39,6 @@ int main(int argc, const char* argv[]) {
   double dt = atof(argv[4]);
   Spike2Bool(spikes, binary_spikes, tmax, dt);
   // Output spike train;
-  Print1D(argv[5], spikes, "trunc", 1);
+  Print1D(argv[5], binary_spikes, "trunc", 1);
   return 0;
 }

@@ -7,6 +7,7 @@
 #include "../include/lfp.h"
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <algorithm>
 #include <iomanip>
 #include <cstdlib>
@@ -19,8 +20,8 @@ using namespace std;
 //	argv[1] = path of neural data;
 //	argv[2] = list of indices of connected neurons, seperated by comma, that contribute to LFP;
 //	argv[3] = time range, seperated by comma, with unit in milliseconds;
-//  argv[4] = binning size of binary time series of spike train;
-//	argv[5] = path of output raster file;
+//	argv[4] = binning size of binary time series of spike train;
+//	argv[5] = path of output LFP file;
 int main(int argc, const char* argv[]) {
 	if (argc != 6) {
 		throw runtime_error("wrong number of args");
@@ -28,19 +29,11 @@ int main(int argc, const char* argv[]) {
 	cout << "==========" << endl;
 	//	Defined folder path;
 	//	Analyze listing series;
-	string list_str =  argv[2];
 	vector<int> list;
-	string ss;
-	string::size_type pos = list_str.find_first_of(',', 0);
-	while (pos != list_str.npos) {
-		ss = list_str.substr(0, pos);
-		list.push_back(atoi(ss.c_str()));
-		list_str.erase(0, pos + 1);
-		ss.clear();
-		pos = list_str.find_first_of(',', 0);
-	}
-	if (list_str.size() != 0) {
-		list.push_back(atoi(list_str.c_str()));
+	stringstream inlist(argv[2]);
+	string buffer;
+	while (getline(inlist, buffer, ',')) {
+		list.push_back(atoi(buffer.c_str()));
 	}
 	sort(list.begin(),list.end());
 	int neuron_num = list.size();
@@ -48,12 +41,11 @@ int main(int argc, const char* argv[]) {
 
 	//	Choose objective time range;
 	double t_range[2]; // t_range[0] = t_min; t_range[1] = t_max;
-	string range_str = argv[3];
-  pos = range_str.find_first_of(',', 0);
-  t_range[0] = atof(range_str.substr(0, pos).c_str());
-  range_str.erase(0, pos + 1);
-  t_range[1] = atof(range_str.c_str());
-  range_str = "";
+	stringstream inrange(argv[3]);
+	getline(inrange, buffer, ',');
+  t_range[0] = atof(buffer.c_str());
+	getline(inrange, buffer, ',');
+	t_range[1] = atof(buffer.c_str());
 	printf(">> Time range = (%.2f, %.2f] ms\n", t_range[0], t_range[1]);
 
 	cout << ">> Calculating LFP ..." << endl;
