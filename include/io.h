@@ -40,8 +40,6 @@ template <class T> void Print2D(string path, vector<vector<T> >& data, string mo
   //	Return: none;
 template <class T> void Print1D(string path, vector<T>& data, string mode, int axis);
 
-template <class T> void Transpose(vector<T>& data, vector<T>& newdata);
-
 #endif // _IO_H_
 
 #include "io.hpp"

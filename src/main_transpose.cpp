@@ -5,6 +5,7 @@
 //	Description: Mutual information analysis program;
 //***************
 #include "../include/io.h"
+#include "../include/vecmanip.h"
 #include <iostream>
 #include <stdexcept>
 using namespace std;

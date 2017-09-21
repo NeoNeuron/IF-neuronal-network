@@ -101,24 +101,3 @@ template <class T> void Print1D(string path, vector<T>& data, string mode, int a
 	}
 	ofile.close();
 }
-
-template <class T> bool Transpose(vector<vector<T> >& data, vector<vector<T> >& newdata) {
-  // Judge the transpose requirement;
-  size_t firstlen = data.begin()->size();
-  bool mat_set = true;
-  for (typename vector<vector<T> >::iterator it = data.begin() + 1; it != data.end(); it ++) {
-    if (it->size() != firstlen) {
-      mat_set = false;
-      break;
-    }
-  }
-  if (mat_set) {
-    newdata.resize(firstlen, vector<T>(data.size()));
-    for (size_t i = 0; i < data.size(); i ++){
-      for (size_t j = 0; j < firstlen; j ++) {
-        newdata[j][i] = data[i][j];
-      }
-    }
-  }
-  return mat_set;
-}
