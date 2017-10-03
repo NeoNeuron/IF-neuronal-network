@@ -73,9 +73,10 @@ void JointPDF(vector<bool>& binary_spikes, vector<double>& lfp, size_t bin_num, 
 		ind = floor((lfp[i] - lfp_min) / bin_width);
 		if (ind == bin_num) ind = bin_num - 1;
 		// determine spike's coordination;
-		if (binary_spikes[i]) jointpdf[0][ind] += 1.0 / num_pairs;
-		else jointpdf[1][ind] += 1.0 / num_pairs;
+		if (binary_spikes[i]) jointpdf[1][ind] += 1.0 / num_pairs;
+		else jointpdf[0][ind] += 1.0 / num_pairs;
 	}
+	cout << jointpdf.begin() -> front() << endl;
 }
 
 void MarginalPDF(vector<vector<double> >& jointpdf, vector<double>& p1, vector<double>& p2) {
@@ -85,7 +86,7 @@ void MarginalPDF(vector<vector<double> >& jointpdf, vector<double>& p1, vector<d
 	for (size_t i = 0; i < p1.size(); i++) {
 		p1[i] = accumulate(jointpdf[i].begin(), jointpdf[i].end(), 0.0);
 		for (size_t j = 0; j < p2.size(); j++) {
-			p2[i] += jointpdf[i][j];
+			p2[j] += jointpdf[i][j];
 		}
 	}
 }
