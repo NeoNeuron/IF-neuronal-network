@@ -8,6 +8,7 @@
 #include "../include/io.h"
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <algorithm>
 #include <iomanip>
 #include <cstdlib>
@@ -96,31 +97,28 @@ void LFP(double* t_range, vector<int> & neuron_list, string potential_path, stri
 	double temp_potential, temp_e_conductance, temp_i_conductance;
 	double temp_lfp;
 	int neuron_list_counter;
-	string::size_type pos_potential, pos_e_conductance, pos_i_conductance;
+	string buffer_potential, buffer_econd, buffer_icond;
 	for (int i = t_begin; i < t_end; i++) {
 		getline(potential_in_file, s_potential);
 		getline(excitatory_conductance_in_file, s_e_conductance);
 		getline(inhibitory_conductance_in_file, s_i_conductance);
+		stringstream ipotential(s_potential);
+		stringstream iecond(s_e_conductance);
+		stringstream iicond(s_i_conductance);
 		neuron_list_counter = 0;
 		temp_lfp = 0;
 		for (int j = 0; j < neuron_list.back() + 1; j ++) {
-			pos_potential = s_potential.find_first_of(',', 0);
-			pos_e_conductance = s_e_conductance.find_first_of(',', 0);
-			pos_i_conductance = s_i_conductance.find_first_of(',', 0);
+			getline(ipotential, buffer_potential, ',');
+			getline(iecond, buffer_econd, ',');
+			getline(iicond, buffer_icond, ',');
 
 			if (j == neuron_list[neuron_list_counter]) {
-				ss = s_potential.substr(0, pos_potential);
-				temp_potential = atof(ss.c_str());
-				ss = s_e_conductance.substr(0, pos_e_conductance);
-				temp_e_conductance = atof(ss.c_str());
-				ss = s_i_conductance.substr(0, pos_i_conductance);
-				temp_i_conductance = atof(ss.c_str());
+				temp_potential = atof(buffer_potential.c_str());
+				temp_e_conductance = atof(buffer_econd.c_str());
+				temp_i_conductance = atof(buffer_icond.c_str());
 				temp_lfp += -leaky_conductance * (temp_potential - leaky_reversal_potential) - temp_e_conductance * (temp_potential - excitatory_reversal_potential) - temp_i_conductance * (temp_potential - inhibitory_reversal_potential);
 				neuron_list_counter ++;
 			}
-			s_potential.erase(0, pos_potential + 1);
-			s_e_conductance.erase(0, pos_e_conductance + 1);
-			s_i_conductance.erase(0, pos_i_conductance + 1);
 			if (neuron_list_counter == neuron_list.size()) break;
 		}
 		lfp[i - t_begin] = temp_lfp / neuron_list.size();
@@ -151,7 +149,6 @@ void LFP(double* t_range, vector<int> & neuron_list, string current_path, vector
 
 	// Load potential file and conductance files;
 	string s_current;
-	string ss;
 	// For t = [0, t_begin];
 	// cout << ">> Loading ... " << endl;
 	ifstream current_in_file;
@@ -162,23 +159,20 @@ void LFP(double* t_range, vector<int> & neuron_list, string current_path, vector
 	// For t = (t_begin, t_end]
 	char cr = (char)13;
 	double current_progress;
-	double temp_current;
 	double temp_lfp;
-	int neuron_list_counter;
-	string::size_type pos_current;
+	size_t neuron_list_counter;
+	string buffer;
 	for (int i = t_begin; i < t_end; i++) {
 		getline(current_in_file, s_current);
+		stringstream icurrent(s_current);
 		neuron_list_counter = 0;
 		temp_lfp = 0;
 		for (int j = 0; j < neuron_list.back() + 1; j ++) {
-			pos_current = s_current.find_first_of(',', 0);
+			getline(icurrent, buffer, ',');
 			if (j == neuron_list[neuron_list_counter]) {
-				ss = s_current.substr(0, pos_current);
-				temp_current = atof(ss.c_str());
-				temp_lfp += temp_current;
+				temp_lfp += atof(buffer.c_str());
 				neuron_list_counter ++;
 			}
-			s_current.erase(0, pos_current + 1);
 			if (neuron_list_counter == neuron_list.size()) break;
 		}
 		lfp[i - t_begin] = temp_lfp / neuron_list.size();
