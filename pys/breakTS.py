@@ -5,7 +5,7 @@ import sys
 
 dt = 0.03125 # time step of sampling
 dT = 0.125 # time step of analysis
-auto_time_scale = 40 # unit millisecond
+auto_time_scale = 10 # unit millisecond
 spike_ind = sys.argv[1]
 lfp_ind = sys.argv[2]
 

@@ -76,7 +76,6 @@ void JointPDF(vector<bool>& binary_spikes, vector<double>& lfp, size_t bin_num, 
 		if (binary_spikes[i]) jointpdf[1][ind] += 1.0 / num_pairs;
 		else jointpdf[0][ind] += 1.0 / num_pairs;
 	}
-	cout << jointpdf.begin() -> front() << endl;
 }
 
 void MarginalPDF(vector<vector<double> >& jointpdf, vector<double>& p1, vector<double>& p2) {
@@ -107,7 +106,7 @@ double MI(vector<bool>& x, vector<bool>& y) {
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 2; j++) {
 				if (abs(joint_xy[i][j]) < 1e-20) {
-					mi += joint_xy[i][j]*log(joint_xy[i][j] / px[i] / py[j]);
+					mi += joint_xy[i][j]*log(joint_xy[i][j] / (px[i] * py[j]));
 				}
 			}
 		}
@@ -133,10 +132,11 @@ double MI(vector<double>& x, vector<double>& y, size_t x_bin_num, size_t y_bin_n
 		for (size_t i = 0; i < px.size(); i++) {
 			for (size_t j = 0; j < py.size(); j++) {
 				if (abs(jointpdf[i][j]) < 1e-20) {
-					mi += jointpdf[i][j] * log(jointpdf[i][j] / px[i] / py[j]);
+					mi += jointpdf[i][j] * log(jointpdf[i][j] / (px[i] * py[j]));
 				}
 			}
 		}
+		if (abs(mi) < 1e-15) mi = 0;
 		return mi;
 	}
 }
@@ -159,11 +159,12 @@ double MI(vector<bool>& bool_series, vector<double>& double_series, int bin_num)
 		double mi = 0.0; // Pxy = P(x,y);
 		for (int i = 0; i< 2; i++) {
 			for (int j = 0; j< bin_num; j++) {
-				if (abs(jointpdf[i][j]) < 1e-20) {
-					mi += jointpdf[i][j] *log(jointpdf[i][j] / p_spike[i] / p_double[j]);
+				if (jointpdf[i][j] != 0) {
+					mi += jointpdf[i][j] *log(jointpdf[i][j] / (p_spike[i] * p_double[j]));
 				}
 			}
 		}
+		if (abs(mi) < 1e-15) mi = 0;
 		return mi;
 	}
 }
