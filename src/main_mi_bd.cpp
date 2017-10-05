@@ -6,6 +6,7 @@
 //***************
 #include "../include/mi_uniform.h"
 #include "../include/io.h"
+#include "../include/vecmanip.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -27,21 +28,39 @@ int main(int argc, const char* argv[]) {
 	clock_t start, finish;
 	start = clock();
 	// INPUT NEURONAL DATA:
-	vector<vector<bool> > bool_series;
-	vector<vector<double> > double_series;
-	Read2D(argv[1], bool_series);
-	Read2D(argv[2], double_series);
+	vector<bool> bool_series;
+	vector<double> double_series;
+	Read1D(argv[1], bool_series, 0, 1);
+	Read1D(argv[2], double_series, 0, 1);
+	double autoscale = 20; // with unit millisecond;
+	double dt = 0.5;
+	size_t length = floor(autoscale / dt);
+	cout << length << '\n';
+	size_t N = floor(bool_series.size() / length);
+	if (bool_series.begin() + length*N != bool_series.end()) {
+		bool_series.erase(bool_series.begin() + length*N, bool_series.end());
+		double_series.erase(double_series.begin() + length*N, double_series.end());
+	}
+	size_t shape[2];
+	shape[0] = N;
+	shape[1] = length;
+	vector<vector<bool> > boolmat, newboolmat;
+	vector<vector<double> > doublemat, newdoublemat;
+	Reshape(bool_series, boolmat, shape);
+	Reshape(double_series, doublemat, shape);
+	Transpose(boolmat, newboolmat);
+	Transpose(doublemat, newdoublemat);
 	// Set time range;
 	size_t indx = atoi(argv[3]);
 	string range = argv[4];
-	string::size_type pos = range.find_first_of(',', 0 );
+	string::size_type pos = range.find_first_of(',', 0);
 	int negative_time_delay = atoi(range.substr(0, pos).c_str());
 	range.erase(0, pos + 1);
 	int positive_time_delay = atoi(range.c_str());
 	range = "";
 
-	vector<bool> bool_copy = bool_series[indx];
-	vector<vector<double> > double_copy(double_series.begin() + indx - negative_time_delay, double_series.begin() + indx + positive_time_delay + 1);
+	vector<bool> bool_copy = newboolmat[indx];
+	vector<vector<double> > double_copy(newdoublemat.begin() + indx - negative_time_delay, newdoublemat.begin() + indx + positive_time_delay + 1);
 
 	size_t bin_num = atoi(argv[5]);
 	vector<double> tdmi;

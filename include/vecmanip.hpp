@@ -31,16 +31,16 @@ template <class T> T Pi(vector<T> data) {
   return pi;
 }
 
-template <class T> bool Reshape(vector<T>& data, vector<vector<T> >& newdata, vector<int>& shape) {
-  size_t length = Pi(shape);
+template <class T> bool Reshape(vector<T>& data, vector<vector<T> >& newdata, size_t* shape) {
+  size_t length = *shape*(*(shape + 1));
   if (data.size() != length) return false;
-  else if (shape.size() == 2) {
+  else {
     newdata.resize(shape[0], vector<T>(shape[1]));
     for (size_t i = 0; i < shape[0]; i ++) {
       for (size_t j = 0; j < shape[1]; j ++) {
-        newdata[i][j] = data[i*shape[0] + j];
+        newdata[i][j] = data[i*shape[1] + j];
       }
     }
     return true;
-  } else return false;
+  }
 }
