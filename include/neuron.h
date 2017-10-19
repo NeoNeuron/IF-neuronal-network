@@ -167,8 +167,8 @@ public:
 		tau_ = 2.0;
 		resting_potential_ = 0;
 		threshold_potential_ = 1;
-		excitatory_reversal_potential_ = 14 / 3;
-		inhibitory_reversal_potential_ = -2 / 3;
+		excitatory_reversal_potential_ = 14.0 / 3;
+		inhibitory_reversal_potential_ = -2.0 / 3;
 		feedforward_excitatory_intensity_ = 5e-3;
 		feedforward_inhibitory_intensity_ = 5e-3;
 		pyramidal_synaptic_intensity_ = 5e-3;
