@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <cstdlib>
 #include <ctime>
+#include <cmath>
 using namespace std;
 
 bool comp(const int x, const int y) {
@@ -158,7 +159,7 @@ void LFP(double* t_range, vector<int> & neuron_list, string current_path, vector
 	}
 	// For t = (t_begin, t_end]
 	char cr = (char)13;
-	double current_progress;
+	int current_progress;
 	double temp_lfp;
 	size_t neuron_list_counter;
 	string buffer;
@@ -176,10 +177,12 @@ void LFP(double* t_range, vector<int> & neuron_list, string current_path, vector
 			if (neuron_list_counter == neuron_list.size()) break;
 		}
 		lfp[i - t_begin] = temp_lfp / neuron_list.size();
-		cout << cr << ">> Processing ... ";
-		current_progress = (i - t_begin + 1)*100.0/size_of_lfp;
-		printf("%.2f", current_progress);
-		cout << "%";
+		if (floor((i - t_begin + 1)*100.0/size_of_lfp - current_progress)) {
+			current_progress ++;
+			cout << cr << ">> Processing ... ";
+			printf("%d", current_progress);
+			cout << "%";
+		}
 	}
 	current_in_file.close();
 	cout << endl;
