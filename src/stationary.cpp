@@ -24,7 +24,15 @@ void Rule2(vector<vector<double> > & data, vector<vector<double> >& covs, size_t
   }
 }
 
-void AC(vector<double>& data, vector<double>& ac, size_t num_lag){
+void AutoCov(vector<vector<double> >& data, vector<double>& ac){
+  ac.resize(data.size());
+  vector<double> data_copy = data[0];
+  for (size_t i = 0; i < data.size(); i ++) {
+    ac[i] = Cov(data_copy, data[i]);
+  }
+}
+
+void AutoCov(vector<double>& data, vector<double>& ac, size_t num_lag){
   ac.resize(num_lag + 1);
   ac[0] = Cov(data, data);
   vector<double> data_copy_1 = data;

@@ -336,3 +336,14 @@ Finished Report of Week 3 & 4
 - Y[i] = -0.1 * X[i - 1] + GaussKernel();
 
 ### Add API of joint probability distribution output;
+
+# 2017-10-31
+## TODO
+- Recheck the stationary test.
+- Test whether the autocorrelating time is influenced by interaction strength or not; [Check postsynaptic neuron]
+- Draw a graph of mi and random_mi based on two neuron system;
+- Draw a series of mi graph with different timing step;
+
+- Draw histogram of LFP;
+- Theory to explain the graph;
+- design a external term as synaptic input for postsynaptic neuron;

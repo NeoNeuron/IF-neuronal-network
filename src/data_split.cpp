@@ -20,6 +20,6 @@ int main(int argc, const char* argv[]) {
 	Read1D(argv[1], x, 0, 0);
 	Print1D(argv[2], x, "app", 0);
 	Read1D(argv[1], x, 1, 0);
-	Print1D(argv[2], x, "app", 0);
+	Print1D(argv[3], x, "app", 0);
 	return 0;
 }

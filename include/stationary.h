@@ -52,10 +52,15 @@ void Stds(vector<vector<double> > & data, vector<double>& stds);
 // Return: None;
 void Rule2(vector<vector<double> > & data, vector<vector<double> >& covs, size_t maxlag);
 
+// Autocovariance of time series;
+// VECTOR<VECTOR<double> > data;
+// VECTOR<double> ac:
+void AutoCov(vector<vector<double> >& data, vector<double>& ac);
+
 // Autocovariance of wide-sense stationary time series;
 // VECTOR<double> data;
 // VECTOR<double> ac:
 // INT num_lag: number of timelag of autocovariance;
-void AC(vector<double>& data, vector<double>& ac, size_t num_lag);
+void AutoCov(vector<double>& data, vector<double>& ac, size_t num_lag);
 
 #endif

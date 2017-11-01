@@ -12,6 +12,7 @@ s_dir = [saving_dir + str(element) + '/' for element in s]
 # locate the position of target setting;
 indx = 28
 mis = np.zeros(len(s))
+mis_ind = np.zeros(len(s))
 counter = 0
 for si in s_dir:
     # copy data to working directory;
@@ -24,12 +25,14 @@ for si in s_dir:
     subprocess.call(['./bin/spike.out', './data/tmp/raster.csv', './data/tmp/singleSpike.csv', str(spike_ind), '500,600000', str(dt)])
     subprocess.call(['./bin/lfp.out', './data/tmp/I.csv', './data/tmp/singleI.csv', str(lfp_ind), '500,600000', str(dt)])
     # excute mutual info calculation program;
-    subprocess.call(['./bin/mi_bd.out', tmp_dir + 'singleSpike.csv', tmp_dir + 'singleI.csv', str(indx), '0,1', '500'])
+    subprocess.call(['./bin/mi_bd.out', tmp_dir + 'singleSpike.csv', tmp_dir + 'singleI.csv', str(indx), '3,5', '500'])
     # import data of mi_bd.csv
     mi = pd.read_csv('./data/mi/mi_bd.csv')
-    mis[counter] = mi['mi'][1]
+    mis[counter] = mi['mi'].max()
+    mis_ind = mi['mi'].argmax() - 3
     counter += 1
 
+print mis_ind
 plt.plot(s, mis)
 plt.xlabel('interaction intensity')
 plt.ylabel('mutual info')
