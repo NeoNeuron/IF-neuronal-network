@@ -55,7 +55,7 @@ void Rule2(vector<vector<double> > & data, vector<vector<double> >& covs, size_t
 // Autocovariance of time series;
 // VECTOR<VECTOR<double> > data;
 // VECTOR<double> ac:
-void AutoCov(vector<vector<double> >& data, vector<double>& ac);
+void AutoCov(vector<vector<double> >& data, vector<double>& ac, size_t indx, size_t len);
 
 // Autocovariance of wide-sense stationary time series;
 // VECTOR<double> data;

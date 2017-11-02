@@ -339,11 +339,12 @@ Finished Report of Week 3 & 4
 
 # 2017-10-31
 ## TODO
-- Recheck the stationary test.
-- Test whether the autocorrelating time is influenced by interaction strength or not; [Check postsynaptic neuron]
-- Draw a graph of mi and random_mi based on two neuron system;
-- Draw a series of mi graph with different timing step;
+- [x] Recheck the stationary test.
+- [x] Test whether the autocorrelating time is influenced by interaction strength or not; [Check postsynaptic neuron]
+- [x] Add tunning curve option for total length of calculation;
+- [ ] Draw a graph of mi and random_mi based on two neuron system;
+- [ ] Draw a series of mi graph with different timing step;
 
-- Draw histogram of LFP;
-- Theory to explain the graph;
-- design a external term as synaptic input for postsynaptic neuron;
+- [ ] Draw histogram of LFP;
+- [ ] Theory to explain the graph;
+- [ ] design a external term as synaptic input for postsynaptic neuron;
