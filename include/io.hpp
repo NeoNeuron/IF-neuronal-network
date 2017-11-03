@@ -21,9 +21,11 @@ template <class T> void Read2D(string path, vector<vector<T> >& data) {
 	ifstream ifile(path.c_str());
 	string s, buffer;
 	vector<T> add_T;
+  istringstream s_input;
 	while (getline(ifile, s)) {
 		add_T.clear();
-    istringstream s_input(s);
+    s_input.str("");
+    s_input.str(s);
 		while (getline(s_input, buffer, ',')) {
       if (buffer.find('.') == string::npos) {
         add_T.push_back(atoi(buffer.c_str()));
@@ -41,9 +43,11 @@ template <class T> void Read1D(string path, vector<T>& data, int index, int axis
   if (axis == 0) {
   	string s, buffer;
   	int getline_counter = 0;
+    istringstream s_input;
   	while (getline(ifile, s)) {
   		if (getline_counter == index) {
-  			istringstream s_input(s);
+  		  s_input.str("");
+        s_input.str(s);
   			while (getline(s_input, buffer, ',')) {
   				if (buffer.find('.') == string::npos) {
             data.push_back(atoi(buffer.c_str()));
@@ -55,9 +59,11 @@ template <class T> void Read1D(string path, vector<T>& data, int index, int axis
   } else {
   	string s, buffer;
   	int column_counter;
+    istringstream s_input;
   	while (getline(ifile, s)) {
 			column_counter = 0;
-      istringstream s_input(s);
+      s_input.str("");
+      s_input.str(s);
 			while (getline(s_input, buffer, ',')) {
   			if (column_counter == index) {
 					if (buffer.find('.') == string::npos) {
@@ -76,11 +82,14 @@ template <class T> void Print2D(string path, vector<vector<T> >& data, string mo
 	ofstream ofile;
 	if (mode == "app") ofile.open(path.c_str(), ios::app);
 	else if (mode == "trunc") ofile.open(path.c_str());
+  ostringstream s_out;
 	for (typename vector<vector<T> >::iterator it = data.begin(); it != data.end(); it++) {
+    s_out.str("");
 		for (typename vector<T>::iterator itt = it->begin(); itt != it->end(); itt++) {
-			ofile << setprecision(15) << *itt << ',';
+			s_out << setprecision(15) << *itt << ',';
 		}
-		ofile << '\n';
+		s_out << '\n';
+    ofile << s_out.str();
 	}
 	ofile.close();
 }
@@ -89,15 +98,18 @@ template <class T> void Print1D(string path, vector<T>& data, string mode, int a
 	ofstream ofile;
 	if (mode == "app") ofile.open(path.c_str(), ios::app);
 	else if (mode == "trunc") ofile.open(path.c_str());
+  ostringstream s_out;
 	if (axis == 0) {
 		for (typename vector<T>::iterator it = data.begin(); it != data.end(); it++) {
-			ofile << setprecision(15) << *it << ',';
+			s_out << setprecision(15) << *it << ',';
 		}
-		ofile << '\n';
+		s_out << '\n';
+    ofile << s_out.str();
 	} else {
 		for (typename vector<T>::iterator it = data.begin(); it != data.end(); it++) {
-			ofile << setprecision(15) << *it << '\n';
+			s_out << setprecision(15) << *it << '\n';
 		}
+    ofile << s_out.str();
 	}
 	ofile.close();
 }
