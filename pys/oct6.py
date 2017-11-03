@@ -3,7 +3,7 @@ import subprocess
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-s=[0.004, 0.005, 0.006, 0.007, 0.008, 0.009, 0.01, 0.011, 0.012, 0.013, 0.014]
+s = np.arange(0.005, 0.015, 0.0005)
 
 # prepare path of data;
 tmp_saving = './data/tmp/'
@@ -34,7 +34,7 @@ for si in s:
     mi = pd.read_csv('./data/mi/mi_bd.csv')
     mis[counter] = mi['mi'][1]
     # prepare new directory of new data;
-    subprocess.call(['mkdir', saving_dir+str(si)])
+    # subprocess.call(['mkdir', saving_dir+str(si)])
     subprocess.call(['mv', tmp_saving + 'I.csv', saving_dir + str(si) + '/'])
     subprocess.call(['mv', tmp_saving + 'raster.csv', saving_dir + str(si) + '/'])
 print s

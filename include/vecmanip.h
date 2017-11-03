@@ -18,7 +18,7 @@ template <class T> T Pi(vector<T> data);
 // VECTOR<T> data: original data;
 // VECTOR<T> newdata: new data;
 // SIZE_T* shape: sizes of 2-d vectors;
-template <class T> bool Reshape(vector<T>& data, vector<T>& newdata, size_t* shape);
+template <class T> bool Reshape(vector<T>& data, vector<vector<T> >& newdata, size_t* shape);
 
 #include "vecmanip.hpp"
 

@@ -330,7 +330,6 @@ Finished Report of Week 3 & 4
 
 
 # 2017-06-10
-
 ## Generating one way driven X and Y series with Gaussian noise;
 - X[i] = -0.1 * X[i - 1] + GaussKernel();
 - Y[i] = -0.1 * X[i - 1] + GaussKernel();
@@ -342,7 +341,7 @@ Finished Report of Week 3 & 4
 - [x] Recheck the stationary test.
 - [x] Test whether the autocorrelating time is influenced by interaction strength or not; [Check postsynaptic neuron]
 - [x] Add tunning curve option for total length of calculation;
-- [ ] Draw a graph of mi and random_mi based on two neuron system;
+- [x] Draw a graph of mi and random_mi based on two neuron system;
 - [ ] Draw a series of mi graph with different timing step;
 
 - [ ] Draw histogram of LFP;
