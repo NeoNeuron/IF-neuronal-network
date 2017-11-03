@@ -9,6 +9,7 @@
 #include "../include/vecmanip.h"
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <iomanip>
 #include <ctime>
 #include <cmath>
@@ -52,12 +53,12 @@ int main(int argc, const char* argv[]) {
 	Transpose(doublemat, newdoublemat);
 	// Set time range;
 	size_t indx = atoi(argv[3]);
-	string range = argv[4];
-	string::size_type pos = range.find_first_of(',', 0);
-	int negative_time_delay = atoi(range.substr(0, pos).c_str());
-	range.erase(0, pos + 1);
-	int positive_time_delay = atoi(range.c_str());
-	range = "";
+	istringstream range_in(argv[4]);
+	string buffer;
+	getline(range_in, buffer, ',');
+	int negative_time_delay = atoi(buffer.c_str());
+	getline(range_in, buffer, ',');
+	int positive_time_delay = atoi(buffer.c_str());
 
 	vector<bool> bool_copy = newboolmat[indx];
 	vector<vector<double> > double_copy(newdoublemat.begin() + indx - negative_time_delay, newdoublemat.begin() + indx + positive_time_delay + 1);
@@ -78,8 +79,6 @@ int main(int argc, const char* argv[]) {
 
 	finish = clock();
 	// Time counting:
-	double ToTtime;
-	ToTtime = (finish - start) / CLOCKS_PER_SEC;
-	cout << "It takes " << (double)ToTtime << "s" << endl;
+	cout << "It takes " << (finish - start)*1.0 / CLOCKS_PER_SEC << "s" << endl;
 	return 0;
 }
