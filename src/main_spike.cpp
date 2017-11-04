@@ -9,7 +9,7 @@
 #include "../include/io.h"
 #include "../include/spike.h"
 using namespace std;
-int myrandom(int i) {return rand()%i;};
+int myrandom(int i) {return rand()%i;}
 // Arguments:
 // argv[1] = path of the raster data file;
 // argv[2] = path of output raster file;

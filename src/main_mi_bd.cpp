@@ -23,9 +23,10 @@ using namespace std;
 //	argv[2] = path for double series;
 //  argv[3] = index of x variable;
 //	argv[4] = range of timelag;
-//	argv[5] = bin number of pdf of the double variable;
+//	argv[5] = size of timing step;
+//	argv[6] = bin number of pdf of the double variable;
 int main(int argc, const char* argv[]) {
-	if (argc != 6) throw runtime_error("wrong number of args");
+	if (argc != 7) throw runtime_error("wrong number of args");
 	clock_t start, finish;
 	start = clock();
 	// INPUT NEURONAL DATA:
@@ -34,7 +35,7 @@ int main(int argc, const char* argv[]) {
 	Read1D(argv[1], bool_series, 0, 1);
 	Read1D(argv[2], double_series, 0, 1);
 	double autoscale = 20; // with unit millisecond;
-	double dt = 0.5;
+	double dt = atof(argv[5]);
 	size_t length = floor(autoscale / dt);
 	cout << length << '\n';
 	size_t N = floor(bool_series.size() / length);
@@ -63,7 +64,7 @@ int main(int argc, const char* argv[]) {
 	vector<bool> bool_copy = newboolmat[indx];
 	vector<vector<double> > double_copy(newdoublemat.begin() + indx - negative_time_delay, newdoublemat.begin() + indx + positive_time_delay + 1);
 
-	size_t bin_num = atoi(argv[5]);
+	size_t bin_num = atoi(argv[6]);
 	vector<double> tdmi;
 	TDMI(bool_copy, double_copy, tdmi, bin_num);
 

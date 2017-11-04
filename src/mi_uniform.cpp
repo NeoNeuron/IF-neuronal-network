@@ -131,7 +131,7 @@ double MI(vector<double>& x, vector<double>& y, size_t x_bin_num, size_t y_bin_n
 		double mi = 0.0;
 		for (size_t i = 0; i < px.size(); i++) {
 			for (size_t j = 0; j < py.size(); j++) {
-				if (abs(jointpdf[i][j]) < 1e-20) {
+				if (jointpdf[i][j] != 0) {
 					mi += jointpdf[i][j] * log(jointpdf[i][j] / (px[i] * py[j]));
 				}
 			}

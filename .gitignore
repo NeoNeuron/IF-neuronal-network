@@ -15,3 +15,9 @@ results/*
 
 # ignore c/c++ objective files
 obj/*
+
+# ignore all tex intermediate files
+*.aux
+*.nav
+*.snm
+*.toc
