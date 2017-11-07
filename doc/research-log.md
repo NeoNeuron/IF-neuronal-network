@@ -346,8 +346,8 @@ Finished Report of Week 3 & 4
 
 - [ ] Draw histogram of LFP;
 - [ ] Theory to explain the graph;
-- [ ] design a external term as synaptic input for postsynaptic neuron;
+- [x] design a external term as synaptic input for postsynaptic neuron;
 
 # 2017-11-04
 ## TODO
-- [ ] different types of connection; one way and bidirected;
+- [x] different types of connection; one way and bidirected;
