@@ -105,7 +105,7 @@ double MI(vector<bool>& x, vector<bool>& y) {
 		double mi = 0.0;
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 2; j++) {
-				if (abs(joint_xy[i][j]) < 1e-20) {
+				if (joint_xy[i][j] != 0) {
 					mi += joint_xy[i][j]*log(joint_xy[i][j] / (px[i] * py[j]));
 				}
 			}
@@ -169,10 +169,26 @@ double MI(vector<bool>& bool_series, vector<double>& double_series, int bin_num)
 	}
 }
 
-void TDMI(vector<bool>& x, vector<vector<bool> >& y, vector<double> & tdmi) {
-	tdmi.resize(y.size(), 0);
-	for (size_t i = 0; i < y.size(); i++) {
-		tdmi[i] = MI(x, y[i]);
+void TDMI(vector<bool>& x, vector<bool>& y, vector<double> & tdmi, size_t* range) {
+	tdmi.clear();
+	tdmi.resize(range[0] + range[1] + 1, 0);
+	// No shift;
+	tdmi[range[0]] = MI(x, y);
+	// Negative shift;
+	vector<bool> x_copy = x;
+	vector<bool> y_copy = y;
+	for (int i = 0; i < range[0]; i++) {
+		x_copy.erase(x_copy.begin());
+		y_copy.erase(y_copy.end() - 1);
+		tdmi[range[0] - i - 1] = MI(x_copy, y_copy);
+	}
+	// Positive shift;
+	x_copy = x;
+	y_copy = y;
+	for (int i = 0; i < range[1]; i++) {
+		x_copy.erase(x_copy.end() - 1);
+		y_copy.erase(y_copy.begin());
+		tdmi[range[0] + i + 1] = MI(x_copy, y_copy);
 	}
 }
 
@@ -183,10 +199,59 @@ void TDMI(vector<double>& x, vector<vector<double> >& y, vector<double> & tdmi, 
 	}
 }
 
-void TDMI(vector<bool>& bool_series, vector<vector<double> >& double_series, vector<double>& tdmi, size_t bin_num) {
-	size_t reps_num = double_series.size() + 1;
-	tdmi.resize(reps_num, 0);
-	for (size_t i = 0; i < double_series.size(); i++) {
-		tdmi[i] = MI(bool_series, double_series[i], bin_num);
+void TDMI(vector<bool>& x, vector<double>& y, vector<double>& tdmi, size_t* range, size_t bin_num) {
+	tdmi.clear();
+	tdmi.resize(range[0] + range[1] + 1, 0);
+	// No shift;
+	tdmi[range[0]] = MI(x, y, bin_num);
+	// Negative shift;
+	vector<bool> x_copy = x;
+	vector<double> y_copy = y;
+	for (int i = 0; i < range[0]; i++) {
+		x_copy.erase(x_copy.begin());
+		y_copy.erase(y_copy.end() - 1);
+		tdmi[range[0] - i - 1] = MI(x_copy, y_copy, bin_num);
+	}
+	// Positive shift;
+	x_copy = x;
+	y_copy = y;
+	for (int i = 0; i < range[1]; i++) {
+		x_copy.erase(x_copy.end() - 1);
+		y_copy.erase(y_copy.begin());
+		tdmi[range[0] + i + 1] = MI(x_copy, y_copy, bin_num);
+	}
+}
+
+void TDMI(vector<bool>& x, vector<vector<double> >& y, vector<double>& tdmi, size_t bin_num) {
+	tdmi.resize(y.size(), 0);
+	for (size_t i = 0; i < y.size(); i ++) {
+		tdmi[i] = MI(x, y[i], bin_num);
+	}
+}
+
+void TDMI(vector<vector<bool> >& bool_series, vector<vector<double> >& double_series, vector<double>& tdmi, size_t* range, size_t bin_num) {
+	tdmi.resize(range[0] + range[1] + 1, 0);
+	double mi_tmp;
+	// Zero shift;
+	mi_tmp = 0;
+	for (size_t i = 0; i < bool_series.size(); i ++) {
+		mi_tmp += MI(bool_series[i], double_series[i], bin_num);
+	}
+	tdmi[range[0]] = mi_tmp / bool_series.size();
+	// Negative shift;
+	for (size_t i = 0; i < range[0]; i ++) {
+		mi_tmp = 0;
+		for (size_t j = 0; j < bool_series.size() - i - 1; j ++) {
+			mi_tmp += MI(bool_series[i + j], double_series[j], bin_num);
+		}
+		tdmi[range[0] - i - 1] = mi_tmp / (bool_series.size() - i - 1);
+	}
+	// Positive shift:
+	for (size_t i = 0; i < range[0]; i ++) {
+		mi_tmp = 0;
+		for (size_t j = 0; j < bool_series.size() - i - 1; j ++) {
+			mi_tmp += MI(bool_series[j], double_series[i + j], bin_num);
+		}
+		tdmi[range[0] + i + 1] = mi_tmp / (bool_series.size() - i - 1);
 	}
 }

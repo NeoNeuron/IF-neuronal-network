@@ -59,12 +59,18 @@ double MI(vector<double>& x, vector<double>& y, size_t x_bin_num, size_t y_bin_n
 double MI(vector<bool>& bool_series, vector<double>& double_series, int num_bin);
 
 // Time-delayed mutual information between two spike trains;
-void TDMI(vector<bool>& x, vector<vector<bool> >& y, vector<double> & tdmi);
+void TDMI(vector<bool>& x, vector<bool>& y, vector<double> & tdmi, size_t* range);
 
 // Delayed mutual information of two double series, wiht adaptive partition;
 void TDMI(vector<double>& x, vector<vector<double> >& y, vector<double>& tdmi, size_t x_bin_num, size_t y_bin_num);
 
+// Delayed mutual information of spike train and LFP with direct scheme;
+void TDMI(vector<bool>& x, vector<double>& y, vector<double>& tdmi, size_t* range, size_t bin_num);
+
+// Delayed mutual information of spike train and LFP with partial autocovariance scheme;
+void TDMI(vector<bool>& x, vector<vector<double> >& y, vector<double>& tdmi, size_t bin_num);
+
 // Delayed mutual information of spiking train and LFP, with adaptive partitions;
-void TDMI(vector<bool>& bool_series, vector<vector<double> >& double_series, vector<double> & tdmi, size_t bin_num);
+void TDMI(vector<vector<bool> >& bool_series, vector<vector<double> >& double_series, vector<double> & tdmi, size_t* range, size_t bin_num);
 
 #endif // _IFNET_MI_UNIFORM_H_

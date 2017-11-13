@@ -9,11 +9,12 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <algorithm>
 #include <ctime>
 #include <stdexcept>
 
 using namespace std;
-int myrandom(int i) {return rand()i;}
+int myrandom(int i) {return rand()%i;}
 // compact function to calculate mutual information between multi-type signal
 //	arguments:
 //	argv[1] = path for time series x, m by n, indicate m variables with n trials;
@@ -57,7 +58,7 @@ int main(int argc, const char* argv[]) {
 	data_out.open("./data/mi/mi_dd.csv");
 	data_out << "timelag,mi,mi_shuffle" << endl;
 	for (int i = 0; i < negative_time_delay + positive_time_delay + 1; i++) {
-		data_out << (i - negative_time_delay) << ',' << tdmi[i] << ',' tdmi_shuffle[i] << endl;
+		data_out << (i - negative_time_delay) << ',' << tdmi[i] << ',' << tdmi_shuffle[i] << endl;
 	}
 	data_out.close();
 

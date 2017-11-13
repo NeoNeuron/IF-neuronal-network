@@ -21,12 +21,11 @@ using namespace std;
 //	arguments:
 //	argv[1] = path for bool series;
 //	argv[2] = path for double series;
-//  argv[3] = index of x variable;
-//	argv[4] = range of timelag;
-//	argv[5] = size of timing step;
-//	argv[6] = bin number of pdf of the double variable;
+//	argv[3] = range of timelag;
+//	argv[4] = size of timing step;
+//	argv[5] = bin number of pdf of the double variable;
 int main(int argc, const char* argv[]) {
-	if (argc != 7) throw runtime_error("wrong number of args");
+	if (argc != 6) throw runtime_error("wrong number of args");
 	clock_t start, finish;
 	start = clock();
 	// INPUT NEURONAL DATA:
@@ -35,9 +34,8 @@ int main(int argc, const char* argv[]) {
 	Read1D(argv[1], bool_series, 0, 1);
 	Read1D(argv[2], double_series, 0, 1);
 	double autoscale = 20; // with unit millisecond;
-	double dt = atof(argv[5]);
+	double dt = atof(argv[4]);
 	size_t length = floor(autoscale / dt);
-	cout << length << '\n';
 	size_t N = floor(bool_series.size() / length);
 	if (bool_series.begin() + length*N != bool_series.end()) {
 		bool_series.erase(bool_series.begin() + length*N, bool_series.end());
@@ -53,28 +51,33 @@ int main(int argc, const char* argv[]) {
 	Transpose(boolmat, newboolmat);
 	Transpose(doublemat, newdoublemat);
 	// Set time range;
-	size_t indx = atoi(argv[3]);
-	istringstream range_in(argv[4]);
+	size_t range[2];
+	istringstream range_in(argv[3]);
 	string buffer;
 	getline(range_in, buffer, ',');
-	int negative_time_delay = atoi(buffer.c_str());
+	int ntd = atoi(buffer.c_str());
+	range[0] = ntd;
 	getline(range_in, buffer, ',');
-	int positive_time_delay = atoi(buffer.c_str());
+	int ptd = atoi(buffer.c_str());
+	range[1] = ptd;
 
-	vector<bool> bool_copy = newboolmat[indx];
-	vector<vector<double> > double_copy(newdoublemat.begin() + indx - negative_time_delay, newdoublemat.begin() + indx + positive_time_delay + 1);
+	// size_t indx = 20;
+	// vector<bool> bool_copy = newboolmat[indx];
+	// vector<vector<double> > double_copy(newdoublemat.begin() + indx - ntd, newdoublemat.begin() + indx + ptd + 1);
 
-	size_t bin_num = atoi(argv[6]);
+	size_t bin_num = atoi(argv[5]);
 	vector<double> tdmi;
-	TDMI(bool_copy, double_copy, tdmi, bin_num);
+	TDMI(newboolmat, newdoublemat, tdmi, range, bin_num);
+	// TDMI(bool_copy, double_copy, tdmi, bin_num);
+	// TDMI(bool_series, double_series, tdmi, range, bin_num);
 
 	//	Output data:
 	ofstream data_out;
 	cout << ">> Outputing data ... " << endl;
 	data_out.open("./data/mi/mi_bd.csv");
 	data_out << "timelag,mi" << endl;
-	for (int i = 0; i < negative_time_delay + positive_time_delay + 1; i++) {
-		data_out << (i - negative_time_delay) << ',' << (double)tdmi[i] << '\n';
+	for (int i = 0; i < ntd + ptd + 1; i++) {
+		data_out << i - ntd << ',' << (double)tdmi[i] << '\n';
 	}
 	data_out.close();
 
