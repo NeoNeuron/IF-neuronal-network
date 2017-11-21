@@ -11,6 +11,7 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <cstring>
 #include <ctime>
 #include <cmath>
 #include <algorithm>
@@ -24,8 +25,9 @@ using namespace std;
 //	argv[3] = range of timelag;
 //	argv[4] = size of timing step;
 //	argv[5] = bin number of pdf of the double variable;
+//	argv[6] = mutual info calculation algorithms; 'direct', 'partial' or 'full';
 int main(int argc, const char* argv[]) {
-	if (argc != 6) throw runtime_error("wrong number of args");
+	if (argc != 7) throw runtime_error("wrong number of args");
 	clock_t start, finish;
 	start = clock();
 	// INPUT NEURONAL DATA:
@@ -33,23 +35,6 @@ int main(int argc, const char* argv[]) {
 	vector<double> double_series;
 	Read1D(argv[1], bool_series, 0, 1);
 	Read1D(argv[2], double_series, 0, 1);
-	double autoscale = 20; // with unit millisecond;
-	double dt = atof(argv[4]);
-	size_t length = floor(autoscale / dt);
-	size_t N = floor(bool_series.size() / length);
-	if (bool_series.begin() + length*N != bool_series.end()) {
-		bool_series.erase(bool_series.begin() + length*N, bool_series.end());
-		double_series.erase(double_series.begin() + length*N, double_series.end());
-	}
-	size_t shape[2];
-	shape[0] = N;
-	shape[1] = length;
-	vector<vector<bool> > boolmat, newboolmat;
-	vector<vector<double> > doublemat, newdoublemat;
-	Reshape(bool_series, boolmat, shape);
-	Reshape(double_series, doublemat, shape);
-	Transpose(boolmat, newboolmat);
-	Transpose(doublemat, newdoublemat);
 	// Set time range;
 	size_t range[2];
 	istringstream range_in(argv[3]);
@@ -60,16 +45,41 @@ int main(int argc, const char* argv[]) {
 	getline(range_in, buffer, ',');
 	int ptd = atoi(buffer.c_str());
 	range[1] = ptd;
-
-	// size_t indx = 20;
-	// vector<bool> bool_copy = newboolmat[indx];
-	// vector<vector<double> > double_copy(newdoublemat.begin() + indx - ntd, newdoublemat.begin() + indx + ptd + 1);
-
+	// Calculate mutual information;
 	size_t bin_num = atoi(argv[5]);
 	vector<double> tdmi;
-	TDMI(newboolmat, newdoublemat, tdmi, range, bin_num);
-	// TDMI(bool_copy, double_copy, tdmi, bin_num);
-	// TDMI(bool_series, double_series, tdmi, range, bin_num);
+	if (strcmp(argv[6], "direct") == 0) {
+		TDMI(bool_series, double_series, tdmi, range, bin_num);
+	} else {
+		// autocovariance operations;
+		double autoscale = 20; // with unit millisecond;
+		double dt = atof(argv[4]);
+		size_t length = floor(autoscale / dt);
+		size_t N = floor(bool_series.size() / length);
+		if (bool_series.begin() + length*N != bool_series.end()) {
+			bool_series.erase(bool_series.begin() + length*N, bool_series.end());
+			double_series.erase(double_series.begin() + length*N, double_series.end());
+		}
+		size_t shape[2];
+		shape[0] = N;
+		shape[1] = length;
+		vector<vector<bool> > boolmat, newboolmat;
+		vector<vector<double> > doublemat, newdoublemat;
+		Reshape(bool_series, boolmat, shape);
+		Reshape(double_series, doublemat, shape);
+		Transpose(boolmat, newboolmat);
+		Transpose(doublemat, newdoublemat);
+		if (strcmp(argv[6], "full") == 0) {
+			TDMI(newboolmat, newdoublemat, tdmi, range, bin_num);
+		} else if (strcmp(argv[6], "partial") == 0) {
+			size_t indx = 20;
+			vector<bool> bool_copy = newboolmat[indx];
+			vector<vector<double> > double_copy(newdoublemat.begin() + indx - ntd, newdoublemat.begin() + indx + ptd + 1);
+			TDMI(bool_copy, double_copy, tdmi, bin_num);
+		} else {
+			throw runtime_error("incorrect algorithm choosing");
+		}
+	}
 
 	//	Output data:
 	ofstream data_out;

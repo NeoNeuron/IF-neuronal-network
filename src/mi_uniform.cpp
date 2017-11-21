@@ -200,24 +200,28 @@ void TDMI(vector<double>& x, vector<vector<double> >& y, vector<double> & tdmi, 
 }
 
 void TDMI(vector<bool>& x, vector<double>& y, vector<double>& tdmi, size_t* range, size_t bin_num) {
+	// initialize container of tdmi;
 	tdmi.clear();
 	tdmi.resize(range[0] + range[1] + 1, 0);
+	// prepare series;
+	size_t res = range[0];
+	if (res < range[1]) res = range[1];
+	vector<bool> x_copy(x.begin(), x.end() - res);
+	vector<double> y_copy(y.begin(), y.end() - res);
 	// No shift;
-	tdmi[range[0]] = MI(x, y, bin_num);
+	tdmi[range[0]] = MI(x_copy, y_copy, bin_num);
 	// Negative shift;
-	vector<bool> x_copy = x;
-	vector<double> y_copy = y;
 	for (int i = 0; i < range[0]; i++) {
 		x_copy.erase(x_copy.begin());
-		y_copy.erase(y_copy.end() - 1);
+		x_copy.insert(x_copy.end(), *(x.end() - res + i));
 		tdmi[range[0] - i - 1] = MI(x_copy, y_copy, bin_num);
 	}
 	// Positive shift;
-	x_copy = x;
-	y_copy = y;
+	x_copy.clear();
+	x_copy.insert(x_copy.end(), x.begin(), x.end() - res);
 	for (int i = 0; i < range[1]; i++) {
-		x_copy.erase(x_copy.end() - 1);
 		y_copy.erase(y_copy.begin());
+		y_copy.insert(y_copy.end(), *(y.end() - res + i));
 		tdmi[range[0] + i + 1] = MI(x_copy, y_copy, bin_num);
 	}
 }
@@ -239,19 +243,19 @@ void TDMI(vector<vector<bool> >& bool_series, vector<vector<double> >& double_se
 	}
 	tdmi[range[0]] = mi_tmp / bool_series.size();
 	// Negative shift;
-	for (size_t i = 0; i < range[0]; i ++) {
+	for (size_t i = 1; i < range[0] + 1; i ++) {
 		mi_tmp = 0;
-		for (size_t j = 0; j < bool_series.size() - i - 1; j ++) {
+		for (size_t j = 0; j < bool_series.size() - i; j ++) {
 			mi_tmp += MI(bool_series[i + j], double_series[j], bin_num);
 		}
-		tdmi[range[0] - i - 1] = mi_tmp / (bool_series.size() - i - 1);
+		tdmi[range[0] - i] = mi_tmp / (bool_series.size() - i);
 	}
 	// Positive shift:
-	for (size_t i = 0; i < range[0]; i ++) {
+	for (size_t i = 1; i < range[1] + 1; i ++) {
 		mi_tmp = 0;
-		for (size_t j = 0; j < bool_series.size() - i - 1; j ++) {
+		for (size_t j = 0; j < bool_series.size() - i; j ++) {
 			mi_tmp += MI(bool_series[j], double_series[i + j], bin_num);
 		}
-		tdmi[range[0] + i + 1] = mi_tmp / (bool_series.size() - i - 1);
+		tdmi[range[0] + i] = mi_tmp / (bool_series.size() - i);
 	}
 }
