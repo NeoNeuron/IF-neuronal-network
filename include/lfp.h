@@ -42,10 +42,4 @@ void LFP(double* t_range, vector<int> & neuron_list, string potential_path, stri
 //	Return: none;
 void LFP(double* t_range, vector<int> & neuron_list, string current_path, vector<double> &lfp);
 
-// 	Output LFP;
-//	Description: output LFP data to a given file;
-//	STRING path: output file name;
-//	Return: none;
-void OutLFP(string path, vector<double>& lfp);
-
 #endif // _IFNET_LFP_H_

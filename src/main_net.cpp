@@ -57,16 +57,42 @@ int main(int argc, const char* argv[]) {
 	cout << "in the network." << endl;
 
 	double maximum_time = atof(m_map_config["MaximumTime"].c_str());
-	bool type;
-	istringstream(m_map_config["DrivingType"]) >> boolalpha >> type;
-	net.SetDrivingType(type);
-	if (type) {
-		net.InitializeExternalPoissonProcess(true, atof(m_map_config["DrivingRateExcitatory"].c_str()), atof(m_map_config["DrivingRateInhibitory"].c_str()), maximum_time, atoi(m_map_config["ExternalDrivingSeed"].c_str()));
-		net.InitializeExternalPoissonProcess(false, 0, 0, maximum_time, 0);
+	bool driving_type, fwd_type;
+	istringstream(m_map_config["DrivingType"]) >> boolalpha >> driving_type;
+	istringstream(m_map_config["HomoDriving"]) >> boolalpha >> fwd_type;
+	vector<vector<double> > fwd_rates;
+	net.SetDrivingType(driving_type);
+	if (fwd_type) {
+		double rate_exc = atof(m_map_config["DrivingRateExcitatory"].c_str());
+		double rate_inh = atof(m_map_config["DrivingRateInhibitory"].c_str());
+		vector<bool> neuron_types;
+		net.GetNeuronType(neuron_types);
+		for (int i = 0; i < neuron_number; i ++) {
+			if (neuron_types[i]) {
+				fwd_rates[i].push_back(rate_exc);
+				fwd_rates[i].push_back(0.0);
+			} else {
+				fwd_rates[i].push_back(rate_inh);
+				fwd_rates[i].push_back(0.0);
+			}
+		}
+		if (driving_type) {
+			net.InitializeExternalPoissonProcess(fwd_rates, maximum_time, atoi(m_map_config["ExternalDrivingSeed"].c_str()));
+		} else {
+			srand(time(NULL));
+			net.InitializeInternalPoissonRate(fwd_rates);
+		}
 	} else {
-		srand(time(NULL));
-		net.InitializeInternalPoissonRate(true, atof(m_map_config["DrivingRateExcitatory"].c_str()));
+		// import the data file of feedforward driving rate:
+		Read2D("./doc/fwd_setting.csv", fwd_rates);
+		if (driving_type) {
+			net.InitializeExternalPoissonProcess(fwd_rates, maximum_time, atoi(m_map_config["ExternalDrivingSeed"].c_str()));
+		} else {
+			srand(time(NULL));
+			net.InitializeInternalPoissonRate(fwd_rates);
+		}
 	}
+
 	// Set driving strength;
 	net.SetF(true, atof(m_map_config["DrivingStrength"].c_str()));
 

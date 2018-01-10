@@ -67,54 +67,47 @@ void NeuronalNetwork::InitializeNeuronalType(double p, int seed) {
 	printf(">> %d excitatory and %d inhibitory neurons ", counter, neuron_number_-counter);
 }
 
-void NeuronalNetwork::InitializeInternalPoissonRate(bool function, double rate) {
+void NeuronalNetwork::InitializeInternalPoissonRate(vector<vector<double> >& rates) {
+	if (rates.size() != neuron_number_) {
+		cout << "Error inputing length! (Not equal to the number of neurons in the net)";
+		return;
+	}
 	for (int i = 0; i < neuron_number_; i++) {
-		neurons_[i].SetPoissonRate(function, rate);
+		neurons_[i].SetPoissonRate(true, rates[i][0]);
+		neurons_[i].SetPoissonRate(false, rates[i][1]);
 	}
 }
 
-void NeuronalNetwork::InitializeExternalPoissonProcess(bool function, double rate_excitatory, double rate_inhibitory, double tmax, int seed) {
+void NeuronalNetwork::InitializeExternalPoissonProcess(vector<vector<double> >& rates, double tmax, int seed) {
+	if (rates.size() != neuron_number_) {
+		cout << "Error inputing length! (Not equal to the number of neurons in the net)";
+		return;
+	}
 	vector<double> ADD;
 	ADD.push_back(0);
 	srand(seed);
 	double x; // temp random number;
 	double tLast; // last existing data point;
-	if (function == true) {
-		//ofstream external_poisson;
-		//external_poisson.open("external_poisson_new.txt");
-		external_excitatory_inputs_.resize(neuron_number_, ADD);
-		// for (int i = 0; i < neuron_number_; i++) {
-		// 	external_excitatory_inputs_.push_back(ADD);
-		// }
-		double rate;
-		for (int i = 0; i < neuron_number_; i++) {
-			tLast = external_excitatory_inputs_[i].front();
-			if (neurons_[i].GetNeuronalType() == true) rate = rate_excitatory;
-			else rate = rate_inhibitory;
-			while (tLast < tmax) {
-				x = rand() / (RAND_MAX + 1.0);
-				while (log(x) < -1e12) x = rand() / (RAND_MAX + 1.0);
-				tLast -= log(x) / rate;
-				external_excitatory_inputs_[i].push_back(tLast);
-				//external_poisson << (double)tLast << ",";
-			}
-			//external_poisson << endl;
+	double rate;
+	external_excitatory_inputs_.resize(neuron_number_, ADD);
+	external_inhibitory_inputs_.resize(neuron_number_, ADD);
+	for (int i = 0; i < neuron_number_; i++) {
+		rate = rates[i][0];
+		tLast = external_excitatory_inputs_[i].front();
+		while (tLast < tmax) {
+			x = rand() / (RAND_MAX + 1.0);
+			// while (log(x) < -1e12) x = rand() / (RAND_MAX + 1.0);
+			tLast -= log(x) / rate;
+			external_excitatory_inputs_[i].push_back(tLast);
 		}
-	} else {
-		external_inhibitory_inputs_.resize(neuron_number_, ADD);
-		// for (int i = 0; i < neuron_number_; i++) {
-		// 	external_inhibitory_inputs_.push_back(ADD);
-		// }
-		double rate;
-		for (int i = 0; i < neuron_number_; i++) {
-			if (neurons_[i].GetNeuronalType() == true) rate = rate_excitatory;
-			else rate = rate_inhibitory;
-			tLast = external_inhibitory_inputs_[i].front();
-			while (tLast < tmax) {
-				x = rand() / (RAND_MAX + 1.0);
-				tLast -= log(x) / rate;
-				external_inhibitory_inputs_[i].push_back(tLast);
-			}
+	}
+	for (int i = 0; i < neuron_number_; i++) {
+		rate = rates[i][1];
+		tLast = external_inhibitory_inputs_[i].front();
+		while (tLast < tmax) {
+			x = rand() / (RAND_MAX + 1.0);
+			tLast -= log(x) / rate;
+			external_inhibitory_inputs_[i].push_back(tLast);
 		}
 	}
 }

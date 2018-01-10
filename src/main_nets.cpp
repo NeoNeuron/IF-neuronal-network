@@ -71,10 +71,34 @@ int main(int argc, const char* argv[]) {
 	preNet.SetDrivingType(preType);
 	postNet.SetDrivingType(postType);
 	// Initialize external driving;
-	preNet.InitializeExternalPoissonProcess(true, atof(m_map_config["PreNetDrivingRateExcitatory"].c_str()), atof(m_map_config["PreNetDrivingRateInhibitory"].c_str()), maximum_time, atoi(m_map_config["PreNetExternalDrivingSeed"].c_str()));
-	preNet.InitializeExternalPoissonProcess(false, 0, 0, maximum_time, 0);
-	postNet.InitializeExternalPoissonProcess(true, atof(m_map_config["PostNetDrivingRateExcitatory"].c_str()), atof(m_map_config["PostNetDrivingRateInhibitory"].c_str()), maximum_time, atoi(m_map_config["PostNetExternalDrivingSeed"].c_str()));
-	postNet.InitializeExternalPoissonProcess(false, 0, 0, maximum_time, 0);
+	double prenet_rate_exc = atof(m_map_config["PreNetDrivingRateExcitatory"].c_str());
+	double prenet_rate_inh = atof(m_map_config["PreNetDrivingRateInhibitory"].c_str());
+	double postnet_rate_exc = atof(m_map_config["PostNetDrivingRateExcitatory"].c_str());
+	double postnet_rate_inh = atof(m_map_config["PostNetDrivingRateInhibitory"].c_str());
+	vector<bool> prenet_types, postnet_types;
+	vector<vector<double> > prenet_fwd_rates, postnet_fwd_rates;
+	preNet.GetNeuronType(prenet_types);
+	postNet.GetNeuronType(postnet_types);
+	for (int i = 0; i < preNetNum; i ++) {
+		if (prenet_types[i]) {
+			prenet_fwd_rates[i].push_back(prenet_rate_exc);
+			prenet_fwd_rates[i].push_back(0.0);
+		} else {
+			prenet_fwd_rates[i].push_back(prenet_rate_inh);
+			prenet_fwd_rates[i].push_back(0.0);
+		}
+	}
+	for (int i = 0; i < postNetNum; i ++) {
+		if (postnet_types[i]) {
+			postnet_fwd_rates[i].push_back(postnet_rate_exc);
+			postnet_fwd_rates[i].push_back(0.0);
+		} else {
+			postnet_fwd_rates[i].push_back(postnet_rate_inh);
+			postnet_fwd_rates[i].push_back(0.0);
+		}
+	}
+	preNet.InitializeExternalPoissonProcess(prenet_fwd_rates, maximum_time, atoi(m_map_config["PreNetExternalDrivingSeed"].c_str()));
+	postNet.InitializeExternalPoissonProcess(postnet_fwd_rates, maximum_time, atoi(m_map_config["PostNetExternalDrivingSeed"].c_str()));
 	// Set feedforward driving strength;
 	preNet.SetF(true, atof(m_map_config["PreNetDrivingStrength"].c_str()));
 	postNet.SetF(true, atof(m_map_config["PostNetDrivingStrength"].c_str()));

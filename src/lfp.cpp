@@ -187,7 +187,3 @@ void LFP(double* t_range, vector<int> & neuron_list, string current_path, vector
 	current_in_file.close();
 	cout << endl;
 }
-
-void OutLFP(string path, vector<double>& lfp) {
-	Print1D(path, lfp, "trunc", 1);
-}

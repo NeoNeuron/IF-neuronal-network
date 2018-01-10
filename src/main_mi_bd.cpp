@@ -69,6 +69,8 @@ int main(int argc, const char* argv[]) {
 		Reshape(double_series, doublemat, shape);
 		Transpose(boolmat, newboolmat);
 		Transpose(doublemat, newdoublemat);
+		// Print2D("bool_test", newboolmat, "trunc");
+		// Print2D("double_test", newdoublemat, "trunc");
 		if (strcmp(argv[6], "full") == 0) {
 			TDMI(newboolmat, newdoublemat, tdmi, range, bin_num);
 		} else if (strcmp(argv[6], "partial") == 0) {

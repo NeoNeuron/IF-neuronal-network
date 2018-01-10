@@ -62,16 +62,16 @@ public:
 	void SetDrivingType(bool driving_type);
 
 	//	Initialize internal homogeneous feedforward Poisson rate;
-	//	BOOL function: types of Poisson drive: true for excitatory, false for inhibitory;
-	//	DOUBLE rate: Poisson rate;
-	void InitializeInternalPoissonRate(bool function, double rate);
+	//	DOUBLE rates: Poisson rates; Each line represents the two parameters for each neuron,
+	//		the first if excitatory	diring rate, and the second is inhibitory.
+	void InitializeInternalPoissonRate(vector<vector<double> >& rates);
 
 	//	Initialize external homogeneous feedforward Poisson process;
-	//	BOOL function: types of Poisson drive: true for excitatory, false for inhibitory;
-	//	DOUBLE rate: Poisson rate;
+	//	DOUBLE rates: Poisson rates; Each line represents the two parameters for each neuron,
+	//		the first if excitatory	diring rate, and the second is inhibitory.
 	//	DOUBLE tmax: maximum time range for Poisson process;
 	//	INT seed: seed for built-in random generator;
-	void InitializeExternalPoissonProcess(bool function, double rate_excitatory, double rate_inhibitory, double tmax, int seed);
+	void InitializeExternalPoissonProcess(vector<vector<double> >& rates, double tmax, int seed);
 
 	// Set feedforward inputing strength: (default: 5e-3)
 	void SetF(bool function, double val);

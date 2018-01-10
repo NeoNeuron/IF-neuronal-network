@@ -5,6 +5,7 @@
 //	Description: main file for lfp.h and lfp.cpp
 //***************
 #include "../include/lfp.h"
+#include "../include/io.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -63,7 +64,7 @@ int main(int argc, const char* argv[]) {
 
 	//	Output lfp:
 	cout << ">> Outputing LFP ..." << endl;
-	OutLFP(argv[2], mean_lfp);
+	Print1D(argv[2], mean_lfp, "trunc", 1);
 	cout << ">> Done" << endl;
 	return 0;
 }

@@ -14,7 +14,7 @@ int myrandom(int i) {return rand()%i;}
 // argv[1] = path of the raster data file;
 // argv[2] = path of output raster file;
 // argv[3] = index of target neuron;
-// argv[4] = time range of spikes; if None, then consider the whole range of spikes;
+// argv[4] = time range of spikes;
 // argv[5] = binning size of binary time series of spike train;
 // argv[6] = shuffle flag;
 int main(int argc, const char* argv[]) {
