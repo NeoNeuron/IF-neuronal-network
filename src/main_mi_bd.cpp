@@ -1,7 +1,7 @@
 //***************
 //	Copyright: Kyle Chen
 //	Author: Kyle Chen
-//	Date: 2017-06-03
+//	Date: 2018-01-27
 //	Description: Mutual information analysis program; version 1.0
 //***************
 #include "../include/mi_uniform.h"
@@ -52,7 +52,7 @@ int main(int argc, const char* argv[]) {
 		TDMI(bool_series, double_series, tdmi, range, bin_num);
 	} else {
 		// autocovariance operations;
-		double autoscale = 20; // with unit millisecond;
+		double autoscale = 200; // with unit millisecond;
 		double dt = atof(argv[4]);
 		size_t length = floor(autoscale / dt);
 		size_t N = floor(bool_series.size() / length);

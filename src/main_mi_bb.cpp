@@ -1,19 +1,16 @@
 //***************
 //	Copyright: Kyle Chen
 //	Author: Kyle Chen
-//	Date: 2017-11-08
+//	Date: 2018-01-26
 //	Description: Mutual information analysis program, between spikes and spikes;
 //***************
 #include "../include/mi_uniform.h"
 #include "../include/io.h"
-#include "../include/vecmanip.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <iomanip>
 #include <ctime>
-#include <cmath>
-#include <algorithm>
 #include <stdexcept>
 
 using namespace std;
@@ -22,9 +19,8 @@ using namespace std;
 //	argv[1] = path for first spike train;
 //	argv[2] = path for second spike train;
 //	argv[3] = range of timelag;
-//	argv[4] = size of timing step;
 int main(int argc, const char* argv[]) {
-	if (argc != 5) throw runtime_error("wrong number of args");
+	if (argc != 4) throw runtime_error("wrong number of args");
 	clock_t start, finish;
 	start = clock();
 	// INPUT NEURONAL DATA:
@@ -41,7 +37,6 @@ int main(int argc, const char* argv[]) {
 	int ptd = atoi(buffer.c_str());
   range[0] = ntd;
   range[1] = ptd;
-  double dt = atof(argv[4]);
 
 	vector<double> tdmi;
 	TDMI(x, y, tdmi, range);

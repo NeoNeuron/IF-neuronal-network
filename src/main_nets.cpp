@@ -76,7 +76,7 @@ int main(int argc, const char* argv[]) {
 	double postnet_rate_exc = atof(m_map_config["PostNetDrivingRateExcitatory"].c_str());
 	double postnet_rate_inh = atof(m_map_config["PostNetDrivingRateInhibitory"].c_str());
 	vector<bool> prenet_types, postnet_types;
-	vector<vector<double> > prenet_fwd_rates, postnet_fwd_rates;
+	vector<vector<double> > prenet_fwd_rates(preNetNum), postnet_fwd_rates(postNetNum);
 	preNet.GetNeuronType(prenet_types);
 	postNet.GetNeuronType(postnet_types);
 	for (int i = 0; i < preNetNum; i ++) {
@@ -97,8 +97,12 @@ int main(int argc, const char* argv[]) {
 			postnet_fwd_rates[i].push_back(0.0);
 		}
 	}
-	preNet.InitializeExternalPoissonProcess(prenet_fwd_rates, maximum_time, atoi(m_map_config["PreNetExternalDrivingSeed"].c_str()));
-	postNet.InitializeExternalPoissonProcess(postnet_fwd_rates, maximum_time, atoi(m_map_config["PostNetExternalDrivingSeed"].c_str()));
+	if (preType) {
+		preNet.InitializeExternalPoissonProcess(prenet_fwd_rates, maximum_time, atoi(m_map_config["PreNetExternalDrivingSeed"].c_str()));
+	} else preNet.InitializeInternalPoissonRate(prenet_fwd_rates);
+	if (postType) {
+		postNet.InitializeExternalPoissonProcess(postnet_fwd_rates, maximum_time, atoi(m_map_config["PostNetExternalDrivingSeed"].c_str()));
+	} else postNet.InitializeInternalPoissonRate(postnet_fwd_rates);
 	// Set feedforward driving strength;
 	preNet.SetF(true, atof(m_map_config["PreNetDrivingStrength"].c_str()));
 	postNet.SetF(true, atof(m_map_config["PostNetDrivingStrength"].c_str()));
@@ -114,24 +118,24 @@ int main(int argc, const char* argv[]) {
 		}
 	}
 	// Output connectivity matrix;
-	// string conMat_path = dir + "conMat.txt";
-	// Print2D(conMat_path, "trunc", conMat);
+	string conMat_path = dir + "conMat.txt";
+	Print2D(conMat_path, conMat, "trunc");
 
 	// SETUP DYNAMICS:
 	double t = 0, dt = atof(m_map_config["TimingStep"].c_str()), tmax = maximum_time;
 	// Define file path for output data;
-	// string preV_path = dir + "preV.txt";
-	// string preGE_path = dir + "preGE.txt";
-	// string preGI_path = dir + "preGI.txt";
-	// string postV_path = dir + "postV.txt";
-	// string postGE_path = dir + "postGE.txt";
-	// string postGI_path = dir + "postGI.txt";
-	string preI_path = dir + "preI.txt";
-	string postI_path = dir + "postI.txt";
-	// string preEI_path = dir + "preEI.txt";
-	// string preII_path = dir + "preII.txt";
-	// string postEI_path = dir + "postEI.txt";
-	// string postII_path = dir + "postII.txt";
+	// string preV_path = dir + "preV.csv";
+	// string preGE_path = dir + "preGE.csv";
+	// string preGI_path = dir + "preGI.csv";
+	// string postV_path = dir + "postV.csv";
+	// string postGE_path = dir + "postGE.csv";
+	// string postGI_path = dir + "postGI.csv";
+	string preI_path = dir + "preI.csv";
+	string postI_path = dir + "postI.csv";
+	// string preEI_path = dir + "preEI.csv";
+	// string preII_path = dir + "preII.csv";
+	// string postEI_path = dir + "postEI.csv";
+	// string postII_path = dir + "postII.csv";
 	// Initialize files:
 	// ofstream preV, postV;
 	ofstream preI, postI;
@@ -160,8 +164,8 @@ int main(int argc, const char* argv[]) {
 	// postII.open(postII_path.c_str());
 	// postII.close();
 
-	char cr = (char)13;
-	double progress;
+	// char cr = (char)13;
+	// double progress;
 	while (t < tmax) {
 		UpdateSystemState(preNet, postNet, conMat, t, dt);
 		t += dt;
@@ -175,33 +179,31 @@ int main(int argc, const char* argv[]) {
 		// postNet.OutPartialCurrent(postEI, true);
 		// postNet.OutPartialCurrent(postII, false);
 
-		progress = t * 100.0 / tmax;
-		cout << cr;
-		printf(">> Processing ... %6.2f", progress);
-		cout << "%";
+		// progress = t * 100.0 / tmax;
+		// cout << cr;
+		// printf(">> Processing ... %6.2f", progress);
+		// cout << "%";
 	}
 	cout << endl;
 	//
 	// string preNeuron_path, preMat_path;
-	// preNeuron_path = dir + "preNeuron.txt";
-	// preMat_path = dir + "preMat.txt";
+	// preNeuron_path = dir + "preNeuron.csv";
+	// preMat_path = dir + "preMat.csv";
 	// preNet.Save(preNeuron_path, preMat_path);
 	// string postNeuron_path, postMat_path;
-	// postNeuron_path = dir + "postNeuron.txt";
-	// postMat_path = dir + "postMat.txt";
+	// postNeuron_path = dir + "postNeuron.csv";
+	// postMat_path = dir + "postMat.csv";
 	// postNet.Save(postNeuron_path, postMat_path);
 
 	// OUTPUTS:
-	string pre_raster_path = dir + "rasterPre.txt";
-	string post_raster_path = dir + "rasterPost.txt";
+	string pre_raster_path = dir + "rasterPre.csv";
+	string post_raster_path = dir + "rasterPost.csv";
 	preNet.OutSpikeTrains(pre_raster_path);
 	postNet.OutSpikeTrains(post_raster_path);
 
 	finish = clock();
 
 	// COUNTS:
-	double ToTtime;
-	ToTtime = (finish - start) / CLOCKS_PER_SEC;
-	printf(">> It takes %.2fs\n", ToTtime);
+	printf(">> It takes %.2fs\n", (finish - start)*1.0 / CLOCKS_PER_SEC);
 	return 0;
 }
