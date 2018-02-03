@@ -1,7 +1,7 @@
 //***************
 //	Copyright: Kyle Chen
 //	Author: Kyle Chen
-//	Date: 2017-03-08 21:32:55
+//	Date: 2018-01-30
 //	Description: source file of lfp.h
 //***************
 #include "../include/lfp.h"

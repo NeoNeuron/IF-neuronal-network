@@ -1,7 +1,7 @@
 //***************
 //	Copyright: Kyle Chen
 //	Author: Kyle Chen
-//	Date: 2017-03-08 21:32:46
+//	Date: 2018-01-30
 //	Description: Define model of local field potential(LFP);
 //***************
 #ifndef _IFNET_LFP_H_

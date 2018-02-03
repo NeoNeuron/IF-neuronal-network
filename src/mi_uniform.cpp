@@ -226,10 +226,10 @@ void TDMI(vector<bool>& x, vector<double>& y, vector<double>& tdmi, size_t* rang
 	}
 }
 
-void TDMI(vector<bool>& x, vector<vector<double> >& y, vector<double>& tdmi, size_t bin_num) {
-	tdmi.resize(y.size(), 0);
-	for (size_t i = 0; i < y.size(); i ++) {
-		tdmi[i] = MI(x, y[i], bin_num);
+void TDMI(vector<vector<bool> >& x, vector<double>& y, vector<double>& tdmi, size_t bin_num) {
+	tdmi.resize(x.size(), 0);
+	for (size_t i = 0; i < x.size(); i ++) {
+		tdmi[x.size() - 1 - i] = MI(x[i], y, bin_num);
 	}
 }
 

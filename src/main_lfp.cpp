@@ -1,7 +1,7 @@
 //***************
 //	Copyright: Kyle Chen
 //	Author: Kyle Chen
-//	Date: 2017-03-13 15:07:34
+//	Date: 2018-01-30
 //	Description: main file for lfp.h and lfp.cpp
 //***************
 #include "../include/lfp.h"
@@ -24,9 +24,7 @@ using namespace std;
 //	argv[4] = time range, seperated by comma, with unit in milliseconds;
 //	argv[5] = binning size of binary time series of spike train;
 int main(int argc, const char* argv[]) {
-	if (argc != 6) {
-		throw runtime_error("wrong number of args");
-	}
+	if (argc != 6) throw runtime_error("wrong number of args");
 	// Analyze listing series;
 	vector<int> list;
 	stringstream inlist(argv[3]);
