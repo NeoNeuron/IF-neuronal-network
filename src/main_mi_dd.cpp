@@ -29,8 +29,8 @@ int main(int argc, const char* argv[]) {
 	start = clock();
 	// Preparing input args;
 	vector<vector<double> > double_series_1, double_series_2;
-	Read2D(argv[1], double_series_1);
-	Read2D(argv[2], double_series_2);
+	Read2DBin(argv[1], double_series_1);
+	Read2DBin(argv[2], double_series_2);
 	int indx = atoi(argv[3]);
 	istringstream range_in(argv[4]);
 	string buffer;

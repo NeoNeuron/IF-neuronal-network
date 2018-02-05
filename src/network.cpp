@@ -215,7 +215,7 @@ void NeuronalNetwork::OutPotential(string path) {
 	for (int i = 0; i < neuron_number_; i++) {
 		potential[i] = neurons_[i].GetPotential();
 	}
-	Print1D(path, potential, "app", 0);
+	Print1DBin(path, potential, "app");
 }
 
 void NeuronalNetwork::OutConductance(string path, bool function) {
@@ -229,7 +229,7 @@ void NeuronalNetwork::OutConductance(string path, bool function) {
 			conductance[i] = neurons_[i].GetConductance(false);
 		}
 	}
-  Print1D(path, conductance, "app", 0);
+  Print1DBin(path, conductance, "app");
 }
 
 void NeuronalNetwork::OutCurrent(string path) {
@@ -237,7 +237,7 @@ void NeuronalNetwork::OutCurrent(string path) {
 	for (int i = 0; i < neuron_number_; i++) {
 		current[i] = neurons_[i].OutTotalCurrent();
 	}
-	Print1D(path, current, "app", 0);
+	Print1DBin(path, current, "app");
 }
 
 void NeuronalNetwork::OutPartialCurrent(string path, bool type) {
@@ -245,27 +245,28 @@ void NeuronalNetwork::OutPartialCurrent(string path, bool type) {
 	for (int i = 0; i < neuron_number_; i++) {
 		current[i] = neurons_[i].OutLeakyCurrent() + neurons_[i].OutSynapticCurrent(type);
 	}
-	Print1D(path, current, "app", 0);
+	Print1DBin(path, current, "app");
 }
 
 
 void NeuronalNetwork::Save(string neuron_file, string connecting_matrix_file) {
 	ofstream data;
-	data.open(neuron_file.c_str());
+	data.open(neuron_file.c_str(), ios::binary);
 	NeuronalState add;
 	for (int i = 0; i < neuron_number_; i++) {
 		neurons_[i].Save(add);
-		data << (bool)add.type << ',';
-		data << (int)add.index << ',';
-		data << (double)add.membrane_potential_ << ',';
-		data << (double)add.ge << ',';
-		data << (double)add.gi << ',';
-		data << (double)add.remaining_refractory_time << '\n';
+		data.write((char*)&add, sizeof(add));
+		// data << (bool)add.type << ',';
+		// data << (int)add.index << ',';
+		// data << (double)add.membrane_potential_ << ',';
+		// data << (double)add.ge << ',';
+		// data << (double)add.gi << ',';
+		// data << (double)add.remaining_refractory_time << '\n';
 	}
 	data.close();
 	connectivity_matrix_.OutMatrix(connecting_matrix_file);
+  // TODO: change the output system of matrix into binary system;
 }
-
 
 void NeuronalNetwork::OutSpikeTrains(string path) {
 	vector<vector<double> > spikes(neuron_number_);

@@ -12,7 +12,7 @@ using namespace std;
 //	Return: none;
 void Spike2Bool(vector<double> & spikes, vector<bool> & binary_spikes, double tmax, double dt);
 
-// Truncate spikes withn selected time range;
+// Truncate spikes within selected time range;
 // VECTOR<DOUBLE> spikes: spike train;
 // DOUBLE* range[2]: time range with unit millisecond;
 // Return: None;

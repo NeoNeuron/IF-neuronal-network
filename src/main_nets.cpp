@@ -123,6 +123,12 @@ int main(int argc, const char* argv[]) {
 
 	// SETUP DYNAMICS:
 	double t = 0, dt = atof(m_map_config["TimingStep"].c_str()), tmax = maximum_time;
+	// Define the shape of data;
+	size_t preNetshape[2], postNetshape[2];
+	preNetshape[0] = tmax / dt;
+	postNetshape[0] = tmax /dt;
+	preNetshape[1] = preNetNum;
+	postNetshape[1] = postNetNum;
 	// Define file path for output data;
 	// string preV_path = dir + "preV.csv";
 	// string preGE_path = dir + "preGE.csv";
@@ -130,8 +136,8 @@ int main(int argc, const char* argv[]) {
 	// string postV_path = dir + "postV.csv";
 	// string postGE_path = dir + "postGE.csv";
 	// string postGI_path = dir + "postGI.csv";
-	string preI_path = dir + "preI.csv";
-	string postI_path = dir + "postI.csv";
+	string preI_path = dir + "preI.bin";
+	string postI_path = dir + "postI.bin";
 	// string preEI_path = dir + "preEI.csv";
 	// string preII_path = dir + "preII.csv";
 	// string postEI_path = dir + "postEI.csv";
@@ -151,9 +157,11 @@ int main(int argc, const char* argv[]) {
 	// postGE.close();
 	// postGI.open(postGI_path.c_str());
 	// postGI.close();
-	preI.open(preI_path.c_str());
+	preI.open(preI_path.c_str(), ios::binary);
+	preI.write((char*)&preNetshape, 8);
 	preI.close();
-	postI.open(postI_path.c_str());
+	postI.open(postI_path.c_str(), ios::binary);
+	postI.write((char*)&postNetshape, 8);
 	postI.close();
 	// preEI.open(preEI_path.c_str());
 	// preEI.close();

@@ -47,7 +47,7 @@ int main(int argc, const char* argv[]) {
 
 	cout << ">> Calculating LFP ..." << endl;
 	vector<double> lfp;
-	LFP(t_range, list, argv[1], lfp);
+	LFP(argv[1], lfp, list, t_range);
 
 	// rearrange LFP data;
 	double dt_sampling = 0.03125;
@@ -62,7 +62,7 @@ int main(int argc, const char* argv[]) {
 
 	//	Output lfp:
 	cout << ">> Outputing LFP ..." << endl;
-	Print1D(argv[2], mean_lfp, "trunc", 1);
+	Print1DBin(argv[2], mean_lfp, "trunc");
 	cout << ">> Done" << endl;
 	return 0;
 }

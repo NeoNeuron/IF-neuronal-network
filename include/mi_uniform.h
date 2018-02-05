@@ -67,6 +67,9 @@ void TDMI(vector<double>& x, vector<vector<double> >& y, vector<double>& tdmi, s
 // Delayed mutual information of spike train and LFP with direct scheme;
 void TDMI(vector<bool>& x, vector<double>& y, vector<double>& tdmi, size_t* range, size_t bin_num);
 
+// Delayed mutual information of LFP and LFP with direct scheme;
+void TDMI(vector<double>& x, vector<double>& y, vector<double>& tdmi, size_t* range, size_t bin_num);
+
 // Delayed mutual information of spike train and LFP with partial autocovariance scheme;
 void TDMI(vector<vector<bool> >& x, vector<double>& y, vector<double>& tdmi, size_t bin_num);
 

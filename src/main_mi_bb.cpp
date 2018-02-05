@@ -25,8 +25,8 @@ int main(int argc, const char* argv[]) {
 	start = clock();
 	// INPUT NEURONAL DATA:
 	vector<bool> x, y;
-	Read1D(argv[1], x, 0, 1);
-	Read1D(argv[2], y, 0, 1);
+	Read1DBin(argv[1], x, 0, 0);
+	Read1DBin(argv[2], y, 0, 0);
 	// Set time range;
 	size_t range[2];
 	istringstream range_in(argv[3]);
@@ -47,7 +47,7 @@ int main(int argc, const char* argv[]) {
 	data_out.open("./data/mi/mi_bb.csv");
 	data_out << "timelag,mi" << endl;
 	for (int i = 0; i < ntd + ptd + 1; i++) {
-		data_out << i - ntd << ',' << (double)tdmi[i] << '\n';
+		data_out << i - ntd << ',' << setprecision(15) << (double)tdmi[i] << '\n';
 	}
 	data_out.close();
 

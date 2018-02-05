@@ -24,22 +24,12 @@ void Sample(vector<int> & origin_vector, vector<int> &sample_vector, int num);
 //	Return number of selected neurons;
 int KeySelect(string & key, vector<neuron_type> & type, vector<int> & indices);
 
-//	Local field potential model [version 0.10]
-//	Description: point current source model without sptial distribution;
-//	DOUBLE* t_range: time period used in calculation, with unit ms, include the last point while not the first point
-//	STRING potential_file: membrane potential;
-//	STRING excitatory_conductance_file;
-//	STRING inhibitory_conductance_file;
-//	VECTOR<DOUBLE> lfp: local field potential data;
-//	Return: none;
-void LFP(double* t_range, vector<int> & neuron_list, string potential_path, string excitatory_conductance_path, string inhibitory_conductance_path, vector<double> &lfp);
-
 //	Local field potential model [version 0.11]
 //	Description: point current source model without sptial distribution;
 //	DOUBLE* t_range: time period used in calculation, with unit ms, include the last point while not the first point
 //	STRING current_file: total membrane current;
 //	VECTOR<DOUBLE> lfp: local field potential data;
 //	Return: none;
-void LFP(double* t_range, vector<int> & neuron_list, string current_path, vector<double> &lfp);
+void LFP(string current_path, vector<double>& lfp, vector<int>& neuron_list, double* t_range);
 
 #endif // _IFNET_LFP_H_

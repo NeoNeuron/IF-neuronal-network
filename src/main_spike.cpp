@@ -37,6 +37,7 @@ int main(int argc, const char* argv[]) {
   double tmax = range[1] - range[0];
   double dt = atof(argv[5]);
   Spike2Bool(spikes, binary_spikes, tmax, dt);
+
   // shuffle flag;
   bool shuffle_flag;
   istringstream s_in(argv[6]);
@@ -44,6 +45,6 @@ int main(int argc, const char* argv[]) {
   srand(unsigned(time(0)));
   if (shuffle_flag) random_shuffle(binary_spikes.begin(), binary_spikes.end(), myrandom);
   // Output spike train;
-  Print1D(argv[2], binary_spikes, "trunc", 1);
+  Print1DBin(argv[2], binary_spikes, "trunc");
   return 0;
 }

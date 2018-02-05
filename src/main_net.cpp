@@ -60,7 +60,7 @@ int main(int argc, const char* argv[]) {
 	bool driving_type, fwd_type;
 	istringstream(m_map_config["DrivingType"]) >> boolalpha >> driving_type;
 	istringstream(m_map_config["HomoDriving"]) >> boolalpha >> fwd_type;
-	vector<vector<double> > fwd_rates;
+	vector<vector<double> > fwd_rates(neuron_number);
 	net.SetDrivingType(driving_type);
 	if (fwd_type) {
 		double rate_exc = atof(m_map_config["DrivingRateExcitatory"].c_str());
@@ -98,15 +98,20 @@ int main(int argc, const char* argv[]) {
 
 	// SETUP DYNAMICS:
 	double t = 0, dt = atof(m_map_config["TimingStep"].c_str()), tmax = maximum_time;
+	// Define the shape of data;
+	size_t shape[2];
+	shape[0] = tmax / dt;
+	shape[1] = neuron_number;
 	// Define file path for output data;
-	// string V_path = dir + "V.csv";
-	string I_path = dir + "I.csv";
+	// string V_path = dir + "V.bin";
+	string I_path = dir + "I.bin";
 	// Initialize files:
 	ofstream V, I;
-	// V.open(V_path.c_str());
+	// V.open(V_path.c_str(), ios::binary);
+	// V.write((char*)&shape, 8);
 	// V.close();
-
-	I.open(I_path.c_str());
+	I.open(I_path.c_str(), ios::binary);
+	I.write((char*)&shape, 8);
 	I.close();
 
 	// char cr = (char)13;

@@ -44,6 +44,6 @@ int main(int argc, const char* argv[]) {
     Spike2Bool(spikes[i], binary_spikes[i], tmax, dt);
   }
   // Output spike train;
-  Print2D(argv[4], binary_spikes, "trunc");
+  Print2DBin(argv[4], binary_spikes, "trunc");
   return 0;
 }

@@ -17,6 +17,7 @@ using namespace std;
 	//	STRING path: path of target file;
 	//	Return: none;
 template <class T> void Read2D(string path, vector<vector<T> >& data);
+template <class T> void Read2DBin(string path, vector<vector<T> >& data);
 //	Read 1 dimensional (line/column) from *.csv file;
   //	STRING path: file path of *.csv file;
   //	VECTOR<INT/DOUBLE> data: storage of output data;
@@ -24,6 +25,7 @@ template <class T> void Read2D(string path, vector<vector<T> >& data);
   //  INT axis: 0 for line, 1 for column;
   //	Return: none;
 template <class T> void Read1D(string path, vector<T>& data, int index, int axis);
+template <class T> void Read1DBin(string path, vector<T>& data, int index, int axis);
 
 //  Print 2 dimensional data;
   //  Print 2-D data to *.csv files; data type can be int, double or bool;
@@ -31,6 +33,7 @@ template <class T> void Read1D(string path, vector<T>& data, int index, int axis
   //  STRING mode: openmode for aiming file; "app" for append, "trunc" for any contents that existed in the file before it is open are discarded.
   //  Return: none;
 template <class T> void Print2D(string path, vector<vector<T> >& data, string mode);
+template <class T> void Print2DBin(string path, vector<vector<T> >& data, string mode);
 
 //	Print 1 dimensional (line/column) to *.csv file;
   //	STRING path: file path of *.csv file;
@@ -39,6 +42,7 @@ template <class T> void Print2D(string path, vector<vector<T> >& data, string mo
   //  INT axis: 0 for line, 1 for column;
   //	Return: none;
 template <class T> void Print1D(string path, vector<T>& data, string mode, int axis);
+template <class T> void Print1DBin(string path, vector<T>& data, string mode);
 
 #include "io.hpp"
 

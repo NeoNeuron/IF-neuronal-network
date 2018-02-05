@@ -199,6 +199,33 @@ void TDMI(vector<double>& x, vector<vector<double> >& y, vector<double> & tdmi, 
 	}
 }
 
+void TDMI(vector<double>& x, vector<double>& y, vector<double>& tdmi, size_t* range, size_t bin_num) {
+	// initialize container of tdmi;
+	tdmi.clear();
+	tdmi.resize(range[0] + range[1] + 1, 0);
+	// prepare series;
+	size_t res = range[0];
+	if (res < range[1]) res = range[1];
+	vector<double> x_copy(x.begin(), x.end() - res);
+	vector<double> y_copy(y.begin(), y.end() - res);
+	// No shift;
+	tdmi[range[0]] = MI(x_copy, y_copy, bin_num, bin_num);
+	// Negative shift;
+	for (int i = 0; i < range[0]; i++) {
+		x_copy.erase(x_copy.begin());
+		x_copy.insert(x_copy.end(), *(x.end() - res + i));
+		tdmi[range[0] - i - 1] = MI(x_copy, y_copy, bin_num, bin_num);
+	}
+	// Positive shift;
+	x_copy.clear();
+	x_copy.insert(x_copy.end(), x.begin(), x.end() - res);
+	for (int i = 0; i < range[1]; i++) {
+		y_copy.erase(y_copy.begin());
+		y_copy.insert(y_copy.end(), *(y.end() - res + i));
+		tdmi[range[0] + i + 1] = MI(x_copy, y_copy, bin_num, bin_num);
+	}
+}
+
 void TDMI(vector<bool>& x, vector<double>& y, vector<double>& tdmi, size_t* range, size_t bin_num) {
 	// initialize container of tdmi;
 	tdmi.clear();
