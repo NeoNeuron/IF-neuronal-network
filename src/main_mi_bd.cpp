@@ -35,7 +35,7 @@ int main(int argc, const char* argv[]) {
 	vector<double> double_series;
 	string buffer;
 	Read1DBin(argv[1], bool_series, 0, 0);
-	Read1DBin(argv[2], double_series,0, 0);
+	Read1DBin(argv[2], double_series, 0, 0);
 	// Set time range;
 	size_t range[2];
 	istringstream range_in(argv[3]);

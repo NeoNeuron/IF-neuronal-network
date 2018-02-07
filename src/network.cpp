@@ -265,7 +265,6 @@ void NeuronalNetwork::Save(string neuron_file, string connecting_matrix_file) {
 	}
 	data.close();
 	connectivity_matrix_.OutMatrix(connecting_matrix_file);
-  // TODO: change the output system of matrix into binary system;
 }
 
 void NeuronalNetwork::OutSpikeTrains(string path) {

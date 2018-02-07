@@ -70,46 +70,40 @@ void LFP(string current_path, vector<double>& lfp, vector<int>& neuron_list, dou
 	int size_of_lfp = t_end - t_begin;
 	lfp.clear();
 	lfp.resize(size_of_lfp);
-
-	// Sort neuron list:
-	sort(neuron_list.begin(), neuron_list.end(), comp);
-	vector<int> diff_list(neuron_list.size() + 1);
-	for (int i = 0; i < diff_list.size(); i ++) {
-		if (i == 0) diff_list[i] = neuron_list[0];
-		else if (i == diff_list.size() - 1) diff_list[i] = neuron_list.size() - neuron_list[i - 1] - 1;
-		else diff_list[i] = neuron_list[i] - neuron_list[i - 1] - 1;
-	}
-	// Load potential file and conductance files;
+	// Load current file;
 	ifstream current_in_file;
 	current_in_file.open(current_path.c_str(), ios::binary);
 	size_t shape[2];
-	current_in_file.read((char*)&shape[0], 4);
-	current_in_file.read((char*)&shape[1], 4);
+	current_in_file.read((char*)&shape, 2*sizeof(size_t));
+
+	vector<int> diff_list(neuron_list.size() + 1);
+	// Sort neuron list:
+	if (neuron_list.size() == 1) {
+		diff_list[0] = neuron_list[0];
+		diff_list[1] = shape[1] - neuron_list[0] - 1;
+	} else {
+		sort(neuron_list.begin(), neuron_list.end(), comp);
+		for (int i = 0; i < diff_list.size(); i ++) {
+			if (i == 0) diff_list[i] = neuron_list[0];
+			else if (i == diff_list.size() - 1) diff_list[i] = shape[1] - neuron_list[i - 1] - 1;
+			else diff_list[i] = neuron_list[i] - neuron_list[i - 1] - 1;
+		}
+	}
 	// For t = [0, t_begin];
-	// cout << ">> Loading ... " << endl;
-	current_in_file.seekg(shape[1]*t_begin + 8, current_in_file.beg);
+	current_in_file.seekg(shape[1]*t_begin*sizeof(double), current_in_file.cur);
 	// For t = (t_begin, t_end]
-	char cr = (char)13;
-	int current_progress = 0;
 	double temp_lfp;
 	size_t neuron_list_counter;
 	double buffer;
 	for (int i = t_begin; i < t_end; i++) {
 		temp_lfp = 0;
 		for (int j = 0; j < diff_list.size() - 1; j ++) {
-			current_in_file.seekg(diff_list[j], current_in_file.cur);
-			current_in_file.read((char*)&buffer, 8);
+			current_in_file.seekg(diff_list[j]*sizeof(double), current_in_file.cur);
+			current_in_file.read((char*)&buffer, sizeof(double));
 			temp_lfp += buffer;
 		}
-		current_in_file.seekg(*(diff_list.end() - 1), current_in_file.cur);
+		current_in_file.seekg(*(diff_list.end() - 1)*sizeof(double), current_in_file.cur);
 		lfp[i - t_begin] = temp_lfp / neuron_list.size();
-		if (floor((i - t_begin + 1)*100.0/size_of_lfp - current_progress) >= 1) {
-			current_progress ++;
-			cout << cr << ">> Processing ... ";
-			printf("%d", current_progress);
-			cout << "%";
-		}
 	}
 	current_in_file.close();
-	cout << endl;
 }

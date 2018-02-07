@@ -108,10 +108,10 @@ int main(int argc, const char* argv[]) {
 	// Initialize files:
 	ofstream V, I;
 	// V.open(V_path.c_str(), ios::binary);
-	// V.write((char*)&shape, 8);
+	// V.write((char*)&shape, 2*sizeof(size_t));
 	// V.close();
 	I.open(I_path.c_str(), ios::binary);
-	I.write((char*)&shape, 8);
+	I.write((char*)&shape, 2*sizeof(size_t));
 	I.close();
 
 	// char cr = (char)13;

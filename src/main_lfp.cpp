@@ -1,4 +1,4 @@
-//***************
+// ***************
 //	Copyright: Kyle Chen
 //	Author: Kyle Chen
 //	Date: 2018-01-30
@@ -32,7 +32,6 @@ int main(int argc, const char* argv[]) {
 	while (getline(inlist, buffer, ',')) {
 		list.push_back(atoi(buffer.c_str()));
 	}
-	sort(list.begin(),list.end());
 	int neuron_num = list.size();
 	printf(">> %d connected neuron contribute to LFP\n", neuron_num);
 
@@ -45,7 +44,7 @@ int main(int argc, const char* argv[]) {
   }
 	printf(">> Time range = (%.2f, %.2f] ms\n", t_range[0], t_range[1]);
 
-	cout << ">> Calculating LFP ..." << endl;
+	cout << ">> Processing LFP ..." << endl;
 	vector<double> lfp;
 	LFP(argv[1], lfp, list, t_range);
 
@@ -61,7 +60,6 @@ int main(int argc, const char* argv[]) {
 	}
 
 	//	Output lfp:
-	cout << ">> Outputing LFP ..." << endl;
 	Print1DBin(argv[2], mean_lfp, "trunc");
 	cout << ">> Done" << endl;
 	return 0;

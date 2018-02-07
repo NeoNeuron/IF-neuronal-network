@@ -29,8 +29,8 @@ int main(int argc, const char* argv[]) {
 	start = clock();
 	// Preparing input args;
 	vector<vector<double> > double_series_1, double_series_2;
-	Read2DBin(argv[1], double_series_1);
-	Read2DBin(argv[2], double_series_2);
+	Read2D(argv[1], double_series_1);
+	Read2D(argv[2], double_series_2);
 	int indx = atoi(argv[3]);
 	istringstream range_in(argv[4]);
 	string buffer;
@@ -45,20 +45,20 @@ int main(int argc, const char* argv[]) {
 	size_t x_bin_num = atoi(argv[5]), y_bin_num = atoi(argv[6]);
 	vector<double> tdmi;
 	TDMI(s1, s2, tdmi, x_bin_num, y_bin_num);
-	// Randomly shuffle double_series_2;
-	srand(unsigned(time(0)));
-	random_shuffle(double_series_2.begin(), double_series_2.end(), myrandom);
-	vector<vector<double> > s2_shuffle(double_series_2.begin() + indx - negative_time_delay, double_series_2.begin() + indx + positive_time_delay + 1);
-	vector<double> tdmi_shuffle;
-	TDMI(s1, s2_shuffle, tdmi_shuffle, x_bin_num, y_bin_num);
+	// // Randomly shuffle double_series_2;
+	// srand(unsigned(time(0)));
+	// random_shuffle(double_series_2.begin(), double_series_2.end(), myrandom);
+	// vector<vector<double> > s2_shuffle(double_series_2.begin() + indx - negative_time_delay, double_series_2.begin() + indx + positive_time_delay + 1);
+	// vector<double> tdmi_shuffle;
+	// TDMI(s1, s2_shuffle, tdmi_shuffle, x_bin_num, y_bin_num);
 
 
   // Output data:
 	ofstream data_out;
 	data_out.open("./data/mi/mi_dd.csv");
-	data_out << "timelag,mi,mi_shuffle" << endl;
+	data_out << "timelag,mi" << endl;
 	for (int i = 0; i < negative_time_delay + positive_time_delay + 1; i++) {
-		data_out << (i - negative_time_delay) << ',' << tdmi[i] << ',' << tdmi_shuffle[i] << endl;
+		data_out << (i - negative_time_delay) << ',' << tdmi[i] << endl;
 	}
 	data_out.close();
 

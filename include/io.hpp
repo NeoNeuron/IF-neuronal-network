@@ -43,7 +43,7 @@ template <class T> void Read2DBin(string path, vector<vector<T> >& data) {
   ifstream ifile(path.c_str(), ios::binary);
   // Read the shape of 2D data array:
   size_t shape[2];
-  ifile.read((char*)&shape, 8);
+  ifile.read((char*)&shape, 2*sizeof(size_t));
   // Clear the inputing vector;
   data.clear();
   data.resize(shape[0], vector<T>(shape[1]));
@@ -107,24 +107,25 @@ template <class T> void Read1DBin(string path, vector<T>& data, int index, int a
   ifstream ifile(path.c_str(), ios::binary);
   // Read the shape of 2D data array:
   size_t shape[2];
-  ifile.read((char*)&shape, 8);
+  ifile.read((char*)&shape, 2*sizeof(size_t));
   // clear the data vector;
   data.clear();
   T buffer;
-  size_t size = sizeof(T);
   if (axis == 0) {
-    size_t prefix = index * shape[1];
-    ifile.seekg(prefix + 8, ifile.beg);
+    data.resize(shape[1]);
+    size_t prefix = index * shape[1] * sizeof(T);
+    ifile.seekg(prefix, ifile.cur);
     for (int i = 0; i < shape[1]; i ++) {
-      ifile.read((char*)&buffer, size);
-      data.push_back(buffer);
+      ifile.read((char*)&buffer, sizeof(T));
+      data[i] = buffer;
     }
   } else {
-    ifile.seekg(index + 8, ifile.beg);
+    ifile.seekg(index * sizeof(T), ifile.cur);
+    data.resize(shape[0]);
     for (size_t i = 0; i < shape[0]; i ++) {
-      ifile.read((char*)&buffer, size);
-      data.push_back(buffer);
-      ifile.seekg(shape[1] - 1, ifile.cur);
+      ifile.read((char*)&buffer, sizeof(T));
+      data[i] = buffer;
+      ifile.seekg((shape[1] - 1) * sizeof(T), ifile.cur);
     }
   }
   ifile.close();
@@ -151,18 +152,16 @@ template <class T> void Print2DBin(string path, vector<vector<T> >& data, string
   if (mode == "app") ofile.open(path.c_str(), ios::binary|ios::app);
   else if (mode == "trunc") {
     ofile.open(path.c_str(), ios::binary);
-    size_t buffer;
-    buffer = data.size();
-    ofile.write((char*)&buffer, 4);
-    buffer = data.begin() -> size();
-    ofile.write((char*)&buffer, 4);
+    size_t buffer[2];
+    buffer[0] = data.size();
+    buffer[1] = data.begin() -> size();
+    ofile.write((char*)&buffer, 2*sizeof(size_t));
   }
-  size_t size = sizeof(T);
-  T temp;
+  T tmp;
   for (typename vector<vector<T> >::iterator it = data.begin(); it != data.end(); it++) {
     for (typename vector<T>::iterator itt = it -> begin(); itt != it -> end(); itt ++) {
-      temp = *itt;
-      ofile.write((char*)&temp, size);
+      tmp = *itt;
+      ofile.write((char*)&tmp, sizeof(T));
     }
   }
   ofile.close();
@@ -193,17 +192,15 @@ template <class T> void Print1DBin(string path, vector<T>& data, string mode) {
   if (mode == "app") ofile.open(path.c_str(), ios::binary|ios::app);
   else if (mode == "trunc") {
     ofile.open(path.c_str(), ios::binary);
-    size_t buffer;
-    buffer = 1;
-    ofile.write((char*)&buffer, 4);
-    buffer = data.size();
-    ofile.write((char*)&buffer, 4);
+    size_t buffer[2];
+    buffer[0] = 1;
+    buffer[1] = data.size();
+    ofile.write((char*)&buffer, 2*sizeof(size_t));
   }
-  size_t size = sizeof(T);
-  T temp;
+  T tmp;
   for (typename vector<T>::iterator it = data.begin(); it != data.end(); it ++) {
-    temp = *it;
-    ofile.write((char*)&temp, size);
+    tmp = *it;
+    ofile.write((char*)&tmp, sizeof(T));
   }
   ofile.close();
 }

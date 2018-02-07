@@ -158,10 +158,10 @@ int main(int argc, const char* argv[]) {
 	// postGI.open(postGI_path.c_str());
 	// postGI.close();
 	preI.open(preI_path.c_str(), ios::binary);
-	preI.write((char*)&preNetshape, 8);
+	preI.write((char*)&preNetshape, 2*sizeof(size_t));
 	preI.close();
 	postI.open(postI_path.c_str(), ios::binary);
-	postI.write((char*)&postNetshape, 8);
+	postI.write((char*)&postNetshape, 2*sizeof(size_t));
 	postI.close();
 	// preEI.open(preEI_path.c_str());
 	// preEI.close();

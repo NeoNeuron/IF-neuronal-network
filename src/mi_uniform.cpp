@@ -146,9 +146,6 @@ double MI(vector<bool>& bool_series, vector<double>& double_series, int bin_num)
 		cout << "ERROR: x and y don't have the same length." << endl;
 		return 0;
 	} else {
-		// calculate the occupancy;
-		size_t num_pair = double_series.size();
-		double bin_width = (Max(double_series) - Min(double_series)) / bin_num;
 		// Calculate joint probability distribution function;
 		vector<vector<double> > jointpdf;
 		JointPDF(bool_series, double_series, bin_num, jointpdf);
