@@ -52,6 +52,7 @@ int main(int argc, const char* argv[]) {
 	}
 	// Set interneuronal coupling strength;
 	net.SetS(true, atof(m_map_config["SynapticStrengthExcitatory"].c_str()));
+	net.SetDelay(2.0);
 	// initialize the network;
 	net.InitializeNeuronalType(atof(m_map_config["TypeProbability"].c_str()), atoi(m_map_config["TypeSeed"].c_str()));
 	cout << "in the network." << endl;

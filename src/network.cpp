@@ -53,6 +53,10 @@ void NeuronalNetwork::SetS(bool function, double val) {
 	}
 }
 
+void NeuronalNetwork::SetDelay(double val) {
+	interaction_delay_ = val;
+}
+
 void NeuronalNetwork::InitializeNeuronalType(double p, int seed) {
 	srand(seed);
 	double x = 0;
@@ -183,7 +187,7 @@ void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
 				Spike ADD_mutual;
 				ADD_mutual.mode = false;
 				ADD_mutual.function = (T.front()).type;
-				ADD_mutual.t = newt;
+				ADD_mutual.t = newt + interaction_delay_;
 				for (int j = 0; j < neuron_number_; j++) {
 					if (j == IND) {
 						neurons_[j].Fire(t, newt - t);

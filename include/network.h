@@ -31,7 +31,7 @@ private:
 	ConnectivityMatrix connectivity_matrix_;
 	vector<vector<double> > external_excitatory_inputs_; // temp storage of external Poisson input;
 	vector<vector<double> > external_inhibitory_inputs_;
-
+	double interaction_delay_;
 	// Functions:
 
 	// Sort Spikes:
@@ -46,12 +46,16 @@ public:
 		for (int i = 0; i < neuron_number_; i++) neurons_[i].SetNeuronIndex(i);
 		connectivity_matrix_.SetNeuronNumber(neuron_number_);
 		connecting_density_ = 0;
+		interaction_delay_ = 0.0;
 	}
 	// INPUTS:
 	void SetConnectingDensity(int density);
 
 	// Set interneuronal coupling strength;
 	void SetS(bool function, double val);
+
+  // Set interaction delay between neurons;
+	void SetDelay(double val);
 
 	// 	Initialize neuronal types in the network;
 	//	DOUBLE p: the probability of the presence of excitatory neuron;
