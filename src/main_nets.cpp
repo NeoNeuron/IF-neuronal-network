@@ -16,13 +16,18 @@
 #include <stdexcept>
 using namespace std;
 
+void InitializeBinFile(string filename, size_t* shape) {
+	ofstream file;
+	file.open(filename.c_str(), ios::binary);
+	file.write((char*)shape, 2*sizeof(size_t));
+	file.close();
+}
+
 //	Simulation program for two network system;
 //	arguments:
 //	argv[1] = Outputing directory for neural data;
 int main(int argc, const char* argv[]) {
-	if (argc != 2) {
-		throw runtime_error("wrong number of args");
-	}
+	if (argc != 2) throw runtime_error("wrong number of args");
 	clock_t start, finish;
 	start = clock();
 	// 	Setup directory for output files;
@@ -107,6 +112,10 @@ int main(int argc, const char* argv[]) {
 	preNet.SetF(true, atof(m_map_config["PreNetDrivingStrength"].c_str()));
 	postNet.SetF(true, atof(m_map_config["PostNetDrivingStrength"].c_str()));
 
+	// Set synaptic strength of presynaptic neural network;
+	preNet.SetS(true, atof(m_map_config["PreNetSynapticStrengthExcitatory"].c_str()));
+	postNet.SetS(true, atof(m_map_config["PostNetSynapticStrengthExcitatory"].c_str())/postNetDensity);
+
 	// Setup connectivity matrix;
 	vector<vector<bool> > conMat(preNetNum, vector<bool>(postNetNum));
 	double conP = atof(m_map_config["ConnectingProbability"].c_str());
@@ -129,71 +138,37 @@ int main(int argc, const char* argv[]) {
 	postNetshape[0] = tmax /dt;
 	preNetshape[1] = preNetNum;
 	postNetshape[1] = postNetNum;
+
 	// Define file path for output data;
-	// string preV_path = dir + "preV.csv";
-	// string preGE_path = dir + "preGE.csv";
-	// string preGI_path = dir + "preGI.csv";
-	// string postV_path = dir + "postV.csv";
-	// string postGE_path = dir + "postGE.csv";
-	// string postGI_path = dir + "postGI.csv";
-	string preI_path = dir + "preI.bin";
-	string postI_path = dir + "postI.bin";
-	// string preEI_path = dir + "preEI.csv";
-	// string preII_path = dir + "preII.csv";
-	// string postEI_path = dir + "postEI.csv";
-	// string postII_path = dir + "postII.csv";
+	string preV = dir + "preV.bin";
+	string postV = dir + "postV.bin";
+	string preI = dir + "preI.bin";
+	string postI = dir + "postI.bin";
 	// Initialize files:
-	// ofstream preV, postV;
-	ofstream preI, postI;
-	// preV.open(preV_path.c_str());
-	// preV.close();
-	// preGE.open(preGE_path.c_str());
-	// preGE.close();
-	// preGI.open(preGI_path.c_str());
-	// postGE.close();
-	// postV.open(postV_path.c_str());
-	// postV.close();
-	// postGE.open(postGE_path.c_str());
-	// postGE.close();
-	// postGI.open(postGI_path.c_str());
-	// postGI.close();
-	preI.open(preI_path.c_str(), ios::binary);
-	preI.write((char*)&preNetshape, 2*sizeof(size_t));
-	preI.close();
-	postI.open(postI_path.c_str(), ios::binary);
-	postI.write((char*)&postNetshape, 2*sizeof(size_t));
-	postI.close();
-	// preEI.open(preEI_path.c_str());
-	// preEI.close();
-	// preII.open(preII_path.c_str());
-	// preII.close();
-	// postEI.open(postEI_path.c_str());
-	// postEI.close();
-	// postII.open(postII_path.c_str());
-	// postII.close();
+	InitializeBinFile(preV, preNetshape);
+	InitializeBinFile(postV, postNetshape);
+	InitializeBinFile(preI, preNetshape);
+	InitializeBinFile(postI, postNetshape);
 
 	// char cr = (char)13;
-	// double progress;
+	int progress;
 	while (t < tmax) {
 		UpdateSystemState(preNet, postNet, conMat, t, dt);
 		t += dt;
 		// Output temporal data;
-		// preNet.OutPotential(preV_path);
-		preNet.OutCurrent(preI_path);
-		// preNet.OutPartialCurrent(preEI, true);
-		// preNet.OutPartialCurrent(preII, false);
-		// postNet.OutPotential(postV_path);
-		postNet.OutCurrent(postI_path);
-		// postNet.OutPartialCurrent(postEI, true);
-		// postNet.OutPartialCurrent(postII, false);
+		preNet.OutPotential(preV);
+		preNet.OutCurrent(preI);
+		postNet.OutPotential(postV);
+		postNet.OutCurrent(postI);
 
-		// progress = t * 100.0 / tmax;
+		if (floor(t * 10 / tmax) > progress) {
+			progress = floor(t * 10/tmax);
+			printf(">> Processing ... %d0%\n", progress);
+		}
 		// cout << cr;
-		// printf(">> Processing ... %6.2f", progress);
-		// cout << "%";
 	}
-	cout << endl;
-	//
+	// cout << endl;
+
 	// string preNeuron_path, preMat_path;
 	// preNeuron_path = dir + "preNeuron.csv";
 	// preMat_path = dir + "preMat.csv";

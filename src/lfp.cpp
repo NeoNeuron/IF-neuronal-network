@@ -93,7 +93,6 @@ void LFP(string current_path, vector<double>& lfp, vector<int>& neuron_list, dou
 	current_in_file.seekg(shape[1]*t_begin*sizeof(double), current_in_file.cur);
 	// For t = (t_begin, t_end]
 	double temp_lfp;
-	size_t neuron_list_counter;
 	double buffer;
 	for (int i = t_begin; i < t_end; i++) {
 		temp_lfp = 0;

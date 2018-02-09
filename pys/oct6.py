@@ -34,8 +34,9 @@ for si in s:
     # mi = pd.read_csv('./data/mi/mi_bd.csv')
     # mis[counter] = mi['mi'][1]
     # prepare new directory of new data;
-    subprocess.call(['mkdir', saving_dir+str(si)])
-    subprocess.call(['mv', tmp_saving + 'I.csv', saving_dir + str(si) + '/'])
+    subprocess.call(['mkdir', saving_dir + str(si)])
+    subprocess.call(['mv', tmp_saving + 'I.bin', saving_dir + str(si) + '/'])
     subprocess.call(['mv', tmp_saving + 'raster.csv', saving_dir + str(si) + '/'])
+    subprocess.call(['cp', './doc/config_net.ini', saving_dir + str(si) + '/'])
 # print s
 # print mis

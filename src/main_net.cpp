@@ -52,7 +52,7 @@ int main(int argc, const char* argv[]) {
 	}
 	// Set interneuronal coupling strength;
 	net.SetS(true, atof(m_map_config["SynapticStrengthExcitatory"].c_str()));
-	net.SetDelay(2.0);
+	net.SetDelay(0.0);
 	// initialize the network;
 	net.InitializeNeuronalType(atof(m_map_config["TypeProbability"].c_str()), atoi(m_map_config["TypeSeed"].c_str()));
 	cout << "in the network." << endl;
@@ -115,7 +115,6 @@ int main(int argc, const char* argv[]) {
 	I.write((char*)&shape, 2*sizeof(size_t));
 	I.close();
 
-	// char cr = (char)13;
 	// double progress;
 	while (t < tmax) {
 		net.UpdateNetworkState(t, dt);
@@ -125,9 +124,7 @@ int main(int argc, const char* argv[]) {
 		net.OutCurrent(I_path);
 
 		// progress = t * 100.0 / tmax;
-		// cout << cr;
-		// printf(">> Processing ... %6.2f", progress);
-		// cout << "%";
+		// printf(">> Processing ... %6.2f%", progress);
 	}
 	// cout << endl;
 
