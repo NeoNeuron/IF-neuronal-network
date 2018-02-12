@@ -1,7 +1,7 @@
 //***************
 //	Copyright: Kyle Chen
 //	Author: Kyle Chen
-//	Date: 2017-09-10
+//	Date: 2018-02-11
 //	Description: Define algorithm to estimate Mutual Information(MI) and Time-Delayed Mutual Information(TDMI);
 //***************
 #ifndef _IFNET_MI_UNIFORM_H_
@@ -39,24 +39,29 @@ void JointPDF(vector<bool>& binary_spikes, vector<double>& lfp, size_t bin_num, 
 // Return: none;
 void MarginalPDF(vector<vector<double> >& jointpdf, vector<double>& p1, vector<double>& p2);
 
+// Mutual information:
+// VECTOR<VECTOR<DOUBLE> > jointpdf: joint probability distribution of bivariate date;
+// Return: value of mutual information;
+double MI(vector<vector<double> >& jointpdf);
+
 // Mutual information of two binary spike trains;
 // VECTOR<BOOL> x, y: tow original bool sequence;
 // Return: value of mutual information;
-double MI(vector<bool>& x, vector<bool>& y);
+double MIBB(vector<bool>& x, vector<bool>& y);
 
 // Mutual information of two double sequences;
 // VECTOR<DOUBLE> x, y: two original double sequences;
 // DOUBLE* x_max_and_min, y_max_and_min: set of maximum and minimum value; *_max_and_min[0] = *_max; *_max_and_min[1] = *_min;
 // DOUBLE x_bin_width, y_bin_width: bin width of histograms of x and y;
 // Return: value of mutual information;
-double MI(vector<double>& x, vector<double>& y, size_t x_bin_num, size_t y_bin_num);
+double MIDD(vector<double>& x, vector<double>& y, size_t x_bin_num, size_t y_bin_num);
 
 // Mutual information between binary spiking train and LFP with uniform binning size;
 // VECTOR<BOOL> binary_spikes: original spike train with binary version;
 // VECTOR<DOUBLE> LFP: local field potential;
 // INT bin_number: number of bins of historgram of LFP;
 // Return: valude of Mutual information;
-double MI(vector<bool>& bool_series, vector<double>& double_series, int num_bin);
+double MIBD(vector<bool>& bool_series, vector<double>& double_series, int num_bin);
 
 // Time-delayed mutual information between two spike trains;
 void TDMI(vector<bool>& x, vector<bool>& y, vector<double> & tdmi, size_t* range);
@@ -71,6 +76,7 @@ void TDMI(vector<bool>& x, vector<double>& y, vector<double>& tdmi, size_t* rang
 void TDMI(vector<double>& x, vector<double>& y, vector<double>& tdmi, size_t* range, size_t bin_num);
 
 // Delayed mutual information of spike train and LFP with partial autocovariance scheme;
+void TDMI(vector<bool>& x, vector<vector<double> >& y, vector<double>& tdmi, size_t bin_num);
 void TDMI(vector<vector<bool> >& x, vector<double>& y, vector<double>& tdmi, size_t bin_num);
 
 // Delayed mutual information of spiking train and LFP, with adaptive partitions;

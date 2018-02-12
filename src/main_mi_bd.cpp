@@ -52,7 +52,7 @@ int main(int argc, const char* argv[]) {
 		TDMI(bool_series, double_series, tdmi, range, bin_num);
 	} else {
 		// autocovariance operations;
-		double autoscale = 20; // with unit millisecond;
+		double autoscale = 40; // with unit millisecond;
 		double dt = atof(argv[4]);
 		size_t length = floor(autoscale / dt);
 		size_t N = floor(bool_series.size() / length);
@@ -74,9 +74,12 @@ int main(int argc, const char* argv[]) {
 		if (strcmp(argv[6], "full") == 0) {
 			TDMI(newboolmat, newdoublemat, tdmi, range, bin_num);
 		} else if (strcmp(argv[6], "partial") == 0) {
-			size_t indy = 20;
-			vector<vector<bool> > bool_copy(newboolmat.begin() + indy - ptd, newboolmat.begin() + indy + ntd + 1);
-			vector<double> double_copy = newdoublemat[indy];
+			size_t indx = 40;
+			vector<bool> bool_copy = newboolmat[indx];
+			vector<vector<double> > double_copy(newdoublemat.begin() + indx - ntd, newdoublemat.begin() + indx + ptd + 1);
+			// size_t indy = 40;
+			// vector<vector<bool> > bool_copy(newboolmat.begin() + indy - ptd, newboolmat.begin() + indy + ntd + 1);
+			// vector<double> double_copy = newdoublemat[indy];
 			TDMI(bool_copy, double_copy, tdmi, bin_num);
 		} else throw runtime_error("incorrect algorithm choosing");
 	}
