@@ -16,6 +16,13 @@
 #include <stdexcept>
 using namespace std;
 
+void InitializeBinFile(string filename, size_t* shape) {
+	ofstream file;
+	file.open(filename.c_str(), ios::binary);
+	file.write((char*)shape, 2*sizeof(size_t));
+	file.close();
+}
+
 //	Simulation program for single network system;
 //	arguments:
 //	argv[1] = Outputing directory for neur al data;
@@ -52,7 +59,7 @@ int main(int argc, const char* argv[]) {
 	}
 	// Set interneuronal coupling strength;
 	net.SetS(true, atof(m_map_config["SynapticStrengthExcitatory"].c_str()));
-	net.SetDelay(0.0);
+	net.SetDelay(2.0);
 	// initialize the network;
 	net.InitializeNeuronalType(atof(m_map_config["TypeProbability"].c_str()), atoi(m_map_config["TypeSeed"].c_str()));
 	cout << "in the network." << endl;
@@ -104,30 +111,28 @@ int main(int argc, const char* argv[]) {
 	shape[0] = tmax / dt;
 	shape[1] = neuron_number;
 	// Define file path for output data;
-	// string V_path = dir + "V.bin";
+	string V_path = dir + "V.bin";
 	string I_path = dir + "I.bin";
+	string GE_path = dir + "GE.bin";
 	// Initialize files:
-	ofstream V, I;
-	// V.open(V_path.c_str(), ios::binary);
-	// V.write((char*)&shape, 2*sizeof(size_t));
-	// V.close();
-	I.open(I_path.c_str(), ios::binary);
-	I.write((char*)&shape, 2*sizeof(size_t));
-	I.close();
+	InitializeBinFile(V_path, shape);
+	InitializeBinFile(I_path, shape);
+	InitializeBinFile(GE_path, shape);
 
-	// double progress;
+	int progress;
 	while (t < tmax) {
 		net.UpdateNetworkState(t, dt);
 		t += dt;
 		// Output temporal data;
-		// net.OutPotential(V_path);
+		net.OutPotential(V_path);
 		net.OutCurrent(I_path);
+		net.OutConductance(GE_path, true);
 
-		// progress = t * 100.0 / tmax;
-		// printf(">> Processing ... %6.2f%", progress);
+		if (floor(t * 10 / tmax) > progress) {
+			progress = floor(t * 10/tmax);
+			printf(">> Processing ... %d0%\n", progress);
+		}
 	}
-	// cout << endl;
-
 	// string neuron_path, mat_path;
 	// neuron_path = dir + "neuron.csv";
 	// mat_path = dir + "mat.csv";
