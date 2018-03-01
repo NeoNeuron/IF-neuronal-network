@@ -4,7 +4,6 @@
 #include <cmath>
 #include <numeric>
 #include <stdexcept>
-#include "../include/sta.h"
 #include "../include/io.h"
 using namespace std;
 

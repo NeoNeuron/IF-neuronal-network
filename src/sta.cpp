@@ -2,8 +2,8 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-// #include <algorithm>
 #include <numeric>
+#include <stdexcept>
 using namespace std;
 
 double STA(vector<bool>& x, vector<double>& y) {

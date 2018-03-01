@@ -6,10 +6,12 @@ SRC = src
 INC = include
 BIN = bin
 OBJ = obj
+BIN = bin
 vpath %.cpp $(SRC)
 vpath %.h $(INC)
 vpath %.hpp $(INC)
 vpath %.o $(OBJ)
+vpath %.out $(BIN)
 
 all : net.out nets.out spike.out spike2.out lfp.out mi.out mi_dd.out mi_dd_LFP.out mi_bd.out mi_bb.out autocov.out surrogate.out surrogate2d.out means.out stds.out transpose.out split.out sta.out move
 	echo 'All targets are done'

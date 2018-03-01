@@ -14,9 +14,9 @@ x[0,:] = np.random.normal(size = num_trial)
 y[0,:] = np.random.normal(size = num_trial)
 a = float(sys.argv[1])
 b = float(sys.argv[2])
-axy = np.arange(0,10,0.5)
+axy = np.arange(0,1,0.05)
 target_ind = 50
-bins = 150
+bins = 10
 f = open('./data/mi/mi.csv', 'w')
 f.close()
 for k in axy:
