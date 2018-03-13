@@ -48,19 +48,19 @@ int main(int argc, const char* argv[]) {
 	vector<double> lfp;
 	LFP(argv[1], lfp, list, t_range);
 
-	// rearrange LFP data;
-	double dt_sampling = 0.03125;
-	int dn = atof(argv[5]) / dt_sampling; // number of LFP data points within single time step;
-	int num_bin = floor((t_range[1] - t_range[0]) / atof(argv[5])); // number of reduced LFP data point;
-
-	vector<double> mean_lfp(num_bin, 0);
-	for (int i = 0; i < num_bin; i++) {
-		for (int j = 0; j < dn; j++) mean_lfp[i] += lfp[i*dn + j];
-		mean_lfp[i] /= dn;
-	}
+	// // rearrange LFP data;
+	// double dt_sampling = 0.03125;
+	// int dn = atof(argv[5]) / dt_sampling; // number of LFP data points within single time step;
+	// int num_bin = floor((t_range[1] - t_range[0]) / atof(argv[5])); // number of reduced LFP data point;
+	//
+	// vector<double> mean_lfp(num_bin, 0);
+	// for (int i = 0; i < num_bin; i++) {
+	// 	for (int j = 0; j < dn; j++) mean_lfp[i] += lfp[i*dn + j];
+	// 	mean_lfp[i] /= dn;
+	// }
 
 	//	Output lfp:
-	Print1DBin(argv[2], mean_lfp, "trunc");
+	Print1DBin(argv[2], lfp, "trunc");
 	cout << ">> Done" << endl;
 	return 0;
 }

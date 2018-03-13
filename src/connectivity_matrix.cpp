@@ -169,7 +169,7 @@ double ConnectivityMatrix::GetMeanClusteringCoefficient() {
 }
 
 void ConnectivityMatrix::OutMatrix(string path) {
-	Print2DBin(path, matrix_, "trunc");
+	Print2D(path, matrix_, "trunc");
 }
 
 bool ConnectivityMatrix::IsConnect(){

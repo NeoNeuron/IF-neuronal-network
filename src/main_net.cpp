@@ -39,9 +39,9 @@ int main(int argc, const char* argv[]) {
 	string net_config_path = "./doc/config_net.ini";
   map<string, string> m_map_config;
   ReadConfig(net_config_path,m_map_config);
-  cout << ">> [Config.ini]:\n#####";
+  cout << ">> [Config.ini]:\n#####\n";
 	PrintConfig(m_map_config);
-	cout << "\n#####\n";
+	cout << "#####\n";
 	// load neuron number;
 	int neuron_number = atoi(m_map_config["NeuronNumber"].c_str());
 	NeuronalNetwork net(neuron_number);
@@ -52,14 +52,14 @@ int main(int argc, const char* argv[]) {
 	} else {
 		int connecting_density = atoi(m_map_config["ConnectingDensity"].c_str());
 		net.SetConnectingDensity(connecting_density);
-		int rewiring_probability = atof(m_map_config["RewiringProbability"].c_str());
+		double rewiring_probability = atof(m_map_config["RewiringProbability"].c_str());
 		int rewiring_seed = atoi(m_map_config["RewiringSeed"].c_str());
 		// Generate networks;
 		net.Rewire(rewiring_probability, rewiring_seed, true);
 	}
 	// Set interneuronal coupling strength;
 	net.SetS(true, atof(m_map_config["SynapticStrengthExcitatory"].c_str()));
-	net.SetDelay(2.0);
+	net.SetDelay(0.0);
 	// initialize the network;
 	net.InitializeNeuronalType(atof(m_map_config["TypeProbability"].c_str()), atoi(m_map_config["TypeSeed"].c_str()));
 	cout << "in the network." << endl;
@@ -113,30 +113,32 @@ int main(int argc, const char* argv[]) {
 	// Define file path for output data;
 	string V_path = dir + "V.bin";
 	string I_path = dir + "I.bin";
-	string GE_path = dir + "GE.bin";
+	//string GE_path = dir + "GE.bin";
 	// Initialize files:
 	InitializeBinFile(V_path, shape);
 	InitializeBinFile(I_path, shape);
-	InitializeBinFile(GE_path, shape);
+	//InitializeBinFile(GE_path, shape);
 
-	int progress;
+	// double progress;
 	while (t < tmax) {
 		net.UpdateNetworkState(t, dt);
 		t += dt;
 		// Output temporal data;
-		net.OutPotential(V_path);
-		net.OutCurrent(I_path);
-		net.OutConductance(GE_path, true);
-
-		if (floor(t * 10 / tmax) > progress) {
-			progress = floor(t * 10/tmax);
-			printf(">> Processing ... %d0%\n", progress);
+		if (abs(2*t - floor(2*t)) == 0) {
+			net.OutPotential(V_path);
+			net.OutCurrent(I_path);
 		}
+		//net.OutConductance(GE_path, true);
+
+		// progress = t * 100.0 / tmax;
+		// printf(">> Processing ... %6.2f%", progress);
 	}
-	// string neuron_path, mat_path;
-	// neuron_path = dir + "neuron.csv";
-	// mat_path = dir + "mat.csv";
-	// net.Save(neuron_path, mat_path);
+	// cout << endl;
+
+	string neuron_path, mat_path;
+	neuron_path = dir + "neuron.bin";
+	mat_path = dir + "mat.csv";
+	net.Save(neuron_path, mat_path);
 
 	// OUTPUTS:
 	string raster_path = dir + "raster.csv";

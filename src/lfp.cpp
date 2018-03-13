@@ -62,7 +62,7 @@ int KeySelect(string & key, vector<neuron_type> & types, vector<int> & indices) 
 
 void LFP(string current_path, vector<double>& lfp, vector<int>& neuron_list, double* t_range) {
 	// preliminary parameters;
-	double sampling_rate = 32; // Unit ms: 32/ms;
+	double sampling_rate = 2; // Unit ms: 2/ms;
 
 	// Preparing time series;
 	int t_begin = t_range[0] * sampling_rate; // not included
