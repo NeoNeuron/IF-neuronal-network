@@ -9,40 +9,38 @@ import pandas as pd
 import subprocess
 import sys
 num_rand = 2
-num_trial = 1e5*np.logspace(0, 10, num = 11, base = 2)
+#num_trial = 10e5*np.logspace(0, 10, num = 11, base = 2)
+num_trial = 10e6
 a = 0.5
 b = 0.5
 axy = 1
 target_ind = 0
-bins = 10
+bins = np.arange(10,80,2)
 
 f = open('./data/mi/mi.csv', 'w')
-f.write('mi\n')
+f.write('x_binsize,y_binsize,mi\n')
 f.close()
-counter = 0
-for k in num_trial:
-  x = np.zeros((num_rand, int(k)))
-  y = np.zeros((num_rand, int(k)))
-  x[0,:] = np.random.normal(size = int(k))
-  y[0,:] = np.random.normal(size = int(k))
+for k in bins:
+  x = np.zeros((num_rand, num_trial))
+  y = np.zeros((num_rand, num_trial))
+  x[0,:] = np.random.normal(size = num_trial)
+  y[0,:] = np.random.normal(size = num_trial)
   for i in range(num_rand - 1):
-    x[i + 1,:] = a*x[i,:] + np.random.normal(size = int(k))
-    y[i + 1,:] = b*y[i,:] + axy*x[i,:] + np.random.normal(size = int(k))
+    x[i + 1,:] = a*x[i,:] + np.random.normal(size = num_trial)
+    y[i + 1,:] = b*y[i,:] + axy*x[i,:] + np.random.normal(size = num_trial)
   np.savetxt('./data/tmp/xn.csv', x[target_ind,:], fmt = '%.10f')
   np.savetxt('./data/tmp/yn.csv', y[target_ind + 1,:], fmt = '%.10f')
-  subprocess.call(['./bin/mi.out', './data/tmp/xn.csv', './data/tmp/yn.csv', str(bins), str(bins)])
-  subprocess.call(['cp', './data/mi/joint_pdf.csv', './data/mi/joint_pdf_' + str(counter) + '.csv'])
-  counter += 1
+  subprocess.call(['./bin/mi.out', './data/tmp/xn.csv', './data/tmp/yn.csv', str(k), str(k)])
 
-data = pd.read_csv('./data/mi/mi.csv')
-mis = pd.DataFrame({'length':num_trial, 'mi':data['mi']})
-mis.to_csv('./data/mi/gauss_max_length.csv')
+mis = pd.read_csv('./data/mi/mi.csv')
 # rho2 = axy**2/((1 - a**2)**2 + (1 + a**2)*axy**2)
 rho2 = axy**2/(1+a**2+axy**2)
 theory = -0.5*np.log(1-rho2)
 
-plt.semilogx(num_trial, mis['mi'] - theory)
-plt.xlabel('Length of data')
+plt.plot(mis['x_binsize'], mis['mi'] - theory, label = 'mi~XBinsize')
+plt.plot(mis['y_binsize'], mis['mi'] - theory, label = 'mi~YBinsize')
+plt.xlabel('Binsize of probability density function')
 plt.ylabel('Mutual Information')
+plt.legend()
 plt.savefig('linear')
 plt.close()
