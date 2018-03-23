@@ -54,7 +54,7 @@ double MIBB(vector<bool>& x, vector<bool>& y);
 // DOUBLE* x_max_and_min, y_max_and_min: set of maximum and minimum value; *_max_and_min[0] = *_max; *_max_and_min[1] = *_min;
 // DOUBLE x_bin_width, y_bin_width: bin width of histograms of x and y;
 // Return: value of mutual information;
-double MIDD(vector<double>& x, vector<double>& y, size_t x_bin_num, size_t y_bin_num);
+double MIDD(vector<double>& x, vector<double>& y, size_t x_bin_num, size_t y_bin_num, bool pdf_output_flag);
 
 // Mutual information between binary spiking train and LFP with uniform binning size;
 // VECTOR<BOOL> binary_spikes: original spike train with binary version;

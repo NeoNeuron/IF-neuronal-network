@@ -5,6 +5,7 @@
 //	Description: source file of mi_uniform.h
 //***************
 #include "../include/mi_uniform.h"
+#include "../include/io.h"
 #include <iostream>
 #include <cmath>
 #include <numeric>
@@ -116,7 +117,7 @@ double MIBB(vector<bool>& x, vector<bool>& y) {
 	}
 }
 
-double MIDD(vector<double>& x, vector<double>& y, size_t x_bin_num, size_t y_bin_num) {
+double MIDD(vector<double>& x, vector<double>& y, size_t x_bin_num, size_t y_bin_num, bool pdf_output_flag) {
 	//	Compare the length of x & y;
 	if (x.size() != y.size()) {
 		cout << "ERROR: x and y don't have the same length." << endl;
@@ -125,6 +126,7 @@ double MIDD(vector<double>& x, vector<double>& y, size_t x_bin_num, size_t y_bin
 		// Calculate joint probability distribution function;
 		vector<vector<double> > jointpdf;
 		JointPDF(x, y, x_bin_num, y_bin_num, jointpdf);
+		if (pdf_output_flag) Print2D("./data/mi/joint_pdf.csv", jointpdf, "trunc");
 		return MI(jointpdf);
 	}
 }
@@ -167,7 +169,7 @@ void TDMI(vector<bool>& x, vector<bool>& y, vector<double> & tdmi, size_t* range
 void TDMI(vector<double>& x, vector<vector<double> >& y, vector<double> & tdmi, size_t x_bin_num, size_t y_bin_num) {
 	tdmi.resize(y.size(), 0);
 	for (size_t i = 0; i < y.size(); i++) {
-		tdmi[i] = MIDD(x, y[i], x_bin_num, y_bin_num);
+		tdmi[i] = MIDD(x, y[i], x_bin_num, y_bin_num, false);
 	}
 }
 
@@ -181,12 +183,12 @@ void TDMI(vector<double>& x, vector<double>& y, vector<double>& tdmi, size_t* ra
 	vector<double> x_copy(x.begin(), x.end() - res);
 	vector<double> y_copy(y.begin(), y.end() - res);
 	// No shift;
-	tdmi[range[0]] = MIDD(x_copy, y_copy, bin_num, bin_num);
+	tdmi[range[0]] = MIDD(x_copy, y_copy, bin_num, bin_num, false);
 	// Negative shift;
 	for (int i = 0; i < range[0]; i++) {
 		x_copy.erase(x_copy.begin());
 		x_copy.insert(x_copy.end(), *(x.end() - res + i));
-		tdmi[range[0] - i - 1] = MIDD(x_copy, y_copy, bin_num, bin_num);
+		tdmi[range[0] - i - 1] = MIDD(x_copy, y_copy, bin_num, bin_num, false);
 	}
 	// Positive shift;
 	x_copy.clear();
@@ -194,7 +196,7 @@ void TDMI(vector<double>& x, vector<double>& y, vector<double>& tdmi, size_t* ra
 	for (int i = 0; i < range[1]; i++) {
 		y_copy.erase(y_copy.begin());
 		y_copy.insert(y_copy.end(), *(y.end() - res + i));
-		tdmi[range[0] + i + 1] = MIDD(x_copy, y_copy, bin_num, bin_num);
+		tdmi[range[0] + i + 1] = MIDD(x_copy, y_copy, bin_num, bin_num, false);
 	}
 }
 

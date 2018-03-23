@@ -24,7 +24,7 @@ int main(int argc, const char* argv[]) {
 	Read1D(argv[1], x, 0, 1);
 	Read1D(argv[2], y, 0, 1);
 	size_t x_bin_num = atoi(argv[3]), y_bin_num = atoi(argv[4]);
-  double mi = MIDD(x, y, x_bin_num, y_bin_num);
+  double mi = MIDD(x, y, x_bin_num, y_bin_num, true);
   // Output data:
   ofstream ofile;
   ofile.open("./data/mi/mi.csv", ios::app);
