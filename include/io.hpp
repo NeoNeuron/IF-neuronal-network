@@ -64,7 +64,7 @@ template <class T> void Read1D(string path, vector<T>& data, int index, int axis
   ifstream ifile(path.c_str());
   if (axis == 0) {
     string s, buffer;
-    int getline_counter = 0;
+    size_t getline_counter = 0;
     istringstream s_input;
     while (getline(ifile, s)) {
       if (getline_counter == index) {
@@ -81,7 +81,7 @@ template <class T> void Read1D(string path, vector<T>& data, int index, int axis
     }
   } else {
     string s, buffer;
-    int column_counter;
+    size_t column_counter;
     istringstream s_input;
     while (getline(ifile, s)) {
       column_counter = 0;

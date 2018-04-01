@@ -17,7 +17,7 @@ using namespace std;
 //	argv[1] = path for time series x;
 //	argv[2] = path for time series y;
 //	argv[3] = delayed time range, seperated by comma;
-//  argv[4] = bin number of histogram;
+//  argv[4] = bin size of histogram;
 int main(int argc, const char* argv[]) {
 	if (argc != 5) throw runtime_error("wrong number of args");
 	clock_t start, finish;
@@ -36,9 +36,9 @@ int main(int argc, const char* argv[]) {
 	int positive_time_delay = atoi(buffer.c_str());
 	range[1] = positive_time_delay;
 
-	size_t bin_num = atoi(argv[4]);
+	double binsize = atof(argv[4]);
 	vector<double> tdmi;
-	TDMI(double_series_1, double_series_2, tdmi, range, bin_num);
+	TDMI(double_series_1, double_series_2, tdmi, range, binsize);
 
   // Output data:
 	ofstream data_out;

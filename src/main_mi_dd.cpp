@@ -21,8 +21,8 @@ int myrandom(int i) {return rand()%i;}
 //	argv[2] = path for time series y;
 //	argv[3] = index of x variable in series;
 //	argv[4] = delayed time range, seperated by comma;
-//  argv[5] = bin number of variable x;
-//  argv[6] = bin number of variable y;
+//  argv[5] = bin size of variable x;
+//  argv[6] = bin size of variable y;
 int main(int argc, const char* argv[]) {
 	if (argc != 7) throw runtime_error("wrong number of args");
 	clock_t start, finish;
@@ -42,9 +42,9 @@ int main(int argc, const char* argv[]) {
 	vector<double> s1 = double_series_1[indx];
 	vector<vector<double> > s2(double_series_2.begin() + indx - negative_time_delay, double_series_2.begin() + indx + positive_time_delay + 1);
 
-	size_t x_bin_num = atoi(argv[5]), y_bin_num = atoi(argv[6]);
+	double x_binsize = atof(argv[5]), y_binsize = atof(argv[6]);
 	vector<double> tdmi;
-	TDMI(s1, s2, tdmi, x_bin_num, y_bin_num);
+	TDMI(s1, s2, tdmi, x_binsize, y_binsize);
 	// // Randomly shuffle double_series_2;
 	// srand(unsigned(time(0)));
 	// random_shuffle(double_series_2.begin(), double_series_2.end(), myrandom);

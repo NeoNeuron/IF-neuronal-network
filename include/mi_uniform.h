@@ -25,15 +25,17 @@ void JointPDF(vector<bool>& x, vector<bool>& y, vector<vector<double> >& jointpd
 // SIZE_T y_bin_num: number of uniform partitions of y;
 // VECTOR<VECTOR<DOUBLE> jointpdf: joint probability distribution function of x and y;
 // Return: none;
-void JointPDF(vector<double>& x, vector<double>& y, size_t x_bin_num, size_t y_bin_num, vector<vector<double> >& jointpdf);
+void JointPDF(vector<double>& x, vector<double>& y, vector<vector<double> >& jointpdf, double x_binsize, double y_binsize);
 
 // Joint probability function with uniform partition of x and y;
 // VECTOR<BOOL> binary_spikes: binary spike trains;
 // VECTOR<DOUBLE> lfp: continuous local field potential;
-// SIZE_T bin_num: number of uniform partitions of x;
 // VECTOR<VECTOR<DOUBLE> jointpdf: joint probability distribution function of spike train and lfp;
+// SIZE_T bin_num: number of uniform partitions of x;
+// DOUBLE threshold: threshold of pdf of lfp with uniform partitions;
 // Return: none;
-void JointPDF(vector<bool>& binary_spikes, vector<double>& lfp, size_t bin_num, vector<vector<double> >& jointpdf);
+void JointPDF(vector<bool>& binary_spikes, vector<double>& lfp, vector<vector<double> >& jointpdf, double binsize);
+void JointPDF2bins(vector<bool>& binary_spikes, vector<double>& lfp, vector<vector<double> >& jointpdf, double threshold);
 
 // Marginal probability density function of bivariable joint distribution density function;
 // Return: none;
@@ -54,32 +56,28 @@ double MIBB(vector<bool>& x, vector<bool>& y);
 // DOUBLE* x_max_and_min, y_max_and_min: set of maximum and minimum value; *_max_and_min[0] = *_max; *_max_and_min[1] = *_min;
 // DOUBLE x_bin_width, y_bin_width: bin width of histograms of x and y;
 // Return: value of mutual information;
-double MIDD(vector<double>& x, vector<double>& y, size_t x_bin_num, size_t y_bin_num, bool pdf_output_flag);
+double MIDD(vector<double>& x, vector<double>& y, double x_binsize, double y_binsize, bool pdf_output_flag);
 
 // Mutual information between binary spiking train and LFP with uniform binning size;
 // VECTOR<BOOL> binary_spikes: original spike train with binary version;
 // VECTOR<DOUBLE> LFP: local field potential;
 // INT bin_number: number of bins of historgram of LFP;
 // Return: valude of Mutual information;
-double MIBD(vector<bool>& bool_series, vector<double>& double_series, int num_bin);
+double MIBD(vector<bool>& bool_series, vector<double>& double_series, double binsize);
+// Threshold: the seperation line between two bins in the pdf of continuous double variable;
+// Return: valude of Mutual information;
+double MIBD2bins(vector<bool>& bool_series, vector<double>& double_series, double threshold);
 
 // Time-delayed mutual information between two spike trains;
 void TDMI(vector<bool>& x, vector<bool>& y, vector<double> & tdmi, size_t* range);
 
-// Delayed mutual information of two double series, wiht adaptive partition;
-void TDMI(vector<double>& x, vector<vector<double> >& y, vector<double>& tdmi, size_t x_bin_num, size_t y_bin_num);
+// Delayed mutual information of two double series;
+void TDMI(vector<double>& x, vector<vector<double> >& y, vector<double>& tdmi, double x_binsize, double y_binsize);
 
+// Delayed mutual information of two double variables;
+void TDMI(vector<double>& x, vector<double>& y, vector<double>& tdmi, size_t* range, double binsize);
 // Delayed mutual information of spike train and LFP with direct scheme;
-void TDMI(vector<bool>& x, vector<double>& y, vector<double>& tdmi, size_t* range, size_t bin_num);
-
-// Delayed mutual information of LFP and LFP with direct scheme;
-void TDMI(vector<double>& x, vector<double>& y, vector<double>& tdmi, size_t* range, size_t bin_num);
-
-// Delayed mutual information of spike train and LFP with partial autocovariance scheme;
-void TDMI(vector<bool>& x, vector<vector<double> >& y, vector<double>& tdmi, size_t bin_num);
-void TDMI(vector<vector<bool> >& x, vector<double>& y, vector<double>& tdmi, size_t bin_num);
-
-// Delayed mutual information of spiking train and LFP, with adaptive partitions;
-void TDMI(vector<vector<bool> >& bool_series, vector<vector<double> >& double_series, vector<double> & tdmi, size_t* range, size_t bin_num);
+void TDMI(vector<bool>& x, vector<double>& y, vector<double>& tdmi, size_t* range, double binsize);
+void TDMI2bins(vector<bool>& x, vector<double>& y, vector<double>& tdmi, size_t* range, double threshold);
 
 #endif // _IFNET_MI_UNIFORM_H_

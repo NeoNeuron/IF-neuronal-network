@@ -65,9 +65,9 @@ void LFP(string current_path, vector<double>& lfp, vector<int>& neuron_list, dou
 	double sampling_rate = 2; // Unit ms: 2/ms;
 
 	// Preparing time series;
-	int t_begin = t_range[0] * sampling_rate; // not included
-	int t_end = t_range[1] * sampling_rate; // included
-	int size_of_lfp = t_end - t_begin;
+	size_t t_begin = t_range[0] * sampling_rate; // not included
+	size_t t_end = t_range[1] * sampling_rate; // included
+	size_t size_of_lfp = t_end - t_begin;
 	lfp.clear();
 	lfp.resize(size_of_lfp);
 	// Load current file;
@@ -94,7 +94,7 @@ void LFP(string current_path, vector<double>& lfp, vector<int>& neuron_list, dou
 	// For t = (t_begin, t_end]
 	double temp_lfp;
 	double buffer;
-	for (int i = t_begin; i < t_end; i++) {
+	for (size_t i = t_begin; i < t_end; i++) {
 		temp_lfp = 0;
 		for (int j = 0; j < diff_list.size() - 1; j ++) {
 			current_in_file.seekg(diff_list[j]*sizeof(double), current_in_file.cur);

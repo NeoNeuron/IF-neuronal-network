@@ -24,7 +24,7 @@ using namespace std;
 //	argv[2] = path for double series;
 //	argv[3] = range of timelag;
 //	argv[4] = size of timing step;
-//	argv[5] = bin number of pdf of the double variable;
+//	argv[5] = threshold of pdf for the double variable;
 int main(int argc, const char* argv[]) {
 	if (argc != 6) throw runtime_error("wrong number of args");
 	clock_t start, finish;
@@ -45,14 +45,14 @@ int main(int argc, const char* argv[]) {
 	int ptd = atoi(buffer.c_str());
 	range[1] = ptd;
 	// Calculate mutual information;
-	double binsize = atof(argv[5]);
+	double threshold = atof(argv[5]);
 	vector<double> tdmi;
-	TDMI(bool_series, double_series, tdmi, range, binsize);
+	TDMI(bool_series, double_series, tdmi, range, threshold);
 
 	//	Output data:
 	ofstream data_out;
 	cout << ">> Outputing data ... " << endl;
-	data_out.open("./data/mi/mi_bd.csv");
+	data_out.open("./data/mi/mi_bd_2bins.csv");
 	data_out << "timelag,mi" << endl;
 	for (int i = 0; i < ntd + ptd + 1; i++) {
 		data_out << i - ntd << ',' << setprecision(15) << (double)tdmi[i] << '\n';
