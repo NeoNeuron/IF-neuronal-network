@@ -18,51 +18,6 @@ void ConnectivityMatrix::Scan(int target_value, int row_index, vector<int> &outp
 	}
 }
 
-void ConnectivityMatrix::FindLeastPath() {
-	// initialize path_matrix_
-	for (int i = 0; i < neuron_number_; i++) {
-		for (int j = 0; j < neuron_number_; j++) {
-			if (i == j) continue;
-			else {
-				if (matrix_[i][j] == 1) path_matrix_[i][j] = 1;
-				else path_matrix_[i][j] = 1000000;
-			}
-			mediate_mode_matrix_[i][j] = -1;
-		}
-	}
-	// Floid algorithm for least path length
-	for (int k = 0; k < neuron_number_; k++) {
-		for (int i = 0; i < neuron_number_; i++) {
-			if (i != k) {
-				for (int j = 0; j < neuron_number_; j++) {
-					if (j!=k && j!=i && path_matrix_[i][j]>path_matrix_[i][k] + path_matrix_[k][j]) {
-						path_matrix_[i][j] = path_matrix_[i][k] + path_matrix_[k][j];
-						mediate_mode_matrix_[i][j] = k;
-					}
-				}
-			}
-		}
-	}
-}
-
-void ConnectivityMatrix::CalculateClusteringCoefficient() {
-	vector<int> neighbor;
-	double counter = 0;
-	for (int k = 0; k < neuron_number_; k++) {
-		for (int s = 0; s < neuron_number_; s++) {
-			if (k == s || matrix_[k][s] == 1) neighbor.push_back(s);
-		}
-		for (int i = 0; i < neighbor.size(); i++) {
-			for (int j = 0; j < neighbor.size(); j++) {
-				counter += matrix_[neighbor[i]][neighbor[j]];
-			}
-		}
-		clustering_coefficient_[k] = counter / (neighbor.size()*(neighbor.size() - 1));
-		neighbor.clear();
-		counter = 0;
-	}
-}
-
 void ConnectivityMatrix::SetNeuronNumber(int neuron_number) {
 	neuron_number_ = neuron_number;
 	vector<int> add_int0(neuron_number_, 0);
@@ -108,6 +63,51 @@ void ConnectivityMatrix::LoadMatrix(vector<vector<int> >& matrix) {
 				}
 			}
 		}
+	}
+}
+
+void ConnectivityMatrix::FindLeastPath() {
+	// initialize path_matrix_
+	for (int i = 0; i < neuron_number_; i++) {
+		for (int j = 0; j < neuron_number_; j++) {
+			if (i == j) continue;
+			else {
+				if (matrix_[i][j] == 1) path_matrix_[i][j] = 1;
+				else path_matrix_[i][j] = 1000000;
+			}
+			mediate_mode_matrix_[i][j] = -1;
+		}
+	}
+	// Floid algorithm for least path length
+	for (int k = 0; k < neuron_number_; k++) {
+		for (int i = 0; i < neuron_number_; i++) {
+			if (i != k) {
+				for (int j = 0; j < neuron_number_; j++) {
+					if (j!=k && j!=i && path_matrix_[i][j]>path_matrix_[i][k] + path_matrix_[k][j]) {
+						path_matrix_[i][j] = path_matrix_[i][k] + path_matrix_[k][j];
+						mediate_mode_matrix_[i][j] = k;
+					}
+				}
+			}
+		}
+	}
+}
+
+void ConnectivityMatrix::CalculateClusteringCoefficient() {
+	vector<int> neighbor;
+	double counter = 0;
+	for (int k = 0; k < neuron_number_; k++) {
+		for (int s = 0; s < neuron_number_; s++) {
+			if (k == s || matrix_[k][s] == 1) neighbor.push_back(s);
+		}
+		for (int i = 0; i < neighbor.size(); i++) {
+			for (int j = 0; j < neighbor.size(); j++) {
+				counter += matrix_[neighbor[i]][neighbor[j]];
+			}
+		}
+		clustering_coefficient_[k] = counter / (neighbor.size()*(neighbor.size() - 1));
+		neighbor.clear();
+		counter = 0;
 	}
 }
 
@@ -171,6 +171,11 @@ double ConnectivityMatrix::GetMeanClusteringCoefficient() {
 void ConnectivityMatrix::OutMatrix(string path) {
 	Print2D(path, matrix_, "trunc");
 }
+
+void ConnectivityMatrix::OutPathMatrix(string path){
+	Print2D(path, path_matrix_, "trunc");
+}
+
 
 bool ConnectivityMatrix::IsConnect(){
 	int counter = 0;

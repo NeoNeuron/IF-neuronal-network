@@ -4,10 +4,11 @@
 using namespace std;
 
 void Spike2Bool(vector<double>& spikes, vector<bool> & binary_spikes, double tmax, double dt) {
-	int T = ceil(tmax / dt);
+	size_t T = ceil(tmax / dt);
 	binary_spikes.resize(T, false);
+	size_t index;
 	for (vector<double>::iterator it = spikes.begin(); it != spikes.end(); it ++) {
-		int index = floor(*it / dt);
+		index = floor(*it / dt);
 		if (index == T) index --;
 		binary_spikes[index] = true;
 	}

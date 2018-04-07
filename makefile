@@ -13,7 +13,7 @@ vpath %.hpp $(INC)
 vpath %.o $(OBJ)
 vpath %.out $(BIN)
 
-all : net.out nets.out spike.out spike2.out lfp.out mi.out mi_dd.out mi_dd_LFP.out mi_bd.out mi_bd_2bins.out mi_bb.out autocov.out means.out stds.out transpose.out sta.out move
+all : net.out nets.out spike.out spike2.out lfp.out mi.out mi_dd.out mi_dd_LFP.out mi_bd.out mi_bd_2bins.out mi_bb.out transpose.out sta.out move
 	echo 'All targets are done'
 
 net.out : get-config.o neuron.o	network.o connectivity_matrix.o main_net.o
@@ -47,15 +47,6 @@ mi_bd_2bins.out : mi_uniform.o main_mi_bd_2bins.o
 	$(CPP) $(CPPFLAG) $@ $^
 
 mi_bb.out : mi_uniform.o main_mi_bb.o
-	$(CPP) $(CPPFLAG) $@ $^
-
-autocov.out : stationary.o main_autocov.o
-	$(CPP) $(CPPFLAG) $@ $^
-
-means.out : stationary.o main_means.o
-	$(CPP) $(CPPFLAG) $@ $^
-
-stds.out : stationary.o main_stds.o
 	$(CPP) $(CPPFLAG) $@ $^
 
 transpose.out : main_transpose.o

@@ -27,12 +27,6 @@ private:
 	//	Find given elements of given array and output their indices.
 	void Scan(int target_value, int row_index_, vector<int> &output_indices);
 
-	//	Find the least path between each pair of neurons; Store results in the path_matrix_;
-	void FindLeastPath();
-
-	//	Calculate the path clustering coefficient of each neuron; Store results in clustering_coefficenct_;
-	void CalculateClusteringCoefficient();
-
 public:
 	// Set size of network:
 	void SetNeuronNumber(int neuron_number);
@@ -42,6 +36,12 @@ public:
 
 	//	Load connectivity matrix from external matrix;
 	void LoadMatrix(vector<vector<int> > &matrix);
+
+	//	Find the least path between each pair of neurons; Store results in the path_matrix_;
+	void FindLeastPath();
+
+	//	Calculate the path clustering coefficient of each neuron; Store results in clustering_coefficenct_;
+	void CalculateClusteringCoefficient();
 
 	//	Rewire network according to certain probability;
 	void Rewire(double p, int seed, bool OutputOption);
@@ -57,6 +57,9 @@ public:
 
 	//	Output matrix_ to external file.
 	void OutMatrix(string path);
+
+	//	Output path_matrix_ to external file.
+	void OutPathMatrix(string path);
 
 	// Judge whether there is any connection;
 	bool IsConnect();

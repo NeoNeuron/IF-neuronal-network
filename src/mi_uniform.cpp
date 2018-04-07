@@ -152,7 +152,7 @@ double MIDD(vector<double>& x, vector<double>& y, double x_binsize, double y_bin
 	}
 }
 
-double MIBD(vector<bool>& bool_series, vector<double>& double_series, double binsize) {
+double MIBD(vector<bool>& bool_series, vector<double>& double_series, double binsize, bool pdf_output_flag) {
 	if (bool_series.size() != double_series.size()) {
 		cout << "ERROR: x and y don't have the same length." << endl;
 		return 0;
@@ -160,6 +160,7 @@ double MIBD(vector<bool>& bool_series, vector<double>& double_series, double bin
 		// Calculate joint probability distribution function;
 		vector<vector<double> > jointpdf;
 		JointPDF(bool_series, double_series, jointpdf, binsize);
+		if (pdf_output_flag) Print2D("./data/mi/joint_pdf.csv", jointpdf, "trunc");
 		return MI(jointpdf);
 	}
 }
@@ -243,12 +244,12 @@ void TDMI(vector<bool>& x, vector<double>& y, vector<double>& tdmi, size_t* rang
 	vector<bool> x_copy(x.begin(), x.end() - res);
 	vector<double> y_copy(y.begin(), y.end() - res);
 	// No shift;
-	tdmi[range[0]] = MIBD(x_copy, y_copy, binsize);
+	tdmi[range[0]] = MIBD(x_copy, y_copy, binsize, false);
 	// Negative shift;
 	for (size_t i = 0; i < range[0]; i++) {
 		x_copy.erase(x_copy.begin());
 		x_copy.insert(x_copy.end(), *(x.end() - res + i));
-		tdmi[range[0] - i - 1] = MIBD(x_copy, y_copy, binsize);
+		tdmi[range[0] - i - 1] = MIBD(x_copy, y_copy, binsize, false);
 	}
 	// Positive shift;
 	x_copy.clear();
@@ -256,7 +257,7 @@ void TDMI(vector<bool>& x, vector<double>& y, vector<double>& tdmi, size_t* rang
 	for (size_t i = 0; i < range[1]; i++) {
 		y_copy.erase(y_copy.begin());
 		y_copy.insert(y_copy.end(), *(y.end() - res + i));
-		tdmi[range[0] + i + 1] = MIBD(x_copy, y_copy, binsize);
+		tdmi[range[0] + i + 1] = MIBD(x_copy, y_copy, binsize, false);
 	}
 	return;
 }
@@ -271,12 +272,12 @@ void TDMI2bins(vector<bool>& x, vector<double>& y, vector<double>& tdmi, size_t*
 	vector<bool> x_copy(x.begin(), x.end() - res);
 	vector<double> y_copy(y.begin(), y.end() - res);
 	// No shift;
-	tdmi[range[0]] = MIBD(x_copy, y_copy, threshold);
+	tdmi[range[0]] = MIBD2bins(x_copy, y_copy, threshold);
 	// Negative shift;
 	for (size_t i = 0; i < range[0]; i++) {
 		x_copy.erase(x_copy.begin());
 		x_copy.insert(x_copy.end(), *(x.end() - res + i));
-		tdmi[range[0] - i - 1] = MIBD(x_copy, y_copy, threshold);
+		tdmi[range[0] - i - 1] = MIBD2bins(x_copy, y_copy, threshold);
 	}
 	// Positive shift;
 	x_copy.clear();
@@ -284,7 +285,7 @@ void TDMI2bins(vector<bool>& x, vector<double>& y, vector<double>& tdmi, size_t*
 	for (size_t i = 0; i < range[1]; i++) {
 		y_copy.erase(y_copy.begin());
 		y_copy.insert(y_copy.end(), *(y.end() - res + i));
-		tdmi[range[0] + i + 1] = MIBD(x_copy, y_copy, threshold);
+		tdmi[range[0] + i + 1] = MIBD2bins(x_copy, y_copy, threshold);
 	}
 	return;
 }

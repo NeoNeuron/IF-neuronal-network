@@ -2,7 +2,7 @@
 //	Copyright: Kyle Chen
 //	Author: Kyle Chen
 //	Description: Define class Neuron, structure Spike and NeuronState;
-//	Date: 2017-03-08 11:09:04
+//	Date: 2018-04-07
 //******************************
 #include "../include/neuron.h"
 #include<iostream>
@@ -39,7 +39,9 @@ void Neuron::GenerateInternalPoisson(bool function, double tmax, bool outSet) {
 		tLast = temp;
 		while (tLast < tmax) {
 			x = rand() / (RAND_MAX + 1.0);
+			while (x == 0) x = rand() / (RAND_MAX + 1.0);
 			tLast -= log(x) / rate;
+			// if (tLast > 1e9) cout << "WARNNING: " << tLast << endl;
 			ADD.t = tLast;
 			synaptic_driven_.push_back(ADD);
 			if (outSet == true) cout << ADD.t << '\t';

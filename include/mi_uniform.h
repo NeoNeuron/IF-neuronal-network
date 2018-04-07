@@ -63,7 +63,7 @@ double MIDD(vector<double>& x, vector<double>& y, double x_binsize, double y_bin
 // VECTOR<DOUBLE> LFP: local field potential;
 // INT bin_number: number of bins of historgram of LFP;
 // Return: valude of Mutual information;
-double MIBD(vector<bool>& bool_series, vector<double>& double_series, double binsize);
+double MIBD(vector<bool>& bool_series, vector<double>& double_series, double binsize, bool pdf_output_flag);
 // Threshold: the seperation line between two bins in the pdf of continuous double variable;
 // Return: valude of Mutual information;
 double MIBD2bins(vector<bool>& bool_series, vector<double>& double_series, double threshold);

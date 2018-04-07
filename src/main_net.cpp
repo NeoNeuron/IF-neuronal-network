@@ -106,9 +106,10 @@ int main(int argc, const char* argv[]) {
 
 	// SETUP DYNAMICS:
 	double t = 0, dt = atof(m_map_config["TimingStep"].c_str()), tmax = maximum_time;
+	double recording_rate = 0.5;
 	// Define the shape of data;
 	size_t shape[2];
-	shape[0] = tmax / dt;
+	shape[0] = tmax * recording_rate;
 	shape[1] = neuron_number;
 	// Define file path for output data;
 	string V_path = dir + "V.bin";
@@ -124,7 +125,7 @@ int main(int argc, const char* argv[]) {
 		net.UpdateNetworkState(t, dt);
 		t += dt;
 		// Output temporal data;
-		if (abs(2*t - floor(2*t)) == 0) {
+		if (abs(recording_rate*t - floor(recording_rate*t)) == 0) {
 			net.OutPotential(V_path);
 			net.OutCurrent(I_path);
 		}
