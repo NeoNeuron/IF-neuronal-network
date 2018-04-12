@@ -17,30 +17,29 @@ mi_max = np.ndarray((len(hist_bin_list), len(tmax_list)))
 snr = np.ndarray((len(hist_bin_list), len(tmax_list)))
 peak_dev = np.ndarray((len(hist_bin_list), len(tmax_list)))
 
-t_range = [0, 0]
-t_range[0] = 500
+t_range = [500, 0]
 drange = str(ntd) + ',' + str(ptd)
 i = 0
 for tmax in tmax_list:
-    t_range[1] = tmax
-    str_range = str(t_range[0]) + ',' + str(t_range[1])
-    subprocess.call(['./bin/spike.out', './data/tmp/raster.csv', './data/tmp/singleSpike.csv', spike_ind, str_range, str(dt), 'false'])
-    subprocess.call(['./bin/spike.out', './data/tmp/raster.csv', './data/tmp/singleSpike_shuffle.csv', spike_ind, str_range, str(dt), 'true'])
-    subprocess.call(['./bin/lfp.out', './data/tmp/I.csv', './data/tmp/singleI.csv', lfp_ind, str_range, str(dt)])
-    j = 0
-    for hist_bin in hist_bin_list:
+  t_range[1] = tmax
+  str_range = str(t_range[0]) + ',' + str(t_range[1])
+  subprocess.call(['./bin/spike.out', './data/tmp/raster.csv', './data/tmp/singleSpike.bin', spike_ind, str_range, str(dt), 'false'])
+  subprocess.call(['./bin/spike.out', './data/tmp/raster.csv', './data/tmp/singleSpike_shuffle.bin', spike_ind, str_range, str(dt), 'true'])
+  subprocess.call(['./bin/lfp.out', './data/tmp/I.bin', './data/tmp/singleI.bin', lfp_ind, str_range, str(dt)])
+  j = 0
+  for hist_bin in hist_bin_list:
 # hist_bin = 50
-        subprocess.call(['./bin/mi_bd.out', './data/tmp/singleSpike.csv', './data/tmp/singleI.csv', drange, str(dt), str(hist_bin)])
-        data = pd.read_csv('data/mi/mi_bd.csv')
-        mi_max[j][i] = data['mi'].max()
+    subprocess.call(['./bin/mi_bd.out', './data/tmp/singleSpike.csv', './data/tmp/singleI.csv', drange, str(dt), str(hist_bin)])
+    data = pd.read_csv('data/mi/mi_bd.csv')
+    mi_max[j][i] = data['mi'].max()
 # plt.plot(data['timelag']*dt, data['mi'], label = 'mi')
-        subprocess.call(['./bin/mi_bd.out', './data/tmp/singleSpike_shuffle.csv', './data/tmp/singleI.csv', drange, str(dt), str(hist_bin)])
-        data = pd.read_csv('data/mi/mi_bd.csv')
-        snr[j][i] = mi_max[j][i] / (data['mi'].mean()+ data['mi'].std() * 3)
-        peak_dev[j][i] = (mi_max[j][i] - data['mi'].mean()) / data['mi'].std()
+    subprocess.call(['./bin/mi_bd.out', './data/tmp/singleSpike_shuffle.csv', './data/tmp/singleI.csv', drange, str(dt), str(hist_bin)])
+    data = pd.read_csv('data/mi/mi_bd.csv')
+    snr[j][i] = mi_max[j][i] / (data['mi'].mean()+ data['mi'].std() * 3)
+    peak_dev[j][i] = (mi_max[j][i] - data['mi'].mean()) / data['mi'].std()
 # plt.plot(data['timelag']*dt, data['mi'], label = 'mi_shuffle')
-        j += 1
-    i += 1
+    j += 1
+  i += 1
 # np.savetxt('baselines.csv', baselines, delimiter = ',', fmt = '%.10f')
 np.savetxt('mi_max.csv', mi_max, delimiter = ',', fmt = '%.10f')
 np.savetxt('snr.csv', snr, delimiter = ',', fmt = '%.10f')

@@ -60,7 +60,7 @@ def Peacock2d(X, Y, bin_num_1, bin_num_2):
     diff_tt = abs(C1tt - C2tt).max()
 
     diff_max = max(diff_ff, diff_ft, diff_tf, diff_tt)
-    p = np.exp(-D1.shape[1]*diff_max**2)
+    p = np.exp(-X.shape[1]*diff_max**2)
     return diff_max, p
 
 # Settings for histograms;
