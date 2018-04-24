@@ -81,25 +81,21 @@ int main(int argc, const char* argv[]) {
 	double postnet_rate_exc = atof(m_map_config["PostNetDrivingRateExcitatory"].c_str());
 	double postnet_rate_inh = atof(m_map_config["PostNetDrivingRateInhibitory"].c_str());
 	vector<bool> prenet_types, postnet_types;
-	vector<vector<double> > prenet_fwd_rates(preNetNum), postnet_fwd_rates(postNetNum);
+	vector<double> prenet_fwd_rates(preNetNum), postnet_fwd_rates(postNetNum);
 	preNet.GetNeuronType(prenet_types);
 	postNet.GetNeuronType(postnet_types);
 	for (int i = 0; i < preNetNum; i ++) {
 		if (prenet_types[i]) {
-			prenet_fwd_rates[i].push_back(prenet_rate_exc);
-			prenet_fwd_rates[i].push_back(0.0);
+			prenet_fwd_rates[i] = prenet_rate_exc;
 		} else {
-			prenet_fwd_rates[i].push_back(prenet_rate_inh);
-			prenet_fwd_rates[i].push_back(0.0);
+			prenet_fwd_rates[i] = prenet_rate_inh;
 		}
 	}
 	for (int i = 0; i < postNetNum; i ++) {
 		if (postnet_types[i]) {
-			postnet_fwd_rates[i].push_back(postnet_rate_exc);
-			postnet_fwd_rates[i].push_back(0.0);
+			postnet_fwd_rates[i] = postnet_rate_exc;
 		} else {
-			postnet_fwd_rates[i].push_back(postnet_rate_inh);
-			postnet_fwd_rates[i].push_back(0.0);
+			postnet_fwd_rates[i] = postnet_rate_inh;
 		}
 	}
 	if (preType) {
@@ -109,8 +105,8 @@ int main(int argc, const char* argv[]) {
 		postNet.InitializeExternalPoissonProcess(postnet_fwd_rates, maximum_time, atoi(m_map_config["PostNetExternalDrivingSeed"].c_str()));
 	} else postNet.InitializeInternalPoissonRate(postnet_fwd_rates);
 	// Set feedforward driving strength;
-	preNet.SetF(true, atof(m_map_config["PreNetDrivingStrength"].c_str()));
-	postNet.SetF(true, atof(m_map_config["PostNetDrivingStrength"].c_str()));
+	preNet.SetF(atof(m_map_config["PreNetDrivingStrength"].c_str()));
+	postNet.SetF(atof(m_map_config["PostNetDrivingStrength"].c_str()));
 
 	// Set synaptic strength of presynaptic neural network;
 	preNet.SetS(true, atof(m_map_config["PreNetSynapticStrengthExcitatory"].c_str()));

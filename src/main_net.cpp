@@ -49,13 +49,15 @@ int main(int argc, const char* argv[]) {
 	int connecting_mode = atoi(m_map_config["ConnectingMode"].c_str());
 	if (connecting_mode == 0) { // External connectivity matrix;
 		net.LoadConnectivityMat("./data/sampleMat.csv");
-	} else {
+	} else if (connecting_mode == 1) {
 		int connecting_density = atoi(m_map_config["ConnectingDensity"].c_str());
 		net.SetConnectingDensity(connecting_density);
 		double rewiring_probability = atof(m_map_config["RewiringProbability"].c_str());
-		int rewiring_seed = atoi(m_map_config["RewiringSeed"].c_str());
+		int rewiring_seed = atoi(m_map_config["NetSeed"].c_str());
 		// Generate networks;
 		net.Rewire(rewiring_probability, rewiring_seed, true);
+	} else if (connecting_mode == 2) {
+		net.RandNet(atof(m_map_config["RandomProbability"].c_str()), atoi(m_map_config["NetSeed"].c_str()));
 	}
 	// Set interneuronal coupling strength;
 	net.SetS(true, atof(m_map_config["SynapticStrengthExcitatory"].c_str()));
@@ -68,7 +70,7 @@ int main(int argc, const char* argv[]) {
 	bool driving_type, fwd_type;
 	istringstream(m_map_config["DrivingType"]) >> boolalpha >> driving_type;
 	istringstream(m_map_config["HomoDriving"]) >> boolalpha >> fwd_type;
-	vector<vector<double> > fwd_rates(neuron_number);
+	vector<double> fwd_rates(neuron_number);
 	net.SetDrivingType(driving_type);
 	if (fwd_type) {
 		double rate_exc = atof(m_map_config["DrivingRateExcitatory"].c_str());
@@ -77,11 +79,9 @@ int main(int argc, const char* argv[]) {
 		net.GetNeuronType(neuron_types);
 		for (int i = 0; i < neuron_number; i ++) {
 			if (neuron_types[i]) {
-				fwd_rates[i].push_back(rate_exc);
-				fwd_rates[i].push_back(0.0);
+				fwd_rates[i] = rate_exc;
 			} else {
-				fwd_rates[i].push_back(rate_inh);
-				fwd_rates[i].push_back(0.0);
+				fwd_rates[i] = rate_inh;
 			}
 		}
 		if (driving_type) {
@@ -92,7 +92,7 @@ int main(int argc, const char* argv[]) {
 		}
 	} else {
 		// import the data file of feedforward driving rate:
-		Read2D("./doc/fwd_setting.csv", fwd_rates);
+		Read1D("./doc/fwd_setting.csv", fwd_rates, 0, 1);
 		if (driving_type) {
 			net.InitializeExternalPoissonProcess(fwd_rates, maximum_time, atoi(m_map_config["ExternalDrivingSeed"].c_str()));
 		} else {
@@ -102,11 +102,11 @@ int main(int argc, const char* argv[]) {
 	}
 
 	// Set driving strength;
-	net.SetF(true, atof(m_map_config["DrivingStrength"].c_str()));
+	net.SetF(atof(m_map_config["DrivingStrength"].c_str()));
 
 	// SETUP DYNAMICS:
 	double t = 0, dt = atof(m_map_config["TimingStep"].c_str()), tmax = maximum_time;
-	double recording_rate = 0.5;
+	double recording_rate = 2;
 	// Define the shape of data;
 	size_t shape[2];
 	shape[0] = tmax * recording_rate;
@@ -130,11 +130,7 @@ int main(int argc, const char* argv[]) {
 			net.OutCurrent(I_path);
 		}
 		//net.OutConductance(GE_path, true);
-
-		// progress = t * 100.0 / tmax;
-		// printf(">> Processing ... %6.2f%", progress);
 	}
-	// cout << endl;
 
 	string neuron_path, mat_path;
 	neuron_path = dir + "neuron.bin";

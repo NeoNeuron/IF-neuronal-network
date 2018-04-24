@@ -37,6 +37,9 @@ public:
 	//	Load connectivity matrix from external matrix;
 	void LoadMatrix(vector<vector<int> > &matrix);
 
+	// 	Setup network architecture with random connectivities;
+	void RandNet(double p, int seed);
+	
 	//	Find the least path between each pair of neurons; Store results in the path_matrix_;
 	void FindLeastPath();
 

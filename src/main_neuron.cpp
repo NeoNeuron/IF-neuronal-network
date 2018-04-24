@@ -12,7 +12,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
-
+#include <stdexcept>
 using namespace std;
 
 int main(int argc, const char* argv[]) {
@@ -30,7 +30,7 @@ int main(int argc, const char* argv[]) {
 	ofile.close();
 	for (int i = 0; i < ntrials; i++) {
 		cell.SetDrivingType(false);
-		cell.SetPoissonRate(true, 1.5);
+		cell.SetPoissonRate(1.5);
 		I.clear();
 		while (t < tmax) {
 			cell.UpdateNeuronalState(t, dt);

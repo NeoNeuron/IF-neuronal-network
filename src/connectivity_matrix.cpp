@@ -66,6 +66,18 @@ void ConnectivityMatrix::LoadMatrix(vector<vector<int> >& matrix) {
 	}
 }
 
+void ConnectivityMatrix::RandNet(double p, int seed) {
+	srand(seed);
+	double x;
+	for (vector<vector<int> >::iterator it = matrix_.begin(); it != matrix_.end(); it ++) {
+		for (vector<int>::iterator itt = it -> begin(); itt != it -> end(); itt ++) {
+			x = rand() / (RAND_MAX * 1.0);
+			if (x <= p) *itt = 1;
+			else *itt = 0;
+		}
+	}
+}
+
 void ConnectivityMatrix::FindLeastPath() {
 	// initialize path_matrix_
 	for (int i = 0; i < neuron_number_; i++) {

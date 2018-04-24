@@ -30,7 +30,6 @@ private:
 	int connecting_density_;
 	ConnectivityMatrix connectivity_matrix_;
 	vector<vector<double> > external_excitatory_inputs_; // temp storage of external Poisson input;
-	vector<vector<double> > external_inhibitory_inputs_;
 	double interaction_delay_;
 	// Functions:
 
@@ -66,19 +65,17 @@ public:
 	void SetDrivingType(bool driving_type);
 
 	//	Initialize internal homogeneous feedforward Poisson rate;
-	//	DOUBLE rates: Poisson rates; Each line represents the two parameters for each neuron,
-	//		the first if excitatory	diring rate, and the second is inhibitory.
-	void InitializeInternalPoissonRate(vector<vector<double> >& rates);
+	//	DOUBLE rates: Poisson rates; Excitatory;
+	void InitializeInternalPoissonRate(vector<double>& rates);
 
 	//	Initialize external homogeneous feedforward Poisson process;
-	//	DOUBLE rates: Poisson rates; Each line represents the two parameters for each neuron,
-	//		the first if excitatory	diring rate, and the second is inhibitory.
+	//	DOUBLE rates: Poisson rates; Excitatory
 	//	DOUBLE tmax: maximum time range for Poisson process;
 	//	INT seed: seed for built-in random generator;
-	void InitializeExternalPoissonProcess(vector<vector<double> >& rates, double tmax, int seed);
+	void InitializeExternalPoissonProcess(vector<double>& rates, double tmax, int seed);
 
 	// Set feedforward inputing strength: (default: 5e-3)
-	void SetF(bool function, double val);
+	void SetF(double val);
 
 	// 	Input new spikes for neurons all together;
 	void InNewSpikes(vector<vector<Spike> > &data);
@@ -109,6 +106,8 @@ public:
 	//	INT seed:	seed for built-in random generator;
 	//	BOOL output_option: switch for showing parameters of network; true for printing mean clustering coefficient as well as mean path length of neurons; false for not;
 	void Rewire(double p, int seed, bool output_option);
+
+	void RandNet(double p, int seed);
 
 	//	Update network state:
 	void UpdateNetworkState(double t, double dt);

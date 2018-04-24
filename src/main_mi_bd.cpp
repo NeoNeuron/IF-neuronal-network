@@ -23,10 +23,9 @@ using namespace std;
 //	argv[1] = path for bool series;
 //	argv[2] = path for double series;
 //	argv[3] = range of timelag;
-//	argv[4] = size of timing step;
-//	argv[5] = bin number of pdf of the double variable;
+//	argv[4] = bin size of pdf of the double variable;
 int main(int argc, const char* argv[]) {
-	if (argc != 6) throw runtime_error("wrong number of args");
+	if (argc != 5) throw runtime_error("wrong number of args");
 	clock_t start, finish;
 	start = clock();
 	// INPUT NEURONAL DATA:
@@ -45,7 +44,7 @@ int main(int argc, const char* argv[]) {
 	int ptd = atoi(buffer.c_str());
 	range[1] = ptd;
 	// Calculate mutual information;
-	double binsize = atof(argv[5]);
+	double binsize = atof(argv[4]);
 	vector<double> tdmi;
 	TDMI(bool_series, double_series, tdmi, range, binsize);
 
