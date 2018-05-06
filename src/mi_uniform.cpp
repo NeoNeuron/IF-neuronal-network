@@ -122,7 +122,6 @@ double MI(vector<vector<double> >& jointpdf) {
 			}
 		}
 	}
-	if (abs(mi) < 1e-15) mi = 0;
 	return mi;
 }
 

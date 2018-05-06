@@ -21,9 +21,6 @@ double NeuronalNetwork::SortSpikes(double t, double dt, vector<SpikeElement>& T)
 	double SET = -1;
 	SpikeElement ADD;
 	for (int i = 0; i < neuron_number_; i++) {
-		/*if (i == 0) {
-			_SET = neurons_[i].TemporallyUpdateNeuronalState(t, dt, true);
-		}*/
 		SET = neurons_[i].TemporallyUpdateNeuronalState(t, dt, external_excitatory_inputs_[i]);
 		if (SET > 0) {
 			ADD.index = neurons_[i].GetNeuronIndex();
@@ -104,9 +101,7 @@ void NeuronalNetwork::InitializeExternalPoissonProcess(vector<double>& rates, do
 }
 
 void NeuronalNetwork::SetF(double val) {
-	for (int i = 0; i < neuron_number_; i ++) {
-		neurons_[i].SetFeedforwardStrength(val);
-	}
+	for (int i = 0; i < neuron_number_; i ++) neurons_[i].SetFeedforwardStrength(val);
 }
 
 void NeuronalNetwork::InNewSpikes(vector<vector<Spike> > & data) {

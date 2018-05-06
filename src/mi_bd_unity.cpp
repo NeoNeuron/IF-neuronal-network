@@ -8,7 +8,6 @@
 #include "../include/lfp.h"
 #include "../include/mi_uniform.h"
 #include "../include/io.h"
-#include "../include/vecmanip.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -66,7 +65,7 @@ int main(int argc, const char* argv[]) {
 	Spike2Bool(spikes, binary_spikes, tmax, dt);
 	// LFP:
 	vector<int> list;
-	stringstream inlist(argv[6]);
+	stringstream inlist(argv[4]);
 	while (getline(inlist, buffer, ',')) {
 		list.push_back(atoi(buffer.c_str()));
 	}
@@ -88,7 +87,7 @@ int main(int argc, const char* argv[]) {
 	//	Output data:
 	ofstream data_out;
 	cout << ">> Outputing data ... " << endl;
-	data_out.open("./data/mi/mi_bd.csv");
+	data_out.open("./data/mi/mi_bd_unity.csv");
 	data_out << "timelag,mi,mi_shuffle" << endl;
 	for (int i = 0; i < ntd + ptd + 1; i++) {
 		data_out << i - ntd << ',' << setprecision(15) << (double)tdmi[i] << ',' << (double)tdmi_shuffle[i] << '\n';
