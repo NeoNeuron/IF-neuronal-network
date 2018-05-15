@@ -7,6 +7,9 @@ data/*
 # ignore results files
 results/*
 
+# ignore tmp files
+tmp/*
+
 # ignore config files
 *.ini
 

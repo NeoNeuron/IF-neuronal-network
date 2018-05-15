@@ -13,12 +13,12 @@ def g(t, t0, s, tau):
 t = np.arange(0,80,dt)
 #gl = np.arange(0.01, 0.15, 0.005)
 #gl = np.array([0.005])
-gl = 0.005
+gl = 5e-2
 ee = 14.0/3.0
 # ge = np.zeros(len(t))
 # ti = np.arange(0,40,1000)
 # s = np.arange(0.001, 0.051, 0.001)
-s = 0.005
+s = 5e-2
 # tau = np.arange(1, 3.1, 0.1)
 tau = 2
 v_ini = np.arange(0.9,1,0.01)

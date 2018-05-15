@@ -4,7 +4,7 @@
 //	Date: 2017-02-21 16:05:00
 //	Description: test program for Class Neuron;
 //***************
-#include"../neuron.h"
+#include"../include/neuron.h"
 #include<iostream>
 #include<fstream>
 #include<iomanip>
@@ -20,19 +20,20 @@ int main() {
 	Neuron cell;
 	double t = 0, dt = pow(2, -1), tmax = 2000;
 	double rateE = 1.5;
-	double rateI = 0;
 	double v;
 	ofstream data;
-	data.open("../data_new.txt");
-	for (int i = 0; i < 15; i++) {
-		vector<double> impt_e, impt_i;
-		GenerateExternalPoissonSequence(rateE, tmax, 1, impt_e);
-		GenerateExternalPoissonSequence(rateI, tmax, 2, impt_i);
+	data.open("./tmp/data_new.txt");
+	vector<double> in;
+	GenerateExternalPoissonSequence(rateE, tmax, 1, in);
+	vector<double> in_tmp;
+	int sampling_rate = 2;
+	for (int i = 0; i < 8; i++) {
+		in_tmp = in;
 		cell.SetDrivingType(true);
 		while (t < tmax) {
-			v = cell.UpdateNeuronalState(t, dt, impt_e, impt_i);
+			v = cell.UpdateNeuronalState(t, dt, in_tmp);
 			t += dt;
-			if (abs(floor(2 * t) - 2 * t) < 1e-15) {
+			if (abs(floor(sampling_rate * t) - sampling_rate * t) < 1e-15) {
 				data << setprecision(20) << (double)v << ",";
 			}
 			//cout << setprecision(4) << (double)(100 * t / tmax);
