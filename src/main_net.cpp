@@ -48,7 +48,7 @@ int main(int argc, const char* argv[]) {
 	// load connecting mode;
 	int connecting_mode = atoi(m_map_config["ConnectingMode"].c_str());
 	if (connecting_mode == 0) { // External connectivity matrix;
-		net.LoadConnectivityMat("./data/sampleMat.csv");
+		net.LoadConnectivityMat("./doc/externalMat.csv");
 	} else if (connecting_mode == 1) {
 		int connecting_density = atoi(m_map_config["ConnectingDensity"].c_str());
 		net.SetConnectingDensity(connecting_density);

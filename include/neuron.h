@@ -79,7 +79,7 @@ private:
 	//		function description: functional type of inputing signal, true for excitation, false for inhibition;
 	//	Return: none;
 	//	One spike case;
-	void UpdateConductance(bool mode, bool function, double t, double dt);
+	void UpdateConductance(bool mode, bool function);
 
 	//	Alpha function, defined as summation of membrane conductance, excitatory and inhibitory conductance;
 	//		DOUBLE dt;
@@ -134,7 +134,7 @@ private:
   //    DOUBLE time: the begining of the time step;
   //    DOUBLE dt: size of time step, unit millisecond;
   //	Return: none;
-	void UpdateConductanceOfFiredNeuron(bool is_fire, bool fireMode, bool fireType, double t, double dt);
+	void UpdateConductanceOfFiredNeuron(bool is_fire, bool fireMode, bool fireType, double dt);
 
 public:
 	// Auto initialization of parameters in Neuron;

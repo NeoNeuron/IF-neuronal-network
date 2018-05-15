@@ -36,7 +36,6 @@ void Neuron::GenerateInternalPoisson(double tmax, bool outSet) {
 			x = rand() / (RAND_MAX + 1.0);
 			while (x == 0) x = rand() / (RAND_MAX + 1.0);
 			tLast -= log(x) / rate;
-			// if (tLast > 1e9) cout << "WARNNING: " << tLast << endl;
 			ADD.t = tLast;
 			synaptic_driven_.push_back(ADD);
 			if (outSet == true) cout << ADD.t << '\t';
@@ -62,7 +61,7 @@ void Neuron::InputExternalPoisson(double tmax, vector<double>& x) {
 	sort(synaptic_driven_.begin(), synaptic_driven_.end(), compPoisson);
 }
 
-void Neuron::UpdateConductance(bool mode, bool function, double t, double dt) {
+void Neuron::UpdateConductance(bool mode, bool function) {
 	if (mode == true) {
 		if (function == true) {
 			excitatory_conductance_tmp_ = excitatory_conductance_tmp_ + feedforward_excitatory_intensity_;
@@ -144,7 +143,7 @@ double Neuron::OffRefractoryPeriod(double dt) {
 
 double Neuron::PrimelyUpdateState(bool is_fire, bool mode, bool function, double t, double dt, bool temp_switch) {
 	if (is_fire) {
-	  UpdateConductance(mode, function, t, dt);
+	  UpdateConductance(mode, function);
 	}
   double voltage;
   double spike_value = -1; // if negative, no spiking event or non-temp situation; else, spike_value = spiking time node;
@@ -187,9 +186,9 @@ double Neuron::PrimelyUpdateState(bool is_fire, bool mode, bool function, double
 	return spike_value;
 }
 
-void Neuron::UpdateConductanceOfFiredNeuron(bool is_fire, bool mode, bool function, double t, double dt) {
+void Neuron::UpdateConductanceOfFiredNeuron(bool is_fire, bool mode, bool function, double dt) {
 	if (is_fire) {
-		UpdateConductance(mode, function, t, dt);
+		UpdateConductance(mode, function);
 	}
 	excitatory_conductance_tmp_ *= exp(-dt / tau_e_);
 	inhibitory_conductance_tmp_ *= exp(-dt / tau_i_);
@@ -314,8 +313,8 @@ double Neuron::UpdateNeuronalState(double t, double dt) {
 			}
 		}
 	}
-	excitatory_conductance_ = excitatory_conductance_tmp_ * exp(-dt / tau_e_);
-	inhibitory_conductance_ = inhibitory_conductance_tmp_ * exp(-dt / tau_i_);
+	excitatory_conductance_ = excitatory_conductance_tmp_;
+	inhibitory_conductance_ = inhibitory_conductance_tmp_;
 	membrane_potential_ = membrane_potential_temp_;
 	remaining_refractory_period_ = remaining_refractory_period_temp_;
 	if (synaptic_driven_.size() != 0) {
@@ -365,8 +364,8 @@ double Neuron::UpdateNeuronalState(double t, double dt, vector<double> & inPE) {
 			}
 		}
 	}
-	excitatory_conductance_ = excitatory_conductance_tmp_ * exp(-dt / tau_e_);
-	inhibitory_conductance_ = inhibitory_conductance_tmp_ * exp(-dt / tau_i_);
+	excitatory_conductance_ = excitatory_conductance_tmp_;
+	inhibitory_conductance_ = inhibitory_conductance_tmp_;
 	membrane_potential_ = membrane_potential_temp_;
 	remaining_refractory_period_ = remaining_refractory_period_temp_;
 	if (synaptic_driven_.size() != 0) {
@@ -430,34 +429,34 @@ void Neuron::Fire(double t, double dt) {
 	excitatory_conductance_tmp_ = excitatory_conductance_;
 	inhibitory_conductance_tmp_ = inhibitory_conductance_;
 	if (synaptic_driven_.size() == 0) {
-		UpdateConductanceOfFiredNeuron(false, false, false, t, dt);
+		UpdateConductanceOfFiredNeuron(false, false, false, dt);
 	} else {
 		if (tmax < synaptic_driven_.begin()->t || synaptic_driven_.size() == 0) {
-			UpdateConductanceOfFiredNeuron(false, false, false, t, dt);
+			UpdateConductanceOfFiredNeuron(false, false, false, dt);
 		} else if (t == synaptic_driven_.begin()->t) {
 			for (vector<Spike>::iterator iter = synaptic_driven_.begin(); iter != synaptic_driven_.end(); iter++) {
 				if (iter->t >= tmax) break;
 				if (iter + 1 == synaptic_driven_.end() || (iter + 1)->t >= tmax) {
-					UpdateConductanceOfFiredNeuron(true, iter->mode, iter->function, iter->t, tmax - iter->t);
+					UpdateConductanceOfFiredNeuron(true, iter->mode, iter->function, tmax - iter->t);
 				} else {
-					UpdateConductanceOfFiredNeuron(true, iter->mode, iter->function, iter->t, (iter + 1)->t - iter->t);
+					UpdateConductanceOfFiredNeuron(true, iter->mode, iter->function, (iter + 1)->t - iter->t);
 				}
 			}
 		} else if (t< synaptic_driven_.begin()->t && tmax > synaptic_driven_.begin()->t) {
-			UpdateConductanceOfFiredNeuron(false, false, false, t, synaptic_driven_.begin()->t - t);
+			UpdateConductanceOfFiredNeuron(false, false, false, synaptic_driven_.begin()->t - t);
 			for (vector<Spike>::iterator iter = synaptic_driven_.begin(); iter != synaptic_driven_.end(); iter++) {
 				if (iter->t >= tmax) break;
 				if (iter + 1 == synaptic_driven_.end() || (iter + 1)->t >= tmax) {
-					UpdateConductanceOfFiredNeuron(true, iter->mode, iter->function, iter->t, tmax - iter->t);
+					UpdateConductanceOfFiredNeuron(true, iter->mode, iter->function, tmax - iter->t);
 				} else {
-					UpdateConductanceOfFiredNeuron(true, iter->mode, iter->function, iter->t, (iter + 1)->t - iter->t);
+					UpdateConductanceOfFiredNeuron(true, iter->mode, iter->function, (iter + 1)->t - iter->t);
 				}
 			}
 		}
 	}
 	spike_train_.push_back(t + dt);
-	excitatory_conductance_ = excitatory_conductance_tmp_ * exp(-dt / tau_e_);
-	inhibitory_conductance_ = inhibitory_conductance_tmp_ * exp(-dt / tau_i_);
+	excitatory_conductance_ = excitatory_conductance_tmp_;
+	inhibitory_conductance_ = inhibitory_conductance_tmp_;
 	membrane_potential_ = resting_potential_;
 	remaining_refractory_period_ = tau_;
 	if (synaptic_driven_.size() != 0) {
