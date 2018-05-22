@@ -15,19 +15,18 @@
 #include <stdexcept>
 using namespace std;
 
-//	Simulation program for single network system;
+//	Calculate the least path matrix for given network structure;
 //	arguments:
-//	argv[1] = Outputing directory for neur al data;
+//	argv[1] = path of connectivity matrix;
+//	argv[2] = path of outputing least path matrix;
 int main(int argc, const char* argv[]) {
-	if (argc != 2) throw runtime_error("wrong number of args");
+	if (argc != 3) throw runtime_error("wrong number of args");
 	clock_t start, finish;
 	start = clock();
 	// 	Setup directory for output files;
 	//	it must be existing dir;
-	string dir;
-	dir = argv[1];
-  string mat_dir = dir + "mat.csv";
-  string path_mat_dir = dir + "path_mat.csv";
+  string mat_dir = argv[1];
+  string path_mat_dir = argv[2];
 
 	// Loading matfile:
 	vector<vector<int> > mat_data;
