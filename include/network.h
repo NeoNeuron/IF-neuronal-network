@@ -1,19 +1,20 @@
 //***************
 //	Copyright: Kyle Chen
 //	Author: Kyle Chen
-//	Date: 2017-03-08 15:47:39
+//	Date: 2018-05-31
 //	Description: define Struct SpikeElement and Class NeuronalNetwork;
 //***************
 #ifndef _IFNET_NETWORK_H_
 #define _IFNET_NETWORK_H_
 
-#include"neuron.h"
-#include"connectivity_matrix.h"
-#include<fstream>
-#include<cstdlib>
-#include<iomanip>
-#include<string>
-#include<vector>
+#include "neuron.h"
+#include "get-config.h"
+#include "connectivity_matrix.h"
+#include <fstream>
+#include <cstdlib>
+#include <iomanip>
+#include <string>
+#include <vector>
 
 using namespace std;
 
@@ -25,16 +26,16 @@ struct SpikeElement {
 
 class NeuronalNetwork {
 private:
+	// Parameters:
 	Neuron *neurons_;
 	int neuron_number_;	// number of the neurons in the group;
-	int connecting_density_;
 	ConnectivityMatrix connectivity_matrix_;
 	vector<vector<double> > external_excitatory_inputs_; // temp storage of external Poisson input;
+	vector<vector<double> > external_inhibitory_inputs_;
 	double interaction_delay_;
+	int connecting_density_;
 	// Functions:
-
-	// Sort Spikes:
-	// Description: Sort spikes within single time interval, and return the time of first spike;
+	// Sort spikes within single time interval, and return the time of first spike;
 	double SortSpikes(double t, double dt, vector<SpikeElement> &T);
 
 public:
@@ -44,12 +45,21 @@ public:
 		neurons_ = new Neuron[neuron_number_];
 		for (int i = 0; i < neuron_number_; i++) neurons_[i].SetNeuronIndex(i);
 		connectivity_matrix_.SetNeuronNumber(neuron_number_);
-		connecting_density_ = 0;
 		interaction_delay_ = 0.0;
+		connecting_density_ = 0;
+	}
+	
+	// Initialize network connectivity matrix:
+	// Three options:
+	// 0. given pre-defined network connectivity matrix;
+	// 1. small-world network, defined by connectivity density and rewiring;
+	// 2. randomly connected network;
+	void InitializeConnectivity(map<string, string> &m_config);
+	
+	void RandNet(double p, int seed) {
+		connectivity_matrix_.RandNet(p, seed);
 	}
 	// INPUTS:
-	void SetConnectingDensity(int density);
-
 	// Set interneuronal coupling strength;
 	void SetS(bool function, double val);
 
@@ -65,17 +75,19 @@ public:
 	void SetDrivingType(bool driving_type);
 
 	//	Initialize internal homogeneous feedforward Poisson rate;
-	//	DOUBLE rates: Poisson rates; Excitatory;
-	void InitializeInternalPoissonRate(vector<double>& rates);
+	//	DOUBLE rates: Poisson rates; Each line represents the two parameters for each neuron,
+	//		the first if excitatory	diring rate, and the second is inhibitory.
+	void InitializeInternalPoissonRate(vector<vector<double> >& rates);
 
 	//	Initialize external homogeneous feedforward Poisson process;
-	//	DOUBLE rates: Poisson rates; Excitatory
+	//	DOUBLE rates: Poisson rates; Each line represents the two parameters for each neuron,
+	//		the first if excitatory	diring rate, and the second is inhibitory.
 	//	DOUBLE tmax: maximum time range for Poisson process;
 	//	INT seed: seed for built-in random generator;
-	void InitializeExternalPoissonProcess(vector<double>& rates, double tmax, int seed);
+	void InitializeExternalPoissonProcess(vector<vector<double> >& rates, double tmax, int seed);
 
 	// Set feedforward inputing strength: (default: 5e-3)
-	void SetF(double val);
+	void SetF(bool function, double val);
 
 	// 	Input new spikes for neurons all together;
 	void InNewSpikes(vector<vector<Spike> > &data);
@@ -93,21 +105,10 @@ public:
 	//	5: remaining refractory period;
 	void LoadNeuronalState(string neuronFile);
 
-	// Load connectivity matrix;
-	void LoadConnectivityMat(string conMatFile);
-
 	// DYNAMICS:
 
 	//	Restore neuronal state for all neurons, including neuronal potential, conductances, refractory periods and external network drive;
 	void RestoreNeurons();
-
-	//	Rewire process for connectivity matrix;
-	//	DOUBLE p: rewiring probability;
-	//	INT seed:	seed for built-in random generator;
-	//	BOOL output_option: switch for showing parameters of network; true for printing mean clustering coefficient as well as mean path length of neurons; false for not;
-	void Rewire(double p, int seed, bool output_option);
-
-	void RandNet(double p, int seed);
 
 	//	Update network state:
 	void UpdateNetworkState(double t, double dt);
@@ -138,7 +139,7 @@ public:
 	//		5: remaining refractory period;
 	void Save(string neuron_file, string connecting_matrix_file);
 
-	void OutSpikeTrains(string path);
+	int OutSpikeTrains(string path);
 
   //  Output spikes before t, including their modes and functions;
 	void GetNewSpikes(double t, vector<vector<Spike> >& data);

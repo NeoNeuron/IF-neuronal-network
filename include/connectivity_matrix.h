@@ -21,6 +21,7 @@ private:
 	vector<vector<int> > path_matrix_; // least path between each neuronal pair;
 	vector<vector<int> > mediate_mode_matrix_; // indices of mediate neurons between the pole of neuron pairs;
 	vector<double> clustering_coefficient_; // clustering coefficient of each neuron;
+	bool con_flag_ = false; // false for no-connectivity in the network, otherwise true;
 
 	//	Functions:
 

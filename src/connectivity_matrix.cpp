@@ -40,6 +40,7 @@ void ConnectivityMatrix::SetConnectingDensity(int connecting_density) {
 			if (i != j) {
 				if (abs(i - j) <= connecting_density_ or neuron_number_ - abs(i - j) <= connecting_density_) {
 				matrix_[i][j] = 1;
+				if (!con_flag_) con_flag_ = true;
 				path_matrix_[i][j] = 1;
 				} else path_matrix_[i][j] = 1000000;
 			}
@@ -58,6 +59,7 @@ void ConnectivityMatrix::LoadMatrix(vector<vector<int> >& matrix) {
 				matrix_[i][j] = matrix[i][j];
 				if (matrix_[i][j] == 1) {
 					path_matrix_[i][j] = 1;
+					if (!con_flag_) con_flag_ = true;
 				} else {
 					path_matrix_[i][j] = 1000000;
 				}
@@ -72,8 +74,10 @@ void ConnectivityMatrix::RandNet(double p, int seed) {
 	for (vector<vector<int> >::iterator it = matrix_.begin(); it != matrix_.end(); it ++) {
 		for (vector<int>::iterator itt = it -> begin(); itt != it -> end(); itt ++) {
 			x = rand() / (RAND_MAX * 1.0);
-			if (x <= p) *itt = 1;
-			else *itt = 0;
+			if (x <= p) {
+				*itt = 1;
+				if (!con_flag_) con_flag_ = true;
+			}	else *itt = 0;
 		}
 	}
 }
@@ -190,10 +194,5 @@ void ConnectivityMatrix::OutPathMatrix(string path){
 
 
 bool ConnectivityMatrix::IsConnect(){
-	int counter = 0;
-	for (vector<vector<int> >::iterator it = matrix_.begin(); it != matrix_.end(); it ++) {
-		counter += accumulate(it->begin(), it->end(), 0);
-	}
-	if (counter == 0) return false;
-	else return true;
+	return con_flag_;
 }
