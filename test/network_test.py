@@ -5,7 +5,7 @@ import subprocess
 import struct as st
 
 # compile test program
-p = subprocess.call(['g++', './src/neuron.cpp', 'src/network.cpp', 'src/connectivity_matrix.cpp', 'test/network_test.cpp', '-o', 'test/network_test.out'])
+p = subprocess.call(['g++', '-O2', './src/neuron.cpp', 'src/network.cpp', 'src/math_helper.cpp', 'src/connectivity_matrix.cpp', 'test/network_test.cpp', '-o', 'test/network_test.out'])
 
 if p == 0:
     # excecute test program
@@ -17,10 +17,8 @@ if p == 0:
     for i in range(shape[0]):
         dat[i] = np.array(st.unpack('d'*shape[1], f.read(8*shape[1])))
     f.close()
-    for i in range(dat.shape[0]):
-        dat[i] = abs(dat[i] - dat[-1])
-    dat_mean = dat.sum(1) / dat.shape[1]
-
+    dat = np.array([abs(x - dat[-1]) for x in dat])
+    dat_mean = dat.mean(1)
     # plot figure
     dt = np.ones(dat.shape[0] - 1)
     for i in range(len(dt)):
@@ -35,4 +33,4 @@ if p == 0:
     plt.show()
 
     # clean test file;
-    subprocess.Popen('rm -f test/network_test.out tmp/data_network_test.bin', shell = True)
+    subprocess.Popen('rm -f test/network_test.out tmp/data_network_test.bin tmp/spiketrain.csv', shell = True)

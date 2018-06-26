@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import subprocess
 
 # compile test program
-p = subprocess.call(['g++', './src/neuron.cpp', 'test/neuron_test.cpp', '-o', 'test/neuron_test.out'])
+p = subprocess.call(['g++', '-O2', './src/neuron.cpp', './src/math_helper.cpp', 'test/neuron_test.cpp', '-o', 'test/neuron_test.out'])
 
 if p == 0:
     # excecute test program
@@ -21,6 +21,8 @@ if p == 0:
     for i in range(len(dt)):
         dt[i] = 0.5/(2**i)
     plt.loglog(dt, arr_mean[:-1], '.', label = 'data')
+    c_est = arr_mean[0]/dt[0]**1
+    plt.loglog(dt, c_est*dt**1, label = '1st-order')
     c_est = arr_mean[0]/dt[0]**4
     plt.loglog(dt, c_est*dt**4, label = '4th-order')
     plt.legend()

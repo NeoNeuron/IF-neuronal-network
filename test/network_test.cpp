@@ -14,11 +14,14 @@ using namespace std;
 int main() {
 	clock_t start, finish;
 	start = clock();
-	int neuron_num = 2;
+	int neuron_num = 10;
 	NeuronalNetwork cells(neuron_num);
-	double t = 0, dt = pow(2, -1), tmax = 2000;
+	//cells.SetS(true, 0.05);
+	cells.RandNet(1, 1);
+	double t = 0, dt = 0.5, tmax = 2000;
 	int reps = 8;
-	vector<double> PRate(2, 1.5);
+	vector<double> add_rate = {1.5, 0};
+	vector<vector<double> > PRate(neuron_num, add_rate);
 	cells.InitializeNeuronalType(1, 1);
 	cout << endl;
 	int sampling_rate = 2;
@@ -36,19 +39,20 @@ int main() {
 		cells.RestoreNeurons();
 		cells.SetDrivingType(true); // external type;
 		cells.InitializeExternalPoissonProcess(PRate, tmax, 1);
-		//cells.InitializeInternalPoissonRate(false, rateI);
 		while (t < tmax) {
 			cells.UpdateNetworkState(t, dt);
 			t += dt;
-			if (abs(floor(sampling_rate * t) - sampling_rate * t) < 1e-15) {
+			if (floor(sampling_rate * t)  == sampling_rate * t) {
 				cells.OutPotential(filename);
 			}
 		}
-		cout << i << '\t';
+		cout << i << '\n';
 		t = 0;
 		dt /= 2;
 	}	
-
+	int spike_num;
+	spike_num = cells.OutSpikeTrains("tmp/spiketrain.csv");
+	cout << "Mean firing rate: " << (double)spike_num*1000.0/tmax/neuron_num << endl;
 	finish = clock();
 	cout << endl;
 	double ToTtime;
