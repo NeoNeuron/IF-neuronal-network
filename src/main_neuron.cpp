@@ -32,8 +32,9 @@ int main(int argc, const char* argv[]) {
   cout << ">> [Config.ini]:\n#####\n";
 	PrintConfig(m_map_config);
 	cout << "#####\n";
-	Neuron cell;
-	double t = 0, dt = atof(m_map_config["TimingStep"].c_str()),  tmax = atof(m_map_config["MaximumTime"].c_str());
+	double *dym_val;
+	Neuron cell(dym_val);
+	double t = 0, dt = atof(m_map_config["TimingStep"].c_str()), tmax = atof(m_map_config["MaximumTime"].c_str());
 	bool neuron_type, driving_type;
 	istringstream(m_map_config["Type"]) >> boolalpha >> neuron_type;
 	istringstream(m_map_config["DrivingType"]) >> boolalpha >> driving_type;
@@ -47,9 +48,11 @@ int main(int argc, const char* argv[]) {
 	} else {
 		srand(time(NULL));
 		cell.SetPoissonRate(true, rate_exc);
+		cell.SetPoissonRate(false, 0);
 	}
 	// Set driving strength;
 	cell.SetFeedforwardStrength(true, atof(m_map_config["DrivingStrength"].c_str()));
+	cell.SetFeedforwardStrength(false, 0);
 
 	start = clock();
 	// SETUP DYNAMICS:
@@ -69,11 +72,11 @@ int main(int argc, const char* argv[]) {
 	I_file.write((char*)shape, 2*sizeof(size_t));
 	double V, I;
 	while (t < tmax) {
-		cell.UpdateNeuronalState(t, dt, in_E, in_I);
+		cell.UpdateNeuronalState(dym_val, t, dt, in_E, in_I);
 		t += dt;
 		if (abs(recording_rate*t - floor(recording_rate*t)) == 0) {
-			V = cell.GetPotential();
-			I = cell.OutTotalCurrent();
+			V = cell.GetPotential(dym_val);
+			I = cell.OutTotalCurrent(dym_val);
 			V_file.write((char*)&V, sizeof(double));
 			I_file.write((char*)&I, sizeof(double));
 		}
@@ -83,9 +86,8 @@ int main(int argc, const char* argv[]) {
 
 	// OUTPUTS:
 	vector<double> spike_train;
-	string raster_path = dir + "raster.csv";
 	cell.OutSpikeTrain(spike_train);
-	Print1D(raster_path, spike_train, "trunc", 0);
+	Print1D(dir + "raster.csv", spike_train, "trunc", 0);
 
 	finish = clock();
 	// readout runing time;

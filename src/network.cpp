@@ -52,7 +52,7 @@ double NeuronalNetwork::SortSpikes(double t, double dt, vector<SpikeElement> &T)
 	double SET;
 	SpikeElement ADD;
 	for (int i = 0; i < neuron_number_; i++) {
-		SET = neurons_[i].TemporallyUpdateNeuronalState(t, dt, external_excitatory_inputs_[i], external_inhibitory_inputs_[i]);
+		SET = neurons_[i].TemporallyUpdateNeuronalState(dym_vals_[i], t, dt, external_exc_inputs_[i], external_inh_inputs_[i]);
 		if (SET >= 0) {
 			ADD.index = neurons_[i].GetNeuronIndex();
 			ADD.t = SET;
@@ -74,10 +74,6 @@ void NeuronalNetwork::SetS(bool function, double val) {
 	for (int i = 0; i < neuron_number_; i ++) {
 		neurons_[i].SetSynapticStrength(function, val);
 	}
-}
-
-void NeuronalNetwork::SetDelay(double val) {
-	interaction_delay_ = val;
 }
 
 void NeuronalNetwork::InitializeNeuronalType(double p, int seed) {
@@ -115,28 +111,28 @@ void NeuronalNetwork::InitializeExternalPoissonProcess(vector<vector<double> >& 
 	double x; // temp random number;
 	double tLast; // last existing data point;
 	double rate;
-	external_excitatory_inputs_.resize(neuron_number_, ADD);
-	external_inhibitory_inputs_.resize(neuron_number_, ADD);
+	external_exc_inputs_.resize(neuron_number_, ADD);
+	external_inh_inputs_.resize(neuron_number_, ADD);
 	for (int i = 0; i < neuron_number_; i++) {
 		rate = rates[i][0];
-		tLast = external_excitatory_inputs_[i].front();
+		tLast = external_exc_inputs_[i].front();
 		while (tLast < tmax) {
 			x = rand() / (RAND_MAX + 1.0);
 			while (x == 0) x = rand() / (RAND_MAX + 1.0);
 			tLast -= log(x) / rate;
-			external_excitatory_inputs_[i].push_back(tLast);
+			external_exc_inputs_[i].push_back(tLast);
 		}
-		//cout << setprecision(15) << (double)external_excitatory_inputs_[i][10] << ',';
-		//cout << external_excitatory_inputs_[i].size() << ',';
+		//cout << setprecision(15) << (double)external_exc_inputs_[i][10] << ',';
+		//cout << external_exc_inputs_[i].size() << ',';
 	}
 	for (int i = 0; i < neuron_number_; i++) {
 		rate = rates[i][1];
-		tLast = external_inhibitory_inputs_[i].front();
+		tLast = external_inh_inputs_[i].front();
 		while (tLast < tmax) {
 			x = rand() / (RAND_MAX + 1.0);
 			while (x == 0) x = rand() / (RAND_MAX + 1.0);
 			tLast -= log(x) / rate;
-			external_inhibitory_inputs_[i].push_back(tLast);
+			external_inh_inputs_[i].push_back(tLast);
 		}
 	}
 	//cout << endl;
@@ -191,7 +187,7 @@ void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
 		newt = SortSpikes(t, dt, T);
 		if (newt < 0) {
 			for (int i = 0; i < neuron_number_; i++) {
-				neurons_[i].UpdateNeuronalState(t, dt, external_excitatory_inputs_[i], external_inhibitory_inputs_[i]);
+				neurons_[i].UpdateNeuronalState(dym_vals_[i], t, dt, external_exc_inputs_[i], external_inh_inputs_[i]);
 			}
 		} else {
 			//cout << newt << ',';
@@ -203,9 +199,9 @@ void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
 				ADD_mutual.t = t + newt + interaction_delay_;
 				for (int j = 0; j < neuron_number_; j++) {
 					if (j == IND) {
-						neurons_[j].Fire(t, newt);
+						neurons_[j].Fire(dym_vals_[j], t, newt);
 					} else {
-						neurons_[j].UpdateNeuronalState(t, newt);
+						neurons_[j].UpdateNeuronalState(dym_vals_[j], t, newt);
 						if (connectivity_matrix_.ReadMatrix(IND,j) == 1) {
 							neurons_[j].InSpike(ADD_mutual);
 						}
@@ -217,12 +213,12 @@ void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
 				newt = SortSpikes(t, dt, T);
 			}
 			for (int i = 0; i < neuron_number_; i++) {
-				neurons_[i].UpdateNeuronalState(t, dt);
+				neurons_[i].UpdateNeuronalState(dym_vals_[i], t, dt);
 			}
 		}
 	} else {
 		for (int i = 0; i < neuron_number_; i++) {
-			neurons_[i].UpdateNeuronalState(t, dt, external_excitatory_inputs_[i], external_inhibitory_inputs_[i]);
+			neurons_[i].UpdateNeuronalState(dym_vals_[i], t, dt, external_exc_inputs_[i], external_inh_inputs_[i]);
 		}
 	}
 }
@@ -230,7 +226,7 @@ void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
 void NeuronalNetwork::OutPotential(string path) {
 	vector<double> potential(neuron_number_);
 	for (int i = 0; i < neuron_number_; i++) {
-		potential[i] = neurons_[i].GetPotential();
+		potential[i] = neurons_[i].GetPotential(dym_vals_[i]);
 	}
 	Print1DBin(path, potential, "app");
 }
@@ -239,11 +235,11 @@ void NeuronalNetwork::OutConductance(string path, bool function) {
 	vector<double> conductance(neuron_number_);
 	if (function) {
 		for (int i = 0; i < neuron_number_; i++) {
-			conductance[i] = neurons_[i].GetConductance(true);
+			conductance[i] = neurons_[i].GetConductance(dym_vals_[i], true);
 		}
 	} else {
 		for (int i = 0; i < neuron_number_; i++) {
-			conductance[i] = neurons_[i].GetConductance(false);
+			conductance[i] = neurons_[i].GetConductance(dym_vals_[i], false);
 		}
 	}
   Print1DBin(path, conductance, "app");
@@ -252,7 +248,7 @@ void NeuronalNetwork::OutConductance(string path, bool function) {
 void NeuronalNetwork::OutCurrent(string path) {
 	vector<double> current(neuron_number_);
 	for (int i = 0; i < neuron_number_; i++) {
-		current[i] = neurons_[i].OutTotalCurrent();
+		current[i] = neurons_[i].OutTotalCurrent(dym_vals_[i]);
 	}
 	Print1DBin(path, current, "app");
 }
@@ -260,7 +256,7 @@ void NeuronalNetwork::OutCurrent(string path) {
 void NeuronalNetwork::OutPartialCurrent(string path, bool type) {
 	vector<double> current(neuron_number_);
 	for (int i = 0; i < neuron_number_; i++) {
-		current[i] = neurons_[i].OutLeakyCurrent() + neurons_[i].OutSynapticCurrent(type);
+		current[i] = neurons_[i].OutLeakyCurrent(dym_vals_[i]) + neurons_[i].OutSynapticCurrent(dym_vals_[i], type);
 	}
 	Print1DBin(path, current, "app");
 }
@@ -322,15 +318,15 @@ int NeuronalNetwork::GetNeuronNumber() {
 }
 
 void NeuronalNetwork::GetConductance(int i, bool function) {
-	neurons_[i].GetConductance(function);
+	neurons_[i].GetConductance(dym_vals_[i], function);
 }
 
 void NeuronalNetwork::RestoreNeurons() {
 	for (int i = 0; i < neuron_number_; i++) {
-		neurons_[i].Reset();
+		neurons_[i].Reset(dym_vals_[i]);
 	}
-	external_excitatory_inputs_.clear();
-	external_inhibitory_inputs_.clear();
+	external_exc_inputs_.clear();
+	external_inh_inputs_.clear();
 }
 
 void UpdateSystemState(NeuronalNetwork & pre_network, NeuronalNetwork & post_network, vector<vector<bool> > & connectivity_matrix, double t, double dt) {

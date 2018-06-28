@@ -27,11 +27,12 @@ struct SpikeElement {
 class NeuronalNetwork {
 private:
 	// Parameters:
-	Neuron *neurons_;
 	int neuron_number_;	// number of the neurons in the group;
+	vector<double*> dym_vals_; // dynamic variables of neurons;
+	vector<Neuron> neurons_;
 	ConnectivityMatrix connectivity_matrix_;
-	vector<vector<double> > external_excitatory_inputs_; // temp storage of external Poisson input;
-	vector<vector<double> > external_inhibitory_inputs_;
+	vector<vector<double> > external_exc_inputs_; // temp storage of external Poisson input;
+	vector<vector<double> > external_inh_inputs_;
 	double interaction_delay_;
 	int connecting_density_;
 	// Functions:
@@ -42,8 +43,11 @@ public:
 	//	Neuronal network initialization:
 	NeuronalNetwork(int neuron_number) {
 		neuron_number_ = neuron_number;
-		neurons_ = new Neuron[neuron_number_];
-		for (int i = 0; i < neuron_number_; i++) neurons_[i].SetNeuronIndex(i);
+		dym_vals_.resize(neuron_number_);
+		for (int i = 0; i < neuron_number_; i++) {
+			neurons_.push_back(Neuron(dym_vals_[i]));
+			neurons_[i].SetNeuronIndex(i);
+		}
 		connectivity_matrix_.SetNeuronNumber(neuron_number_);
 		interaction_delay_ = 0.0;
 		connecting_density_ = 0;
@@ -64,7 +68,7 @@ public:
 	void SetS(bool function, double val);
 
   // Set interaction delay between neurons;
-	void SetDelay(double val);
+	void SetDelay(double val) { interaction_delay_ = val; }
 
 	// 	Initialize neuronal types in the network;
 	//	DOUBLE p: the probability of the presence of excitatory neuron;
