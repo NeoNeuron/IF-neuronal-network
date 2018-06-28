@@ -43,26 +43,15 @@ int main(int argc, const char* argv[]) {
 	PrintConfig(m_map_config);
 	cout << endl;
 
-	int preNetNum, postNetNum, preNetDensity, postNetDensity;
-	double pre_rewiring_probability, post_rewiring_probability;
-	int pre_rewiring_seed, post_rewiring_seed;
+	int preNetNum, postNetNum;
 	// neuron number:
 	preNetNum = atoi(m_map_config["PreNetNeuronNumber"].c_str());
 	postNetNum = atoi(m_map_config["PostNetNeuronNumber"].c_str());
-	// connecting density:
-	preNetDensity = atoi(m_map_config["PreNetConnectingDensity"].c_str());
-	postNetDensity = atoi(m_map_config["PostNetConnectingDensity"].c_str());
-	// rewiring probability and rewiring seed;
-	pre_rewiring_probability = atof(m_map_config["PreNetRewiringProbability"].c_str());
-	post_rewiring_probability = atof(m_map_config["PostNetRewiringProbability"].c_str());
-	pre_rewiring_seed = atoi(m_map_config["PreNetRewiringSeed"].c_str());
-	post_rewiring_seed = atoi(m_map_config["PostNetRewiringSeed"].c_str());
 	// Initialize networks;
 	NeuronalNetwork preNet(preNetNum), postNet(postNetNum);
-	preNet.SetConnectingDensity(preNetDensity);
-	postNet.SetConnectingDensity(postNetDensity);
-	preNet.Rewire(pre_rewiring_probability, pre_rewiring_seed, true);
-	postNet.Rewire(post_rewiring_probability, post_rewiring_seed, true);
+	preNet.InitializeConnectivity(m_map_config, "PreNet");
+	postNet.InitializeConnectivity(m_map_config, "PostNet");
+
 	double maximum_time = atof(m_map_config["MaximumTime"].c_str());
 	// Initialize neuronal types;
 	preNet.InitializeNeuronalType(atof(m_map_config["PreNetTypeProbability"].c_str()), atoi(m_map_config["PreNetTypeSeed"].c_str()));
@@ -81,21 +70,21 @@ int main(int argc, const char* argv[]) {
 	double postnet_rate_exc = atof(m_map_config["PostNetDrivingRateExcitatory"].c_str());
 	double postnet_rate_inh = atof(m_map_config["PostNetDrivingRateInhibitory"].c_str());
 	vector<bool> prenet_types, postnet_types;
-	vector<double> prenet_fwd_rates(preNetNum), postnet_fwd_rates(postNetNum);
+	vector<vector<double> > prenet_fwd_rates(preNetNum), postnet_fwd_rates(postNetNum);
 	preNet.GetNeuronType(prenet_types);
 	postNet.GetNeuronType(postnet_types);
 	for (int i = 0; i < preNetNum; i ++) {
 		if (prenet_types[i]) {
-			prenet_fwd_rates[i] = prenet_rate_exc;
+			prenet_fwd_rates[i] = {prenet_rate_exc, 0.0};
 		} else {
-			prenet_fwd_rates[i] = prenet_rate_inh;
+			prenet_fwd_rates[i] = {prenet_rate_inh, 0.0};
 		}
 	}
 	for (int i = 0; i < postNetNum; i ++) {
 		if (postnet_types[i]) {
-			postnet_fwd_rates[i] = postnet_rate_exc;
+			postnet_fwd_rates[i] = {postnet_rate_exc, 0.0};
 		} else {
-			postnet_fwd_rates[i] = postnet_rate_inh;
+			postnet_fwd_rates[i] = {postnet_rate_inh, 0.0};
 		}
 	}
 	if (preType) {
@@ -105,12 +94,12 @@ int main(int argc, const char* argv[]) {
 		postNet.InitializeExternalPoissonProcess(postnet_fwd_rates, maximum_time, atoi(m_map_config["PostNetExternalDrivingSeed"].c_str()));
 	} else postNet.InitializeInternalPoissonRate(postnet_fwd_rates);
 	// Set feedforward driving strength;
-	preNet.SetF(atof(m_map_config["PreNetDrivingStrength"].c_str()));
-	postNet.SetF(atof(m_map_config["PostNetDrivingStrength"].c_str()));
+	preNet.SetF(true, atof(m_map_config["PreNetDrivingStrength"].c_str()));
+	postNet.SetF(true, atof(m_map_config["PostNetDrivingStrength"].c_str()));
 
 	// Set synaptic strength of presynaptic neural network;
 	preNet.SetS(true, atof(m_map_config["PreNetSynapticStrengthExcitatory"].c_str()));
-	postNet.SetS(true, atof(m_map_config["PostNetSynapticStrengthExcitatory"].c_str())/postNetDensity);
+	postNet.SetS(true, atof(m_map_config["PostNetSynapticStrengthExcitatory"].c_str()));
 
 	// Setup connectivity matrix;
 	vector<vector<bool> > conMat(preNetNum, vector<bool>(postNetNum));
@@ -163,22 +152,14 @@ int main(int argc, const char* argv[]) {
 		}
 		// cout << cr;
 	}
-	// cout << endl;
-
-	// string preNeuron_path, preMat_path;
-	// preNeuron_path = dir + "preNeuron.csv";
-	// preMat_path = dir + "preMat.csv";
-	// preNet.Save(preNeuron_path, preMat_path);
-	// string postNeuron_path, postMat_path;
-	// postNeuron_path = dir + "postNeuron.csv";
-	// postMat_path = dir + "postMat.csv";
-	// postNet.Save(postNeuron_path, postMat_path);
 
 	// OUTPUTS:
-	string pre_raster_path = dir + "rasterPre.csv";
-	string post_raster_path = dir + "rasterPost.csv";
-	preNet.OutSpikeTrains(pre_raster_path);
-	postNet.OutSpikeTrains(post_raster_path);
+	//preNet.SaveNeuron(dir + "preNeuron.csv");
+	preNet.SaveConMat(dir + "preMat.csv");
+	//postNet.SaveNeuron(dir + "postNeuron.csv");
+	postNet.SaveConMat(dir + "postMat.csv");
+	preNet.OutSpikeTrains(dir + "rasterPre.csv");
+	postNet.OutSpikeTrains(dir + "rasterPost.csv");
 
 	finish = clock();
 

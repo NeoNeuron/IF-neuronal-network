@@ -46,7 +46,7 @@ int main(int argc, const char* argv[]) {
 	int neuron_number = atoi(m_map_config["NeuronNumber"].c_str());
 	NeuronalNetwork net(neuron_number);
 	// load connecting mode;
-	net.InitializeConnectivity(m_map_config);
+	net.InitializeConnectivity(m_map_config, "");
 	// Set interneuronal coupling strength;
 	net.SetS(true, atof(m_map_config["SynapticStrengthExcitatory"].c_str()));
 	net.SetDelay(0.0);
@@ -66,13 +66,8 @@ int main(int argc, const char* argv[]) {
 		vector<bool> neuron_types;
 		net.GetNeuronType(neuron_types);
 		for (int i = 0; i < neuron_number; i ++) {
-			if (neuron_types[i]) {
-				fwd_rates[i].push_back(rate_exc);
-				fwd_rates[i].push_back(0.0);
-			} else {
-				fwd_rates[i].push_back(rate_inh);
-				fwd_rates[i].push_back(0.0);
-			}
+			if (neuron_types[i]) fwd_rates[i] = {rate_exc, 0.0};
+			else fwd_rates[i] = {rate_inh, 0.0};
 		}
 		if (driving_type) {
 			net.InitializeExternalPoissonProcess(fwd_rates, maximum_time, atoi(m_map_config["ExternalDrivingSeed"].c_str()));
@@ -126,10 +121,8 @@ int main(int argc, const char* argv[]) {
 	finish = clock();
 	
 	// OUTPUTS:
-	string neuron_path, mat_path;
-	neuron_path = dir + "neuron.bin";
-	mat_path = dir + "mat.csv";
-	net.Save(neuron_path, mat_path);
+	net.SaveNeuron(dir + "neuron.bin");
+	net.SaveConMat(dir + "mat.csv");
 
 	string raster_path = dir + "raster.csv";
 	int spike_num;

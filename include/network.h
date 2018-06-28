@@ -54,7 +54,7 @@ public:
 	// 0. given pre-defined network connectivity matrix;
 	// 1. small-world network, defined by connectivity density and rewiring;
 	// 2. randomly connected network;
-	void InitializeConnectivity(map<string, string> &m_config);
+	void InitializeConnectivity(map<string, string> &m_config, string prefix);
 	
 	void RandNet(double p, int seed) {
 		connectivity_matrix_.RandNet(p, seed);
@@ -127,8 +127,11 @@ public:
 
   //	Output the partial membrane ionic current of each neuron:
   void OutPartialCurrent(string path, bool type);
+	
+	// Save connectivity matrix
+	void SaveConMat(string connecting_matrix_file);
 
-	//	Save corrent neuronal States and connectivity matrix:
+	//	Save corrent neuronal States:
 	//	Define a 'neuronFile' type to store neuronal condition;
 	//	A ROW VECTOR:
 	//		0: neuronal type;
@@ -137,7 +140,7 @@ public:
 	//		3: excitatory conductivity;
 	//		4: inhibitory conductivity;
 	//		5: remaining refractory period;
-	void Save(string neuron_file, string connecting_matrix_file);
+	void SaveNeuron(string neuron_file);
 
 	int OutSpikeTrains(string path);
 

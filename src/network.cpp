@@ -18,19 +18,19 @@ bool Compare(const SpikeElement &x, const SpikeElement &y) {
 	return x.t < y.t;
 }
 
-void NeuronalNetwork::InitializeConnectivity(map<string, string> &m_config) {
-	int connecting_mode = atoi(m_config["ConnectingMode"].c_str());
+void NeuronalNetwork::InitializeConnectivity(map<string, string> &m_config, string prefix) {
+	int connecting_mode = atoi(m_config[prefix + "ConnectingMode"].c_str());
 	if (connecting_mode == 0) { // External connectivity matrix;
 		vector<vector<int> > connecting_matrix;
-		Read2D(m_config["MatPath"], connecting_matrix);
+		Read2D(m_config[prefix + "MatPath"], connecting_matrix);
 		connectivity_matrix_.LoadMatrix(connecting_matrix);
 	} else if (connecting_mode == 1) {
-		connecting_density_ = atoi(m_config["ConnectingDensity"].c_str());
+		connecting_density_ = atoi(m_config[prefix + "ConnectingDensity"].c_str());
 		connectivity_matrix_.SetConnectingDensity(connecting_density_);
-		double rewiring_probability = atof(m_config["RewiringProbability"].c_str());
-		int rewiring_seed = atoi(m_config["NetSeed"].c_str());
+		double rewiring_probability = atof(m_config[prefix + "RewiringProbability"].c_str());
+		int rewiring_seed = atoi(m_config[prefix + "NetSeed"].c_str());
 		bool output_option;
-		istringstream(m_config["PrintRewireResult"]) >> boolalpha >> output_option;
+		istringstream(m_config[prefix + "PrintRewireResult"]) >> boolalpha >> output_option;
 		// Generate networks;
 		connectivity_matrix_.Rewire(rewiring_probability, rewiring_seed, output_option);
 		if (output_option == true) {
@@ -42,8 +42,8 @@ void NeuronalNetwork::InitializeConnectivity(map<string, string> &m_config) {
 			cout << "The mean clustering coefficient is " << setprecision(4) << (double)mean_clustering_coefficient << "." << endl;
 		}
 	} else if (connecting_mode == 2) {
-		double random_probability = atof(m_config["RandomProbability"].c_str());
-		int seed = atoi(m_config["NetSeed"].c_str());
+		double random_probability = atof(m_config[prefix + "RandomProbability"].c_str());
+		int seed = atoi(m_config[prefix + "NetSeed"].c_str());
 		connectivity_matrix_.RandNet(random_probability, seed);
 	}
 }
@@ -265,8 +265,11 @@ void NeuronalNetwork::OutPartialCurrent(string path, bool type) {
 	Print1DBin(path, current, "app");
 }
 
+void NeuronalNetwork::SaveConMat(string connecting_matrix_file) {
+	connectivity_matrix_.OutMatrix(connecting_matrix_file);
+}
 
-void NeuronalNetwork::Save(string neuron_file, string connecting_matrix_file) {
+void NeuronalNetwork::SaveNeuron(string neuron_file) {
 	ofstream data;
 	data.open(neuron_file.c_str(), ios::binary);
 	NeuronalState add;
@@ -281,7 +284,6 @@ void NeuronalNetwork::Save(string neuron_file, string connecting_matrix_file) {
 		// data << (double)add.remaining_refractory_time << '\n';
 	}
 	data.close();
-	connectivity_matrix_.OutMatrix(connecting_matrix_file);
 }
 
 int NeuronalNetwork::OutSpikeTrains(string path) {
