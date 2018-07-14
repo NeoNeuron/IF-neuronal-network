@@ -17,9 +17,12 @@ using namespace std;
 int main() {
 	clock_t start, finish;
 	start = clock();
-	Neuron cell;
-	double t = 0, dt = 0.5, tmax = 2000;
-	double rateE = 2;
+	double *dym_val; 
+	double *dym_val_new;
+	dym_val_new = new double[4];
+	Neuron cell(dym_val);
+	double t = 0, dt = 0.5, tmax = 4000;
+	double rateE = 1.5;
 	double rateI = 0.0;
 	double v;
 	ofstream data;
@@ -31,20 +34,18 @@ int main() {
 	double sampling_rate = 2;
 	double t_spike;
 	for (int i = 0; i < 8; i++) {
-		cell.Reset();
+		cell.Reset(dym_val);
 		in_E_tmp = in_E;
 		in_I_tmp = in_I;
 		cell.SetDrivingType(true);
 		while (t < tmax) {
-			//v = cell.UpdateNeuronalState(t, dt, in_E_tmp, in_I_tmp);
-			t_spike = cell.TemporallyUpdateNeuronalState(t, dt, in_E_tmp, in_I_tmp);
+			//v = cell.UpdateNeuronalState(dym_val, t, dt, in_E_tmp, in_I_tmp);
+			t_spike = cell.TemporallyUpdateNeuronalState(dym_val, dym_val_new, t, dt, in_E_tmp, in_I_tmp);
 			if (t_spike >= 0) {
 				//cout << t_spike << ',';
-				cell.Fire(t, t_spike);
-				v = cell.UpdateNeuronalState(t + t_spike, dt - t_spike, in_E_tmp, in_I_tmp);
-			} else {
-				v = cell.UpdateNeuronalState(t, dt, in_E_tmp, in_I_tmp);
+				cell.Fire(t + t_spike);
 			}
+			v = cell.UpdateNeuronalState(dym_val, dym_val_new, t + dt);
 			t += dt;
 			if (abs(floor(sampling_rate * t) - sampling_rate * t) < 1e-15) {
 				data << setprecision(20) << (double)v << ",";

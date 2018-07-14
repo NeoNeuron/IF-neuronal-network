@@ -29,6 +29,7 @@ private:
 	// Parameters:
 	int neuron_number_;	// number of the neurons in the group;
 	vector<double*> dym_vals_; // dynamic variables of neurons;
+	vector<double*> dym_vals_new_; // temporal dynamic variables of neurons;
 	vector<Neuron> neurons_;
 	ConnectivityMatrix connectivity_matrix_;
 	vector<vector<double> > external_exc_inputs_; // temp storage of external Poisson input;
@@ -37,22 +38,30 @@ private:
 	int connecting_density_;
 	// Functions:
 	// Sort spikes within single time interval, and return the time of first spike;
-	double SortSpikes(double t, double dt, vector<SpikeElement> &T);
+	double SortSpikes(vector<double*> &dym_vals_new, vector<int>& update_list, vector<int>& fired_list, double t, double dt, vector<SpikeElement> &T);
 
 public:
 	//	Neuronal network initialization:
 	NeuronalNetwork(int neuron_number) {
 		neuron_number_ = neuron_number;
 		dym_vals_.resize(neuron_number_);
+		dym_vals_new_.resize(neuron_number_);
 		for (int i = 0; i < neuron_number_; i++) {
 			neurons_.push_back(Neuron(dym_vals_[i]));
-			neurons_[i].SetNeuronIndex(i);
+			//TODO: allocate memory for dynamic variable for different neuronal model;
+			//dym_vals_new[i] = new double[GetLen(dym_vals_[i])];
+			dym_vals_new_[i] = new double[4];
 		}
 		connectivity_matrix_.SetNeuronNumber(neuron_number_);
 		interaction_delay_ = 0.0;
 		connecting_density_ = 0;
 	}
 	
+	~NeuronalNetwork() {
+		for (int i = 0; i < neuron_number_; i++) {
+			delete [] dym_vals_new_[i];
+		}
+	}
 	// Initialize network connectivity matrix:
 	// Three options:
 	// 0. given pre-defined network connectivity matrix;
@@ -60,9 +69,8 @@ public:
 	// 2. randomly connected network;
 	void InitializeConnectivity(map<string, string> &m_config, string prefix);
 	
-	void RandNet(double p, int seed) {
-		connectivity_matrix_.RandNet(p, seed);
-	}
+	void RandNet(double p, int seed);
+	
 	// INPUTS:
 	// Set interneuronal coupling strength;
 	void SetS(bool function, double val);
@@ -118,6 +126,9 @@ public:
 	void UpdateNetworkState(double t, double dt);
 
 	// OUTPUTS:
+
+	// Print cycle:
+	void PrintCycle();
 
 	//	Output potential to *.csv file;
 	void OutPotential(string path);

@@ -24,6 +24,8 @@ if p == 0:
     for i in range(len(dt)):
         dt[i] = 0.5/(2**i)
     plt.loglog(dt, dat_mean[:-1], '.', label = 'data')
+    c_est = dat_mean[0]/dt[0]**1
+    plt.loglog(dt, c_est*dt**1, label = '1st-order')
     c_est = dat_mean[0]/dt[0]**4
     plt.loglog(dt, c_est*dt**4, label = '4th-order')
     plt.legend()

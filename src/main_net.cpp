@@ -29,7 +29,6 @@ void InitializeBinFile(string filename, size_t* shape) {
 int main(int argc, const char* argv[]) {
 	if (argc != 2) throw runtime_error("wrong number of args");
 	clock_t start, finish;
-	start = clock();
 	// 	Setup directory for output files;
 	//	it must be existing dir;
 	string dir;
@@ -105,6 +104,7 @@ int main(int argc, const char* argv[]) {
 	InitializeBinFile(I_path, shape);
 	//InitializeBinFile(GE_path, shape);
 
+	start = clock();
 	// double progress;
 	while (t < tmax) {
 		net.UpdateNetworkState(t, dt);
@@ -113,20 +113,18 @@ int main(int argc, const char* argv[]) {
 		if (abs(recording_rate*t - floor(recording_rate*t)) == 0) {
 			net.OutPotential(V_path);
 			net.OutCurrent(I_path);
-			//net.OutConductance(GE_path, true);
 		}
 	}
-	// cout << endl;
-
 	finish = clock();
+
+	net.PrintCycle();
 	
 	// OUTPUTS:
 	net.SaveNeuron(dir + "neuron.bin");
 	net.SaveConMat(dir + "mat.csv");
 
 	string raster_path = dir + "raster.csv";
-	int spike_num;
-	spike_num = net.OutSpikeTrains(raster_path);
+	int spike_num = net.OutSpikeTrains(raster_path);
 	cout << "Mean firing rate: " << (double)spike_num*1000.0/tmax/neuron_number << endl;
 
 	// Timing:

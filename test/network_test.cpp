@@ -14,16 +14,16 @@ using namespace std;
 int main() {
 	clock_t start, finish;
 	start = clock();
-	int neuron_num = 10;
+	int neuron_num = 100;
 	NeuronalNetwork cells(neuron_num);
-	//cells.SetS(true, 0.05);
-	cells.RandNet(1, 1);
+	cells.RandNet(0, 1);
 	double t = 0, dt = 0.5, tmax = 2000;
 	int reps = 8;
 	vector<double> add_rate = {1.5, 0};
 	vector<vector<double> > PRate(neuron_num, add_rate);
 	cells.InitializeNeuronalType(1, 1);
 	cout << endl;
+	//cells.SetS(true, 1e-10);
 	int sampling_rate = 2;
 	// prepare data file;
 	string filename = "tmp/data_network_test.bin";
@@ -38,7 +38,7 @@ int main() {
 	for (int i = 0; i < reps; i++) {
 		cells.RestoreNeurons();
 		cells.SetDrivingType(true); // external type;
-		cells.InitializeExternalPoissonProcess(PRate, tmax, 1);
+		cells.InitializeExternalPoissonProcess(PRate, tmax, 3);
 		while (t < tmax) {
 			cells.UpdateNetworkState(t, dt);
 			t += dt;

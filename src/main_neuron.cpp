@@ -32,7 +32,7 @@ int main(int argc, const char* argv[]) {
   cout << ">> [Config.ini]:\n#####\n";
 	PrintConfig(m_map_config);
 	cout << "#####\n";
-	double *dym_val;
+	double *dym_val, dym_val_new;
 	Neuron cell(dym_val);
 	double t = 0, dt = atof(m_map_config["TimingStep"].c_str()), tmax = atof(m_map_config["MaximumTime"].c_str());
 	bool neuron_type, driving_type;
@@ -71,7 +71,11 @@ int main(int argc, const char* argv[]) {
 	V_file.write((char*)shape, 2*sizeof(size_t));
 	I_file.write((char*)shape, 2*sizeof(size_t));
 	double V, I;
+	double spike_time;
 	while (t < tmax) {
+		//spike_time = cell.TemporallyUpdateNeuronalState(dym_val, dym_val_new, t, dt, in_E, in_I);
+		//if (spike_time > 0) cell.Fire(t + spike_time);
+		//cell.UpdateNeuronalState(dym_val, dym_val_new, t + dt);
 		cell.UpdateNeuronalState(dym_val, t, dt, in_E, in_I);
 		t += dt;
 		if (abs(recording_rate*t - floor(recording_rate*t)) == 0) {
@@ -84,9 +88,12 @@ int main(int argc, const char* argv[]) {
 	V_file.close();
 	I_file.close();
 
+	cell.GetCycle();
+	cout<< endl;
 	// OUTPUTS:
 	vector<double> spike_train;
 	cell.OutSpikeTrain(spike_train);
+	cout << "Mean firing rate: " << spike_train.size() * 1000.0 / tmax << endl;
 	Print1D(dir + "raster.csv", spike_train, "trunc", 0);
 
 	finish = clock();
