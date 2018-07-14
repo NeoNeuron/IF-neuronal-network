@@ -33,7 +33,7 @@ int main(int argc, const char* argv[]) {
   // Truncate the spiking series;
   Truncate(spikes, range);
   // Convert double to binary;
-  vector<bool> binary_spikes;
+  vector<int> binary_spikes;
   double tmax = range[1] - range[0];
   double dt = atof(argv[5]);
   Spike2Bool(spikes, binary_spikes, tmax, dt);

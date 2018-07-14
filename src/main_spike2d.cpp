@@ -37,7 +37,7 @@ int main(int argc, const char* argv[]) {
     for (vector<vector<double> >::iterator it = spikes.begin(); it != spikes.end(); it ++) Truncate(*it, range);
   }
   // Convert double to binary;
-  vector<vector<bool> > binary_spikes(spikes.size());
+  vector<vector<int> > binary_spikes(spikes.size());
   double tmax = range[1] - range[0];
   double dt = atof(argv[3]);
   for (size_t i = 0; i < binary_spikes.size(); i ++) {

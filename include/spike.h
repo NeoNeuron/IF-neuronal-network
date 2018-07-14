@@ -10,7 +10,7 @@ using namespace std;
 //	DOUBLE tmax: maximum time of time range;
 //	DOUBLE dt: the size of time step that a binary value considered;
 //	Return: none;
-void Spike2Bool(vector<double> & spikes, vector<bool> & binary_spikes, double tmax, double dt);
+void Spike2Bool(vector<double> &spikes, vector<int> &binary_spikes, double tmax, double dt);
 
 // Truncate spikes within selected time range;
 // VECTOR<DOUBLE> spikes: spike train;
