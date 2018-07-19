@@ -25,9 +25,10 @@ R1 = 1 - sum((dev[1:] - func_fit1(dx[1:], popt1[0]))**2)/var2
 R2 = 1 - sum((dev[1:] - func_fit2(dx[1:], popt2[0]))**2)/var2
 fig = plt.figure()
 plt.plot(dx[1:], dev[1:], '.', label = 'data')
-plt.plot(dx[1:], func_fit1(dx[1:], popt1[0]), label = 'linear fitting')
+#plt.plot(dx[1:], func_fit1(dx[1:], popt1[0]), label = 'linear fitting')
 plt.plot(dx[1:], func_fit2(dx[1:], popt2[0]), label = 'square fitting')
-plt.title('R1 = %.4f, R2 = %.4f' %(R1, R2))
+#plt.title('R1 = %.4f, R2 = %.4f' %(R1, R2))
+plt.title('R = %.4f' %R2)
 ax = plt.gca()
 ax.xaxis.get_major_formatter().set_powerlimits((0,1))
 ax.yaxis.get_major_formatter().set_powerlimits((0,1))

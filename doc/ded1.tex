@@ -209,8 +209,8 @@ Since $X$ is a binary variable, the expression in \ref{equ:gauss_mi} needs to be
 
 \begin{align}
 	\begin{split}
-		I_{true}	- I_{obs} &= h^2\left[\sum_{y_i}\left.\frac{\partial F}{\partial y}\right|_{x=0}c_ilog\frac{P(x=0,y_i)}{P(x=0)P(y_i)} + \left.\frac{\partial F}{\partial y}\right|_{x=1}c_i'log\frac{P(x=1,y_i)}{P(x=1)P(y_i)}\right. \\
-		&\left.+ P(x=0,y_i)(\left.\frac{\partial F}{\partial y}\right|_{x=0}c_i- \frac{dg}{dy}\hat{c}_i + P(x=1,y_i)(\left.\frac{\partial F}{\partial y}\right|_{x=1}c_i') - \frac{dg}{dy}\hat{c}_i')\right] + o(h^2)
+		I_{true}	- I_{obs} &= h^2\left[\sum_{y_i}\left.\frac{\partial F}{\partial y}\right|_{x=0}c_ilog\frac{P(x=0,y_i)}{P(x=0)P(y_i)} + \sum_{y_i}\left.\frac{\partial F}{\partial y}\right|_{x=1}c_i'log\frac{P(x=1,y_i)}{P(x=1)P(y_i)}\right. \\
+		&\left.+ P(x=0,y_i)\left(\left.\frac{\partial F}{\partial y}\right|_{x=0}c_i- \frac{dg}{dy}\hat{c}_i\right) + P(x=1,y_i)\left(\left.\frac{\partial F}{\partial y}\right|_{x=1}c_i' - \frac{dg}{dy}\hat{c}_i'\right)\right] + O(h^3)
 	\end{split}
 \end{align}
 
