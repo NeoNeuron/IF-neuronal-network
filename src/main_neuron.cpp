@@ -32,7 +32,8 @@ int main(int argc, const char* argv[]) {
   cout << ">> [Config.ini]:\n#####\n";
 	PrintConfig(m_map_config);
 	cout << "#####\n";
-	double *dym_val, dym_val_new;
+	double *dym_val, *dym_val_new;
+	dym_val_new = new double[4];
 	Neuron cell(dym_val);
 	double t = 0, dt = atof(m_map_config["TimingStep"].c_str()), tmax = atof(m_map_config["MaximumTime"].c_str());
 	bool neuron_type, driving_type;
@@ -73,10 +74,10 @@ int main(int argc, const char* argv[]) {
 	double V, I;
 	double spike_time;
 	while (t < tmax) {
-		//spike_time = cell.TemporallyUpdateNeuronalState(dym_val, dym_val_new, t, dt, in_E, in_I);
-		//if (spike_time > 0) cell.Fire(t + spike_time);
-		//cell.UpdateNeuronalState(dym_val, dym_val_new, t + dt);
-		cell.UpdateNeuronalState(dym_val, t, dt, in_E, in_I);
+		spike_time = cell.TemporallyUpdateNeuronalState(dym_val, dym_val_new, t, dt, in_E, in_I);
+		if (spike_time > 0) cell.Fire(t + spike_time);
+		cell.UpdateNeuronalState(dym_val, dym_val_new, t + dt);
+		//cell.UpdateNeuronalState(dym_val, t, dt, in_E, in_I);
 		t += dt;
 		if (abs(recording_rate*t - floor(recording_rate*t)) == 0) {
 			V = cell.GetPotential(dym_val);

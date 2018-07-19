@@ -25,6 +25,8 @@ using namespace std;
 //	argv[5] = binning size of binary time series of spike train;
 int main(int argc, const char* argv[]) {
 	if (argc != 6) throw runtime_error("wrong number of args");
+	clock_t start, finish;
+	start = clock();
 	// Analyze listing series;
 	vector<int> list;
 	stringstream inlist(argv[3]);
@@ -62,5 +64,8 @@ int main(int argc, const char* argv[]) {
 	//	Output lfp:
 	Print1DBin(argv[2], lfp, "trunc");
 	cout << ">> Done" << endl;
+	finish = clock();
+	// counting time;
+	cout << "[-] LFP generation takes " << (finish - start)*1.0 / CLOCKS_PER_SEC << "s" << endl;
 	return 0;
 }

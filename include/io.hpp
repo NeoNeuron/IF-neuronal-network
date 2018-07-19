@@ -156,8 +156,12 @@ template <class T> void Print2DBin(string path, vector<vector<T> >& data, string
     size_t buffer[2] = {data.size(), data.begin()->size()};
     ofile.write((char*)&buffer, 2*sizeof(size_t));
   }
+	T tmp;
   for (typename vector<vector<T> >::iterator it = data.begin(); it != data.end(); it++) {
-		ofile.write((char*)it->data(), it->size() * sizeof(T));
+		for (typename vector<T>:: iterator itt = it -> begin(); itt != it -> end(); itt ++) {
+			tmp = *itt;
+			ofile.write((char*)&tmp, sizeof(T));
+		}
   }
   ofile.close();
 }
@@ -190,11 +194,11 @@ template <class T> void Print1DBin(string path, vector<T>& data, string mode) {
     size_t buffer[2] = {1, data.size()};
     ofile.write((char*)&buffer, 2*sizeof(size_t));
   }
-  //T tmp;
-  //for (typename vector<T>::iterator it = data.begin(); it != data.end(); it ++) {
-  //  tmp = *it;
-  //  ofile.write((char*)&tmp, sizeof(T));
-  //}
-  ofile.write((char*)data.data(), data.size() * sizeof(T));
+  T tmp;
+  for (typename vector<T>::iterator it = data.begin(); it != data.end(); it ++) {
+    tmp = *it;
+    ofile.write((char*)&tmp, sizeof(T));
+  }
+  //ofile.write((char*)data.data(), data.size() * sizeof(T));
   ofile.close();
 }

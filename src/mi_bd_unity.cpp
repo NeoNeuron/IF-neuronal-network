@@ -60,9 +60,9 @@ int main(int argc, const char* argv[]) {
 	// Truncate the spiking series;
 	Truncate(spikes, trange);
 	// Convert double to binary;
-	vector<int> binary_spikes_int;
+	vector<bool> binary_spikes;
 	double tmax = trange[1] - trange[0];
-	Spike2Bool(spikes, binary_spikes_int, tmax, dt);
+	Spike2Bool(spikes, binary_spikes, tmax, dt);
 	// LFP:
 	vector<int> list;
 	stringstream inlist(argv[4]);
@@ -76,10 +76,7 @@ int main(int argc, const char* argv[]) {
 	LFP(argv[2], lfp, list, trange);
 
 	// Calculate mutual information;
-	vector<bool> binary_spikes(binary_spikes_int.size(), false);
-	for (int i = 0; i < binary_spikes_int.size(); i ++) {
-		if (binary_spikes_int[i] == 1) binary_spikes[i] = true;
-	}
+	cout << ">> Calculating TDMI ..." << endl;
 	vector<double> tdmi;
 	TDMI(binary_spikes, lfp, tdmi, delay_range, binsize);
 	// shuffle flag;
@@ -100,6 +97,6 @@ int main(int argc, const char* argv[]) {
 
 	finish = clock();
 	// Time counting:
-	cout << "It takes " << (finish - start)*1.0 / CLOCKS_PER_SEC << "s" << endl;
+	cout << "[-] total TDMI calculation takes " << (finish - start)*1.0 / CLOCKS_PER_SEC << "s" << endl;
 	return 0;
 }

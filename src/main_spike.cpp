@@ -19,6 +19,8 @@ int myrandom(int i) {return rand()%i;}
 // argv[6] = shuffle flag;
 int main(int argc, const char* argv[]) {
   if (argc != 7) throw runtime_error("wrong number of args");
+	clock_t start, finish;
+	start = clock();
   // load data inputing arguments;
   vector<double> spikes;
   Read1D(argv[1], spikes, atoi(argv[3]), 0);
@@ -33,7 +35,7 @@ int main(int argc, const char* argv[]) {
   // Truncate the spiking series;
   Truncate(spikes, range);
   // Convert double to binary;
-  vector<int> binary_spikes;
+  vector<bool> binary_spikes;
   double tmax = range[1] - range[0];
   double dt = atof(argv[5]);
   Spike2Bool(spikes, binary_spikes, tmax, dt);
@@ -46,5 +48,8 @@ int main(int argc, const char* argv[]) {
   if (shuffle_flag) random_shuffle(binary_spikes.begin(), binary_spikes.end(), myrandom);
   // Output spike train;
   Print1DBin(argv[2], binary_spikes, "trunc");
+	finish = clock();
+	// Time counting:
+	cout << "[-] spike generation takes " << (finish - start)*1.0 / CLOCKS_PER_SEC << "s" << endl;
   return 0;
 }

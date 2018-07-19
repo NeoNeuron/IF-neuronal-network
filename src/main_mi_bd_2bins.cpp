@@ -60,6 +60,6 @@ int main(int argc, const char* argv[]) {
 
 	finish = clock();
 	// Time counting:
-	cout << "It takes " << (finish - start)*1.0 / CLOCKS_PER_SEC << "s" << endl;
+	cout << "[-] TDMI calculation takes " << (finish - start)*1.0 / CLOCKS_PER_SEC << "s" << endl;
 	return 0;
 }

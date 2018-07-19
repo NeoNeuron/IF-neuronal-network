@@ -3,15 +3,15 @@
 #include "../include/spike.h"
 using namespace std;
 
-void Spike2Bool(vector<double> &spikes, vector<int> &binary_spikes, double tmax, double dt) {
+void Spike2Bool(vector<double> &spikes, vector<bool> &binary_spikes, double tmax, double dt) {
 	size_t T = ceil(tmax / dt);
-	binary_spikes.resize(T, 0);
+	binary_spikes.resize(T, false);
 	size_t index;
 	for (vector<double>::iterator it = spikes.begin(); it != spikes.end(); it ++) {
 		index = floor((*it + 0.5*dt) / dt) - 1;
 		if (index >= 0) {
 			if (index == T) index --;
-			binary_spikes[index] = 1;
+			binary_spikes[index] = true;
 		}
 	}	
 }
