@@ -6,8 +6,6 @@
 //*************************
 
 #include "../include/network.h"
-#include "../include/get-config.h"
-#include "../include/io.h"
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
@@ -15,13 +13,6 @@
 #include <sstream>
 #include <stdexcept>
 using namespace std;
-
-void InitializeBinFile(string filename, size_t* shape) {
-	ofstream file;
-	file.open(filename.c_str(), ios::binary);
-	file.write((char*)shape, 2*sizeof(size_t));
-	file.close();
-}
 
 //	Simulation program for single network system;
 //	arguments:
@@ -90,29 +81,32 @@ int main(int argc, const char* argv[]) {
 
 	// SETUP DYNAMICS:
 	double t = 0, dt = atof(m_map_config["TimingStep"].c_str()), tmax = maximum_time;
-	double recording_rate = 2;
+	double recording_rate = 1.0 / atof(m_map_config["SamplingTimingStep"].c_str());
 	// Define the shape of data;
 	size_t shape[2];
 	shape[0] = tmax * recording_rate;
 	shape[1] = neuron_number;
 	// Define file path for output data;
-	string V_path = dir + "V.bin";
-	string I_path = dir + "I.bin";
+	FILEWRITE V_file(dir + "V.bin"), I_file(dir + "I.bin");
 	//string GE_path = dir + "GE.bin";
-	// Initialize files:
-	InitializeBinFile(V_path, shape);
-	InitializeBinFile(I_path, shape);
-	//InitializeBinFile(GE_path, shape);
+	// Initialize size parameter in files:
+	V_file.SetSize(shape);
+	I_file.SetSize(shape);
+	//GE_file.SetSize(shape);
 
 	start = clock();
-	// double progress;
+	int progress;
 	while (t < tmax) {
 		net.UpdateNetworkState(t, dt);
 		t += dt;
 		// Output temporal data;
 		if (abs(recording_rate*t - floor(recording_rate*t)) == 0) {
-			net.OutPotential(V_path);
-			net.OutCurrent(I_path);
+			net.OutPotential(V_file);
+			net.OutCurrent(I_file);
+		}
+		if (floor(t * 10 / tmax) > progress) {
+			progress = floor(t * 10/tmax);
+			printf(">> Processing ... %d0%\n", progress);
 		}
 	}
 	finish = clock();

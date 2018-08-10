@@ -1,13 +1,11 @@
 //*************************
 //	Copyright: Kyle Chen
 //	Author: Kyle Chen
-//	Date: 2017-03-13 15:07:52
+//	Date: 2018-07-29
 //	Description: test program for multi-network simulation;
 //*************************
 
 #include "../include/network.h"
-#include "../include/get-config.h"
-#include "../include/io.h"
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
@@ -29,7 +27,6 @@ void InitializeBinFile(string filename, size_t* shape) {
 int main(int argc, const char* argv[]) {
 	if (argc != 2) throw runtime_error("wrong number of args");
 	clock_t start, finish;
-	start = clock();
 	// 	Setup directory for output files;
 	//	it must be existing dir;
 	string dir;
@@ -117,6 +114,7 @@ int main(int argc, const char* argv[]) {
 
 	// SETUP DYNAMICS:
 	double t = 0, dt = atof(m_map_config["TimingStep"].c_str()), tmax = maximum_time;
+	double sampling_rate = 1.0 / atof(m_map_config["RecordingTimingStep"].c_str());
 	// Define the shape of data;
 	size_t preNetshape[2], postNetshape[2];
 	preNetshape[0] = tmax / dt;
@@ -125,27 +123,29 @@ int main(int argc, const char* argv[]) {
 	postNetshape[1] = postNetNum;
 
 	// Define file path for output data;
-	string preV = dir + "preV.bin";
-	string postV = dir + "postV.bin";
-	string preI = dir + "preI.bin";
-	string postI = dir + "postI.bin";
-	// Initialize files:
-	InitializeBinFile(preV, preNetshape);
-	InitializeBinFile(postV, postNetshape);
-	InitializeBinFile(preI, preNetshape);
-	InitializeBinFile(postI, postNetshape);
+	FILEWRITE preV(dir + "preV.bin");
+	FILEWRITE postV(dir + "postV.bin");
+	FILEWRITE preI(dir + "preI.bin");
+	FILEWRITE postI(dir + "postI.bin");
+	// Initialize the shape of files:
+	preV.SetSize(preNetshape);
+	postV.SetSize(postNetshape);
+	preI.SetSize(preNetshape);
+	postI.SetSize(postNetshape);
 
 	// char cr = (char)13;
+	start = clock();
 	int progress;
 	while (t < tmax) {
 		UpdateSystemState(preNet, postNet, conMat, t, dt);
 		t += dt;
 		// Output temporal data;
-		preNet.OutPotential(preV);
-		preNet.OutCurrent(preI);
-		postNet.OutPotential(postV);
-		postNet.OutCurrent(postI);
-
+		if (floor(t * sampling_rate) == t * sampling_rate) {
+			preNet.OutPotential(preV);
+			preNet.OutCurrent(preI);
+			postNet.OutPotential(postV);
+			postNet.OutCurrent(postI);
+		}
 		if (floor(t * 10 / tmax) > progress) {
 			progress = floor(t * 10/tmax);
 			printf(">> Processing ... %d0%\n", progress);
@@ -156,9 +156,9 @@ int main(int argc, const char* argv[]) {
 	// OUTPUTS:
 	//preNet.SaveNeuron(dir + "preNeuron.csv");
 	preNet.SaveConMat(dir + "preMat.csv");
+	preNet.OutSpikeTrains(dir + "rasterPre.csv");
 	//postNet.SaveNeuron(dir + "postNeuron.csv");
 	postNet.SaveConMat(dir + "postMat.csv");
-	preNet.OutSpikeTrains(dir + "rasterPre.csv");
 	postNet.OutSpikeTrains(dir + "rasterPost.csv");
 
 	finish = clock();

@@ -7,6 +7,7 @@
 #ifndef _IFNET_NETWORK_H_
 #define _IFNET_NETWORK_H_
 
+#include "io.h"
 #include "neuron.h"
 #include "get-config.h"
 #include "connectivity_matrix.h"
@@ -131,17 +132,17 @@ public:
 	void PrintCycle();
 
 	//	Output potential to *.csv file;
-	void OutPotential(string path);
+	void OutPotential(FILEWRITE& file);
 
   //	Output synaptic conductance to *.csv files:
   //		BOOL function: function of synaptic conductance, true for excitation, false for inhibition;
-  void OutConductance(string path, bool function);
+  void OutConductance(FILEWRITE& file, bool function);
 
   //	Output the total membrane ionic current of each neuron:
-  void OutCurrent(string path);
+  void OutCurrent(FILEWRITE& file);
 
   //	Output the partial membrane ionic current of each neuron:
-  void OutPartialCurrent(string path, bool type);
+  void OutPartialCurrent(FILEWRITE& file, bool type);
 	
 	// Save connectivity matrix
 	void SaveConMat(string connecting_matrix_file);

@@ -1,7 +1,7 @@
 //***************
 //	Copyright: Kyle Chen
 //	Author: Kyle Chen
-//	Date: 2017-08-29
+//	Date: 2018-07-29
 //	Description: Library for Data I/O functions in project;
 //***************
 #ifndef _IO_H_
@@ -9,6 +9,8 @@
 
 #include <string>
 #include <vector>
+#include <fstream>
+#include <stdexcept>
 using namespace std;
 
 //	Read 2 dimensional information;
@@ -43,6 +45,39 @@ template <class T> void Print2DBin(string path, vector<vector<T> >& data, string
   //	Return: none;
 template <class T> void Print1D(string path, vector<T>& data, string mode, int axis);
 template <class T> void Print1DBin(string path, vector<T>& data, string mode);
+
+class FILEWRITE {
+	private:
+		ofstream ofile_;
+	public:
+		FILEWRITE(string file_path, string write_mode = "trunc") {
+			if (write_mode == "trunc") {
+				ofile_.open(file_path.c_str(), ios::binary);
+			} else if (write_mode == "add") {
+				ofile_.open(file_path.c_str(), ios::binary | ios::app);
+			} else {
+				throw runtime_error(file_path + " wrong write mode");
+			}
+		}
+		~FILEWRITE() {
+			ofile_.close();
+		}
+		
+		// Initialize the size of array:
+		void SetSize(size_t *size) {
+			ofile_.write((char*)&size, 2*sizeof(size_t));
+		}
+		
+		// Write 1-D vector to file;
+		template <class T> void Write(vector<T>& data) {
+			T tmp;
+			for (typename vector<T>::iterator it = data.begin(); it != data.end(); it ++) {
+				tmp = *it;
+				ofile_.write((char*)&tmp, sizeof(T));
+			}
+		}
+};
+
 
 #include "io.hpp"
 

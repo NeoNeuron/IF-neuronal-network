@@ -5,7 +5,6 @@
 //	Date: 2017-02-21 16:06:30
 //******************************
 #include "../include/network.h"
-#include "../include/io.h"
 #include <iostream>
 #include <algorithm>
 #include <ctime>
@@ -262,15 +261,15 @@ void NeuronalNetwork::PrintCycle() {
 	}
 	cout << endl;
 }
-void NeuronalNetwork::OutPotential(string path) {
+void NeuronalNetwork::OutPotential(FILEWRITE& file) {
 	vector<double> potential(neuron_number_);
 	for (int i = 0; i < neuron_number_; i++) {
 		potential[i] = neurons_[i].GetPotential(dym_vals_[i]);
 	}
-	Print1DBin(path, potential, "app");
+	file.Write(potential);
 }
 
-void NeuronalNetwork::OutConductance(string path, bool function) {
+void NeuronalNetwork::OutConductance(FILEWRITE& file, bool function) {
 	vector<double> conductance(neuron_number_);
 	if (function) {
 		for (int i = 0; i < neuron_number_; i++) {
@@ -281,23 +280,23 @@ void NeuronalNetwork::OutConductance(string path, bool function) {
 			conductance[i] = neurons_[i].GetConductance(dym_vals_[i], false);
 		}
 	}
-  Print1DBin(path, conductance, "app");
+	file.Write(conductance);
 }
 
-void NeuronalNetwork::OutCurrent(string path) {
+void NeuronalNetwork::OutCurrent(FILEWRITE& file) {
 	vector<double> current(neuron_number_);
 	for (int i = 0; i < neuron_number_; i++) {
 		current[i] = neurons_[i].OutTotalCurrent(dym_vals_[i]);
 	}
-	Print1DBin(path, current, "app");
+	file.Write(current);
 }
 
-void NeuronalNetwork::OutPartialCurrent(string path, bool type) {
+void NeuronalNetwork::OutPartialCurrent(FILEWRITE& file, bool type) {
 	vector<double> current(neuron_number_);
 	for (int i = 0; i < neuron_number_; i++) {
 		current[i] = neurons_[i].OutLeakyCurrent(dym_vals_[i]) + neurons_[i].OutSynapticCurrent(dym_vals_[i], type);
 	}
-	Print1DBin(path, current, "app");
+	file.Write(current);
 }
 
 void NeuronalNetwork::SaveConMat(string connecting_matrix_file) {
