@@ -24,3 +24,6 @@ obj/*
 *.nav
 *.snm
 *.toc
+
+# ignore specific files
+doc/externalMat.csv

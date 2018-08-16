@@ -52,7 +52,7 @@ int main(int argc, const char* argv[]) {
 	ofstream data_out;
 	cout << ">> Outputing data ... " << endl;
 	data_out.open(argv[3]);
-	data_out << "timelag,mi" << endl;
+	data_out << "#timelag,mi" << endl;
 	for (int i = 0; i < ntd + ptd + 1; i++) {
 		data_out << i - ntd << ',' << setprecision(15) << (double)tdmi[i] << '\n';
 	}

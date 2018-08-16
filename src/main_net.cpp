@@ -87,7 +87,8 @@ int main(int argc, const char* argv[]) {
 	shape[0] = tmax * recording_rate;
 	shape[1] = neuron_number;
 	// Define file path for output data;
-	FILEWRITE V_file(dir + "V.bin"), I_file(dir + "I.bin");
+	FILEWRITE V_file(dir + "V.bin", "trunc");
+	FILEWRITE I_file(dir + "I.bin", "trunc");
 	//string GE_path = dir + "GE.bin";
 	// Initialize size parameter in files:
 	V_file.SetSize(shape);
