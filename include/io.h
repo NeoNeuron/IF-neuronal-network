@@ -65,7 +65,7 @@ class FILEWRITE {
 		
 		// Initialize the size of array:
 		void SetSize(size_t *size) {
-			ofile_.write((char*)&size, 2*sizeof(size_t));
+			ofile_.write((char*)size, 2*sizeof(size_t));
 		}
 		
 		// Write 1-D vector to file;
