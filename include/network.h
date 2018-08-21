@@ -76,36 +76,37 @@ public:
 	// Set interneuronal coupling strength;
 	void SetS(bool function, double val);
 
+	// Set feedforward inputing strength: (default: 5e-3)
+	void SetF(bool function, double val);
+
+	// Set time period of refractory:
+	void SetRef(double t_ref);
+
   // Set interaction delay between neurons;
 	void SetDelay(double val) { interaction_delay_ = val; }
 
 	// 	Initialize neuronal types in the network;
-	//	DOUBLE p: the probability of the presence of excitatory neuron;
-	//	DOUBLE seed: seed for random number generator;
+	//	p: the probability of the presence of excitatory neuron;
+	//	seed: seed for random number generator;
 	void InitializeNeuronalType(double p, int seed);
 
 	//	Set driving type: true for external Poisson driven, false for internal ones;
 	void SetDrivingType(bool driving_type);
 
 	//	Initialize internal homogeneous feedforward Poisson rate;
-	//	DOUBLE rates: Poisson rates; Each line represents the two parameters for each neuron,
+	//	rates: Poisson rates; Each line represents the two parameters for each neuron,
 	//		the first if excitatory	diring rate, and the second is inhibitory.
 	void InitializeInternalPoissonRate(vector<vector<double> >& rates);
 
 	//	Initialize external homogeneous feedforward Poisson process;
-	//	DOUBLE rates: Poisson rates; Each line represents the two parameters for each neuron,
+	//	rates: Poisson rates; Each line represents the two parameters for each neuron,
 	//		the first if excitatory	diring rate, and the second is inhibitory.
-	//	DOUBLE tmax: maximum time range for Poisson process;
-	//	INT seed: seed for built-in random generator;
+	//	tmax: maximum time range for Poisson process;
+	//	seed: seed for built-in random generator;
 	void InitializeExternalPoissonProcess(vector<vector<double> >& rates, double tmax, int seed);
-
-	// Set feedforward inputing strength: (default: 5e-3)
-	void SetF(bool function, double val);
 
 	// 	Input new spikes for neurons all together;
 	void InNewSpikes(vector<vector<Spike> > &data);
-
-	//Load previous setups;
 
 	// Load neuronal states:
 	// Define a 'NeuronState' type to store neuronal condition;

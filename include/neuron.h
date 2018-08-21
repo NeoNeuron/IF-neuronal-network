@@ -163,15 +163,18 @@ class Neuron {
 		// Set neuronal type: true for excitatory; false for inhibitory;
 		void SetNeuronType(bool x) { type_ = x; }
 
+		// Set refractory period:
+		void SetRef(double t_ref) { tau_ = t_ref; }
+
 		//	Set driving type: true for external, false for internal;
 		void SetDrivingType(bool x) { driven_type_ = x; }
 
+		// Set neuronal interacting strength;
 		void SetSynapticStrength(bool function, double S);
-
 		void SetFeedforwardStrength(bool function, double F);
 
 		//	Set Poisson Rate: homogeneous Poisson driving rate of internal driving type;
-		//	BOOL function: type of Poisson drive, true for excitatory, false for inhibitory;
+		//	function: type of Poisson drive, true for excitatory, false for inhibitory;
 		void SetPoissonRate(bool function, double rate);
 
 		// Define a 'neuron_file' type to store neuronal condition;

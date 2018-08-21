@@ -95,6 +95,16 @@ void NeuronalNetwork::SetS(bool function, double val) {
 	}
 }
 
+void NeuronalNetwork::SetF(bool function, double val) {
+	for (int i = 0; i < neuron_number_; i ++) {
+		neurons_[i].SetFeedforwardStrength(function, val);
+	}
+}
+
+void NeuronalNetwork::SetRef(double t_ref) {
+	for (int i = 0; i < neuron_number_; i ++) { neurons_[i].SetRef(t_ref); }
+}
+
 void NeuronalNetwork::InitializeNeuronalType(double p, int seed) {
 	srand(seed);
 	double x = 0;
@@ -155,12 +165,6 @@ void NeuronalNetwork::InitializeExternalPoissonProcess(vector<vector<double> >& 
 		}
 	}
 	//cout << endl;
-}
-
-void NeuronalNetwork::SetF(bool function, double val) {
-	for (int i = 0; i < neuron_number_; i ++) {
-		neurons_[i].SetFeedforwardStrength(function, val);
-	}
 }
 
 // Used in two layer network system;
