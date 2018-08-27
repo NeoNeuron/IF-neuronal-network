@@ -1,4 +1,8 @@
 #!/usr/bin/python
+"""
+This script aims to calculate the autocovariance of long continues data with built-in fft functions;
+    auto-covariance = np.fft.fft( np.fft.ifft(data) * np.conj( np.fft.ifft(data) ) )
+"""
 import numpy as np
 import matplotlib as mpl
 # mpl.use('Agg')

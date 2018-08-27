@@ -2,7 +2,6 @@
 import numpy as np
 import sys
 import subprocess
-import random
 import tempfile as tf
 from multiprocessing import Pool, TimeoutError
 import os
@@ -41,7 +40,7 @@ trial_num = int(sys.argv[4])
 spike_file = 'raster.csv'
 #lfp_file = 'I.bin'
 mat_file = 'mat.csv'
-lfp_pool = range(1, 101)
+lfp_pool = np.arange(1, 101)
 
 ## prepare spike train file;
 tmpname_spike = tf.mkstemp()[1]
@@ -56,30 +55,17 @@ mi_para = np.zeros((trial_num, 2)) # first column for mi_max, second for percent
 
 # start loop:
 p = Pool(processes = process_num)
-#result = []
 args_in = []
 for i in range(trial_num):
-    parts = random.sample(lfp_pool, lfp_num)
+    parts = np.random.choice(lfp_pool, lfp_num, replace = False)
     # counting connecting percentage:
-    counts = 0
-    for j in parts:
-        if mat[0][j] == 1:
-            counts += 1
-    mi_para[i][0] = counts * 1.0 / lfp_num
-    t_range = '500,' + str(int(tmax))
+    mi_para[i,0] = mat[int(spike_ind),parts].sum() * 1.0 / lfp_num
+    # prepare input args;
     args_tmp = (path, tmpname_spike, ','.join(str(ele) for ele in parts), t_range)
     args_in.append(args_tmp)
-#    result.append(p.apply_async(func = process_main, args=(path, tmpname_spike, lfp_inds), t_range)) 
-#p.close()
-#p.join()
 result = p.map(process_compact, args_in)
 #print result
-#i = 0
-## collecting results;
-#for res in result:
-#    mi_para[i][1] = res.get()
-#    i += 1
-mi_para[:,1] = result
+mi_para[:,1] = np.array(result)
 np.savetxt('mi_lfp.csv', mi_para, delimiter = ',', fmt = '%.18f')
 ## removing tmp files;
 os.remove(tmpname_spike)

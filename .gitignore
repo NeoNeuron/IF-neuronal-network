@@ -27,3 +27,6 @@ obj/*
 
 # ignore specific files
 doc/externalMat.csv
+
+# ignore old scripts
+script.old/*

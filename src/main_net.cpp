@@ -108,7 +108,8 @@ int main(int argc, const char* argv[]) {
 		}
 		if (floor(t * 10 / tmax) > progress) {
 			progress = floor(t * 10/tmax);
-			printf(">> Processing ... %d0%\n", progress);
+			cout << ">> Processing ... " << (int)progress << "0%\n" << flush;
+			//printf(">> Processing ... %d0%\n", progress);
 		}
 	}
 	finish = clock();

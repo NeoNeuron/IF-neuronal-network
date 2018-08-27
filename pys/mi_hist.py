@@ -1,19 +1,28 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin/python
 import numpy as np
 import matplotlib.pyplot as plt 
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 import sys
-arr_name = sys.argv[1]
-arr = np.genfromtxt(arr_name, delimiter = ',')
-mat = np.genfromtxt('mat.csv', delimiter = ',')
+import argparse
+
+parser = argparse.ArgumentParser(description = "Plot the histogram of maximum mutual information based on pairwised analysis.")
+parser.add_argument('filename', metavar = 'target_data', type = str, nargs = 1, help = 'path of mi data')
+parser.add_argument('mat', metavar = 'target_con_mat', default = 'mat.csv', type = str, nargs = 1, help = 'path of connectivity matrix')
+parser.add_argument('-s', '--show', action = 'store_true', help = 'show the plotted figure')
+args = parser.parse_args()
+arr = np.genfromtxt(args.filename[0], delimiter = ',')
+mat = np.genfromtxt(args.mat[0], delimiter = ',')
 mat = np.delete(mat, -1, 1)
-data_len = 1e7
+data_len = 1e8
+# examine the size of data matrix
+nrow, ncol = arr.shape
 
 one = np.array([])
 negone = np.array([])
 zero = np.array([])
-for i in range(100):
-    for j in range(100):
+for i in range(nrow):
+    for j in range(ncol):
         if (i != j):
             if mat[i][j] == 1:
                 one = np.append(one, arr[i][j])
@@ -35,16 +44,16 @@ for i in range(100):
 #one_edge = (one_edge[:-1] + one_edge[1:])/2
 #zero_edge = (zero_edge[:-1] + zero_edge[1:])/2
 # loganormially binned:
-bin_num = 100
+bin_num = 60
 one = np.array([np.log10(ele*1.0) for ele in one if ele != 0])
 negone = np.array([np.log10(ele*1.0) for ele in negone if ele != 0])
 zero = np.array([np.log10(ele*1.0) for ele in zero if ele != 0])
-one_counts, one_edge = np.histogram(one, 40)
-negone_counts, negone_edge = np.histogram(negone, 40)
-zero_counts, zero_edge = np.histogram(zero, 80)
-one_counts = one_counts * 1.0 / 9900 / (one_edge[1] - one_edge[0])
-negone_counts = negone_counts * 1.0 / 9900 / (negone_edge[1] - negone_edge[0])
-zero_counts = zero_counts * 1.0 / 9900 / (zero_edge[1] - zero_edge[0])
+one_counts, one_edge = np.histogram(one, int(bin_num*0.3))
+negone_counts, negone_edge = np.histogram(negone, int(bin_num*0.4))
+zero_counts, zero_edge = np.histogram(zero, int(bin_num*0.8))
+one_counts = one_counts * 1.0 / (nrow*(ncol-1)) / (one_edge[1] - one_edge[0])
+negone_counts = negone_counts * 1.0 / (nrow*(ncol-1)) / (negone_edge[1] - negone_edge[0])
+zero_counts = zero_counts * 1.0 / (nrow*(ncol-1)) / (zero_edge[1] - zero_edge[0])
 
 #one_edge = 10**one_edge
 #zero_edge = 10**zero_edge
@@ -56,7 +65,7 @@ zero_counts = zero_counts * 1.0 / 9900 / (zero_edge[1] - zero_edge[0])
 one_edge = (one_edge[:-1] + one_edge[1:])/2
 negone_edge = (negone_edge[:-1] + negone_edge[1:])/2
 zero_edge = (zero_edge[:-1] + zero_edge[1:])/2
-plt.figure(figsize = (10,8), dpi = 80)
+plt.figure(figsize = (14,10), dpi = 80)
 plt.plot(one_edge, one_counts, '.-', label = 'connected')
 plt.plot(negone_edge, negone_counts, '.-', label = 'inversely connected')
 plt.plot(zero_edge, zero_counts, '.-', label = 'disconnected')
@@ -82,10 +91,10 @@ ax.yaxis.get_major_formatter().set_powerlimits((0,1))
 #ax.yaxis.set_major_locator(ymajorLocator)
 #ax.yaxis.set_minor_locator(yminorLocator)
 
-plt.legend()
+plt.legend(fontsize = 20)
 plt.grid()
-if len(sys.argv) == 2:
+if args.show:
     plt.show()
-elif len(sys.argv) == 3:
-    plt.savefig(sys.argv[2])
+else:
+    plt.savefig('mi_hist.png')
     plt.close()
