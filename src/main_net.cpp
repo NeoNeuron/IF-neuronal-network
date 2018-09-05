@@ -1,13 +1,14 @@
 //*************************
 //	Copyright: Kyle Chen
 //	Author: Kyle Chen
-//	Date: 2018-06-02 
+//	Date: 2018-09-02 
 //	Description: test program for multi-network simulation;
 //*************************
 
 #include "../include/network.h"
 #include <iostream>
 #include <cstdlib>
+#include <cstdio>
 #include <cmath>
 #include <ctime>
 #include <sstream>
@@ -45,6 +46,7 @@ int main(int argc, const char* argv[]) {
 	net.InitializeNeuronalType(atof(m_map_config["TypeProbability"].c_str()), atoi(m_map_config["TypeSeed"].c_str()));
 	cout << "in the network." << endl;
 
+	// Set driving types;
 	double maximum_time = atof(m_map_config["MaximumTime"].c_str());
 	bool driving_type, fwd_type;
 	istringstream(m_map_config["DrivingType"]) >> boolalpha >> driving_type;
@@ -87,14 +89,24 @@ int main(int argc, const char* argv[]) {
 	size_t shape[2];
 	shape[0] = tmax * recording_rate;
 	shape[1] = neuron_number;
-	// Define file path for output data;
-	FILEWRITE V_file(dir + "V.bin", "trunc");
-	FILEWRITE I_file(dir + "I.bin", "trunc");
-	//string GE_path = dir + "GE.bin";
+
+	// Define file-outputing flags;
+	bool v_flag, i_flag, ge_flag, gi_flag;
+	istringstream(m_map_config["SaveV"]) >> boolalpha >> v_flag;
+	istringstream(m_map_config["SaveI"]) >> boolalpha >> i_flag;
+	istringstream(m_map_config["SaveGE"]) >> boolalpha >> ge_flag;
+	istringstream(m_map_config["SaveGI"]) >> boolalpha >> gi_flag;
+
+	// Create file-write objects;
+	FILEWRITE v_file(dir + "V.bin", "trunc");
+	FILEWRITE i_file(dir + "I.bin", "trunc");
+	FILEWRITE ge_file(dir + "GE.bin", "trunc");
+	FILEWRITE gi_file(dir + "GI.bin", "trunc");
 	// Initialize size parameter in files:
-	V_file.SetSize(shape);
-	I_file.SetSize(shape);
-	//GE_file.SetSize(shape);
+	if (v_flag) v_file.SetSize(shape);
+	if (i_flag) i_file.SetSize(shape);
+	if (ge_flag) ge_file.SetSize(shape);
+	if (gi_flag) gi_file.SetSize(shape);
 
 	start = clock();
 	int progress;
@@ -103,8 +115,10 @@ int main(int argc, const char* argv[]) {
 		t += dt;
 		// Output temporal data;
 		if (abs(recording_rate*t - floor(recording_rate*t)) == 0) {
-			net.OutPotential(V_file);
-			net.OutCurrent(I_file);
+			if (v_flag) net.OutPotential(v_file);
+			if (i_flag) net.OutCurrent(i_file);
+			if (ge_flag) net.OutConductance(ge_file, true);
+			if (gi_flag) net.OutConductance(gi_file, false);
 		}
 		if (floor(t * 10 / tmax) > progress) {
 			progress = floor(t * 10/tmax);
@@ -114,6 +128,12 @@ int main(int argc, const char* argv[]) {
 	}
 	finish = clock();
 
+	// delete files;
+	if (!v_flag) v_file.Remove();
+	if (!i_flag) i_file.Remove();
+	if (!ge_flag) ge_file.Remove();
+	if (!gi_flag) gi_file.Remove();
+	
 	net.PrintCycle();
 	
 	// OUTPUTS:

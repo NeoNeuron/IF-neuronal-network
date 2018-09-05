@@ -65,20 +65,20 @@ template <class T> void Read1D(string path, vector<T>& data, int index, int axis
   ifstream ifile(path.c_str());
   if (axis == 0) {
     string s, buffer;
-    size_t getline_counter = 0;
+    size_t row_counter = 0;
     istringstream s_input;
     while (getline(ifile, s)) {
-      if (getline_counter == index) {
+      if (row_counter == index) {
         s_input.clear();
-        s_input.str("");
         s_input.str(s);
         while (getline(s_input, buffer, ',')) {
           if (buffer.find('.') == string::npos) {
             data.push_back(atoi(buffer.c_str()));
           } else data.push_back(atof(buffer.c_str()));
         }
+				break;
       }
-      getline_counter ++;
+      row_counter ++;
     }
   } else {
     string s, buffer;
@@ -87,7 +87,6 @@ template <class T> void Read1D(string path, vector<T>& data, int index, int axis
     while (getline(ifile, s)) {
       column_counter = 0;
       s_input.clear();
-      s_input.str("");
       s_input.str(s);
       while (getline(s_input, buffer, ',')) {
         if (column_counter == index) {

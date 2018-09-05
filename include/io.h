@@ -11,6 +11,7 @@
 #include <vector>
 #include <fstream>
 #include <stdexcept>
+#include <cstdio>
 using namespace std;
 
 //	Read 2 dimensional information;
@@ -49,8 +50,10 @@ template <class T> void Print1DBin(string path, vector<T>& data, string mode);
 class FILEWRITE {
 	private:
 		ofstream ofile_;
+		string file_path_;
 	public:
 		FILEWRITE(string file_path, string write_mode = "trunc") {
+			file_path_ = file_path;
 			if (write_mode == "trunc") {
 				ofile_.open(file_path.c_str(), ios::binary);
 			} else if (write_mode == "add") {
@@ -60,7 +63,7 @@ class FILEWRITE {
 			}
 		}
 		~FILEWRITE() {
-			ofile_.close();
+			if (ofile_.is_open()) ofile_.close();
 		}
 		
 		// Initialize the size of array:
@@ -76,6 +79,13 @@ class FILEWRITE {
 				ofile_.write((char*)&tmp, sizeof(T));
 			}
 		}
+
+		// Manually close the file and delete it;
+		void Remove() {
+			ofile_.close();
+			remove(file_path_.c_str());
+		}
+
 };
 
 
