@@ -35,8 +35,8 @@ def func(x, a, b):
 popt, pcov = curve_fit(func, dat[:,0], dat[:,1])
 #print popt
 #print pcov
-plt.plot(np.arange(0.1,0.7,0.05), func(np.arange(0.1,0.7,0.05), popt[0], popt[1]), label = 'fitting curve')
+plt.plot(np.arange(0.1,0.85,0.05), func(np.arange(0.1,0.85,0.05), popt[0], popt[1]), label = 'fitting curve')
 plt.legend()
 plt.grid()
-plt.savefig('lfp_mi-p.png')
-#plt.show()
+plt.savefig('lfp_mi-p_reverse.png')
+plt.show()

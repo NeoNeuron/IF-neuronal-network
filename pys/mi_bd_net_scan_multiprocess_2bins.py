@@ -22,17 +22,21 @@ def process_compact(argv):
 
 dt = '0.5'
 process_num = int(sys.argv[1])
-# prepare data container:
 
+# setup parameter ranges;
 t_range = '5e2,1e8'
-mi_max = np.zeros((50,50))
+spike_range = [50,100]
+lfp_range = [0,100]
+
+# prepare data container:
+mi_max = np.zeros((spike_range[1]-spike_range[0], lfp_range[1]-lfp_range[0]))
 start = time.time()
 p = Pool(process_num)
-for lfp_ind in range(50):
+for lfp_ind in np.arange(lfp_range[0], lfp_range[1]):
     tmpname_lfp = './data/lfp/lfp_tmp_' + str(lfp_ind) + '.csv'
-    args = [('./data/spike/spike_tmp_' + str(spike_ind) + '.csv', tmpname_lfp, t_range, dt) for spike_ind in range(50)]
+    args = [('./data/spike/spike_tmp_' + str(spike_ind) + '.csv', tmpname_lfp, t_range, dt) for spike_ind in np.arange(spike_range[0], spike_range[1])]
     result = p.map(process_compact, args)
-    mi_max[:,lfp_ind] = result
+    mi_max[:,lfp_ind-lfp_range[0]] = result
 tmpname_mis = tf.mkstemp(suffix = '.csv', prefix = 'mi_max', dir = './data/mi/')[1]
 np.savetxt(tmpname_mis, mi_max, delimiter = ',', fmt = '%.18f')
 print('[-] Output to file -> %s' % tmpname_mis)
