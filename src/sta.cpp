@@ -52,9 +52,8 @@ int main(int argc, const char* argv[]) {
 	}
   // Output STA:
   ofstream data_out;
-	cout << ">> Outputing data ... " << endl;
 	data_out.open("./data/sta/sta.csv");
-	data_out << "timelag,sta" << endl;
+	data_out << "#timelag,sta" << endl;
 	for (int i = 0; i < ntd + ptd + 1; i++) {
 		data_out << i - ntd << ',' << setprecision(15) << (double)sta[i] << '\n';
 	}

@@ -1,47 +1,47 @@
-#!/usr/bin/python
+# -*- coding: utf-8 -*-
+#!/usr/bin/python3
 import numpy as np
-import pandas as pd
+import subprocess
+import argparse
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
-import subprocess
-import sys
-# Calculating Spike Triggerd Average:
-drange = sys.argv[1]
-#subprocess.call(['./bin/sta.out', './data/tmp/singleSpike.bin', './data/tmp/singleI.bin', drange])
-#data = pd.read_csv('data/sta/sta.csv')
-data = pd.read_csv('sta.csv')
-# Plotting:
-dt = 0.5
-plotway = 'linear'
-if plotway == 'linear':
-    plt.plot(data['timelag']*dt, data['sta'], label = 'mi')
-    ax = plt.gca()
-    ax.yaxis.get_major_formatter().set_powerlimits((0,1))
-elif plotway == 'log':
-    plt.semilogy(data['timelag']*dt, data['sta'], label = 'mi')
-# plot settings:
-xmajorLocator   = MultipleLocator(25) 
-xmajorFormatter = FormatStrFormatter('%d') # set formats of x axis
-xminorLocator   = MultipleLocator(5) 
 
-ymajorLocator   = MultipleLocator(0.01e-2) 
+parser = argparse.ArgumentParser(description = "Script to draw the spike triggled average in LFP case, execute after pre_mi_bd.py.")
+parser.add_argument('dt', type = float, nargs = 1, help = 'Timing step of time series')
+parser.add_argument('trange', metavar = 'range_of_time_window', type = str, nargs = 1, help = 'range of time window for STA')
+args = parser.parse_args()
+subprocess.call(['./bin/sta.out', './data/tmp/singleSpike.bin', './data/tmp/singleI.bin', args.trange[0]])
+
+dt = args.dt[0]
+# import data
+dat = np.genfromtxt('./data/sta/sta.csv', delimiter = ',')
+# plot data
+plt.figure()
+plt.plot(dt * dat[:,0], dat[:,1])
+ax = plt.gca()
+## plot settings:
+#xmajorLocator   = MultipleLocator(2) 
+#xmajorFormatter = FormatStrFormatter('%d') # set formats of x axis
+#xminorLocator   = MultipleLocator(1) 
+#
+#ymajorLocator   = MultipleLocator(0.1e-2) 
 #ymajorFormatter = FormatStrFormatter('%1.1f') # set formats of y axis
-yminorLocator   = MultipleLocator(0.002e-2) 
+#yminorLocator   = MultipleLocator(0.02e-2) 
+#
+ax = plt.gca()
+#ax.xaxis.set_major_formatter(xmajorFormatter)
+#ax.xaxis.set_major_locator(xmajorLocator)
+#ax.xaxis.set_minor_locator(xminorLocator)
+#
+ax.yaxis.get_major_formatter().set_powerlimits((0,1))
+#ax.yaxis.set_major_locator(ymajorLocator)
+#ax.yaxis.set_minor_locator(yminorLocator)
 
 plt.xlabel('Time Delay (ms)')
-plt.ylabel('Mean LFP')
-ax = plt.gca()
-ax.xaxis.set_major_formatter(xmajorFormatter)
-ax.xaxis.set_major_locator(xmajorLocator)
-ax.xaxis.set_minor_locator(xminorLocator)
-
-ax.yaxis.get_major_formatter().set_powerlimits((0,1))
-ax.yaxis.set_major_locator(ymajorLocator)
-ax.yaxis.set_minor_locator(yminorLocator)
-
+plt.ylabel('Spike-triggerd Average LFP')
 plt.grid()
-plt.legend()
 plt.savefig('sta')
+#plt.show()
 plt.close()
