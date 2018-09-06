@@ -16,7 +16,7 @@ mat = np.genfromtxt(args.mat[0], delimiter = ',')
 mat = np.delete(mat, -1, 1)
 data_len = 1e8
 # examine the size of data matrix
-nrow, ncol = arr.shape
+(nrow, ncol) = arr.shape
 
 one = np.array([])
 negone = np.array([])

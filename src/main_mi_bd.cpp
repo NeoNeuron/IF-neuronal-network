@@ -1,7 +1,7 @@
 //***************
 //	Copyright: Kyle Chen
 //	Author: Kyle Chen
-//	Date: 2018-01-27
+//	Date: 2018-09-02
 //	Description: Mutual information analysis program; version 1.0
 //***************
 #include "../include/mi_uniform.h"
@@ -19,12 +19,15 @@
 
 using namespace std;
 // compact function to calculate mutual information between multi-type signal
-//	arguments:
-//	argv[1] = path for bool series;
-//	argv[2] = path for double series;
-//	argv[3] = path of output mi file;
-//	argv[4] = range of timelag;
-//	argv[5] = bin size of pdf of the double variable;
+//
+// arguments:
+//
+// argv[1] = path for bool series;
+// argv[2] = path for double series;
+// argv[3] = path of output mi file;
+// argv[4] = range of timelag;
+// argv[5] = bin size of pdf of the double variable;
+//
 int main(int argc, const char* argv[]) {
 	if (argc != 6) throw runtime_error("wrong number of args");
 	clock_t start, finish;
@@ -51,7 +54,6 @@ int main(int argc, const char* argv[]) {
 
 	//	Output data:
 	ofstream data_out;
-	cout << ">> Outputing data ... " << endl;
 	data_out.open(argv[3]);
 	data_out << "#timelag,mi" << endl;
 	for (int i = 0; i < ntd + ptd + 1; i++) {

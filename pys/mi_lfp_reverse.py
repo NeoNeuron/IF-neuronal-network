@@ -52,7 +52,7 @@ args_in = []
 for i in range(trial_num):
     parts = np.random.choice(lfp_pool, lfp_num, replace = False)
     # counting connecting percentage:
-    con_rate[i] = mat[int(spike_ind),parts].sum() * 1.0 / lfp_num
+    con_rate[i] = mat[parts,int(spike_ind)].sum() * 1.0 / lfp_num
     # prepare input args;
     args_tmp = (path, tmpname_spike, ','.join(str(ele) for ele in parts), t_range)
     args_in.append(args_tmp)
@@ -60,6 +60,6 @@ result = p.map(process_compact, args_in)
 
 #print result
 dat = np.transpose(np.vstack((con_rate, np.array(result))))
-np.savetxt('mi_lfp.csv', dat, delimiter = ',', fmt = '%.18f')
+np.savetxt('mi_lfp_reverse.csv', dat, delimiter = ',', fmt = '%.18f')
 ## removing tmp files;
 subprocess.call(['rm', '-f', tmpname_spike])

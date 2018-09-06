@@ -8,8 +8,9 @@ void Spike2Bool(vector<double> &spikes, vector<bool> &binary_spikes, double tmax
 	binary_spikes.resize(T, false);
 	size_t index;
 	for (vector<double>::iterator it = spikes.begin(); it != spikes.end(); it ++) {
-		index = floor((*it + 0.5*dt) / dt) - 1;
-		if (index >= 0) {
+		index = floor((*it + 0.5*dt) / dt);
+		if (index != 0) {
+			index --;
 			if (index == T) index --;
 			binary_spikes[index] = true;
 		}

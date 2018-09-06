@@ -1,7 +1,7 @@
 // ***************
 //	Copyright: Kyle Chen
 //	Author: Kyle Chen
-//	Date: 2018-01-30
+//	Date: 2018-09-02
 //	Description: main file for lfp.h and lfp.cpp
 //***************
 #include "../include/lfp.h"
@@ -17,12 +17,15 @@
 using namespace std;
 
 //	Function of calculating LFP with point current source model in 1-D loop network case;
+//
 //	arguments:
+//
 //	argv[1] = path of neural data;
 //	argv[2] = path of output LFP file;
 //	argv[3] = list of indices of connected neurons, seperated by comma, that contribute to LFP;
 //	argv[4] = time range, seperated by comma, with unit in milliseconds;
 //	argv[5] = binning size of binary time series of spike train;
+//
 int main(int argc, const char* argv[]) {
 	if (argc != 6) throw runtime_error("wrong number of args");
 	clock_t start, finish;
@@ -46,24 +49,11 @@ int main(int argc, const char* argv[]) {
   }
 	printf(">> Time range = (%.2f, %.2f] ms\n", t_range[0], t_range[1]);
 
-	cout << ">> Processing LFP ..." << endl;
 	vector<double> lfp;
 	LFP(argv[1], lfp, list, t_range);
 
-	// // rearrange LFP data;
-	// double dt_sampling = 0.03125;
-	// int dn = atof(argv[5]) / dt_sampling; // number of LFP data points within single time step;
-	// int num_bin = floor((t_range[1] - t_range[0]) / atof(argv[5])); // number of reduced LFP data point;
-	//
-	// vector<double> mean_lfp(num_bin, 0);
-	// for (int i = 0; i < num_bin; i++) {
-	// 	for (int j = 0; j < dn; j++) mean_lfp[i] += lfp[i*dn + j];
-	// 	mean_lfp[i] /= dn;
-	// }
-
 	//	Output lfp:
 	Print1DBin(argv[2], lfp, "trunc");
-	cout << ">> Done" << endl;
 	finish = clock();
 	// counting time;
 	cout << "[-] LFP generation takes " << (finish - start)*1.0 / CLOCKS_PER_SEC << "s" << endl;
