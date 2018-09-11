@@ -2,7 +2,6 @@
 import numpy as np
 import subprocess
 import argparse
-import sys
 
 parser = argparse.ArgumentParser(description = "Prepare the data files of spike train and local field potential 'LFP' for TDMI calculation.")
 #parser.add_argument('dt', type = float, nargs = 1, default = 0.5, help = 'timing step of discrete time series of spike train and local field potential')
