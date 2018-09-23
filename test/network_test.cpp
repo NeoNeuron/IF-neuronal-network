@@ -26,14 +26,11 @@ int main() {
 	//cells.SetS(true, 1e-10);
 	int sampling_rate = 2;
 	// prepare data file;
-	string filename = "tmp/data_network_test.bin";
+	FILEWRITE file("./tmp/data_network_test.bin", "trunc");
 	size_t shape[2];
 	shape[0] = reps;
 	shape[1] = tmax * sampling_rate * neuron_num;
-	ofstream file;
-	file.open(filename.c_str(), ios::binary);
-	file.write((char*)shape, 2*sizeof(size_t));
-	file.close();
+	file.SetSize(shape);
 	// Start loop;
 	for (int i = 0; i < reps; i++) {
 		cells.RestoreNeurons();
@@ -43,7 +40,7 @@ int main() {
 			cells.UpdateNetworkState(t, dt);
 			t += dt;
 			if (floor(sampling_rate * t)  == sampling_rate * t) {
-				cells.OutPotential(filename);
+				cells.OutPotential(file);
 			}
 		}
 		cout << i << '\n';

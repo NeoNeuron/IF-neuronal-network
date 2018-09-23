@@ -1,5 +1,7 @@
 #!/usr/bin/python
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import subprocess
 import struct as st
@@ -32,7 +34,7 @@ if p == 0:
     plt.grid()
     plt.xlabel('Timing step (ms)')
     plt.ylabel('Relative deviation')
-    plt.show()
+    plt.savefig('network_test.png')
 
     # clean test file;
     subprocess.Popen('rm -f test/network_test.out tmp/data_network_test.bin tmp/spiketrain.csv', shell = True)
