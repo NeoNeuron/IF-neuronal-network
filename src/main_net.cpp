@@ -36,8 +36,6 @@ int main(int argc, const char* argv[]) {
 	// load neuron number;
 	int neuron_number = atoi(m_map_config["NeuronNumber"].c_str());
 	NeuronalNetwork net(neuron_number);
-	// load connecting mode;
-	net.InitializeConnectivity(m_map_config, "");
 	// Set interneuronal coupling strength;
 	net.SetS(true, atof(m_map_config["SynapticStrengthExcitatory"].c_str()));
 	net.SetRef(atof(m_map_config["RefractoryTime"].c_str()));
@@ -45,6 +43,8 @@ int main(int argc, const char* argv[]) {
 	// initialize the network;
 	net.InitializeNeuronalType(atof(m_map_config["TypeProbability"].c_str()), atoi(m_map_config["TypeSeed"].c_str()));
 	cout << "in the network." << endl;
+	// load connecting mode;
+	net.InitializeConnectivity(m_map_config, "");
 
 	// Set driving types;
 	double maximum_time = atof(m_map_config["MaximumTime"].c_str());

@@ -19,11 +19,11 @@ all : net.out nets.out spike.out spike2.out lfp.out mi.out mi_dd.out mi_dd_LFP.o
 neuron.out : get-config.o neuron.o math_helper.o main_neuron.o
 	$(CPP) $(CPPFLAGS) -o $@ $^
 
-net.out : get-config.o neuron.o	network.o connectivity_matrix.o math_helper.o main_net.o
+net.out : get-config.o neuron.o	network.o math_helper.o main_net.o
 	$(CPP) $(CPPFLAGS) -o $@ $^
 
-nets.out : get-config.o neuron.o network.o connectivity_matrix.o math_helper.o main_nets.o
-	$(CPP) $(CPPFLAGS) -o $@ $^
+#nets.out : get-config.o neuron.o network.o connectivity_matrix.o math_helper.o main_nets.o
+#	$(CPP) $(CPPFLAGS) -o $@ $^
 
 spike.out : spike.o main_spike.o
 	$(CPP) $(CPPFLAGS) -o $@ $^

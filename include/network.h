@@ -10,7 +10,6 @@
 #include "io.h"
 #include "neuron.h"
 #include "get-config.h"
-#include "connectivity_matrix.h"
 #include <fstream>
 #include <cstdlib>
 #include <iomanip>
@@ -32,11 +31,12 @@ private:
 	vector<double*> dym_vals_; // dynamic variables of neurons;
 	vector<double*> dym_vals_new_; // temporal dynamic variables of neurons;
 	vector<Neuron> neurons_;
-	ConnectivityMatrix connectivity_matrix_;
+	vector<bool> types_; // vector to store types of neurons;
+	vector<vector<bool> > con_mat_; // built-in matrix for neuronal connectivity;
+	bool is_con_;
 	vector<vector<double> > external_exc_inputs_; // temp storage of external Poisson input;
 	vector<vector<double> > external_inh_inputs_;
 	double interaction_delay_;
-	int connecting_density_;
 	// Functions:
 	// Sort spikes within single time interval, and return the time of first spike;
 	double SortSpikes(vector<double*> &dym_vals_new, vector<int>& update_list, vector<int>& fired_list, double t, double dt, vector<SpikeElement> &T);
@@ -53,9 +53,10 @@ public:
 			//dym_vals_new[i] = new double[GetLen(dym_vals_[i])];
 			dym_vals_new_[i] = new double[4];
 		}
-		connectivity_matrix_.SetNeuronNumber(neuron_number_);
+		types_.resize(neuron_number_, false);
+		con_mat_.resize(neuron_number_, vector<bool>(neuron_number_, false));
+		is_con_ = false;
 		interaction_delay_ = 0.0;
-		connecting_density_ = 0;
 	}
 	
 	~NeuronalNetwork() {
@@ -69,8 +70,6 @@ public:
 	// 1. small-world network, defined by connectivity density and rewiring;
 	// 2. randomly connected network;
 	void InitializeConnectivity(map<string, string> &m_config, string prefix);
-	
-	void RandNet(double p, int seed);
 	
 	// INPUTS:
 	// Set interneuronal coupling strength;

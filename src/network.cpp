@@ -17,38 +17,101 @@ bool Compare(const SpikeElement &x, const SpikeElement &y) {
 	return x.t < y.t;
 }
 
+void Scan(vector<bool> & mat, int target_value, vector<int> &output_indices) {
+	output_indices.clear();
+	for (int s = 0; s < mat.size(); s++) {
+		if (mat[s] == target_value) output_indices.push_back(s);
+	}
+}
+
 void NeuronalNetwork::InitializeConnectivity(map<string, string> &m_config, string prefix) {
 	int connecting_mode = atoi(m_config[prefix + "ConnectingMode"].c_str());
 	if (connecting_mode == 0) { // External connectivity matrix;
 		vector<vector<int> > connecting_matrix;
 		Read2D(m_config[prefix + "MatPath"], connecting_matrix);
-		connectivity_matrix_.LoadMatrix(connecting_matrix);
+		if (connecting_matrix.size() != neuron_number_ || connecting_matrix[0].size() != neuron_number_) {
+			throw runtime_error("wrong size of connectivity matrix");
+		} else {
+			for (size_t i = 0; i < neuron_number_; i ++) {
+				for (size_t j = 0; j < neuron_number_; j ++) {
+					if (connecting_matrix[i][j]) {
+						con_mat_[i][j] = true;
+						if (!is_con_) is_con_ = true;
+					}
+				}
+			}
+		}
 	} else if (connecting_mode == 1) {
-		connecting_density_ = atoi(m_config[prefix + "ConnectingDensity"].c_str());
-		connectivity_matrix_.SetConnectingDensity(connecting_density_);
+		int con_density = atoi(m_config[prefix + "ConnectingDensity"].c_str());
+		for (int i = 0; i < neuron_number_; i++)  {
+			for (int j = 0; j < neuron_number_; j++) {
+				if (i != j) {
+					if (abs(i - j) <= con_density or neuron_number_ - abs(i - j) <= con_density) {
+					con_mat_[i][j] = true;
+					if (!is_con_) is_con_ = true;
+					}
+				}
+			}
+		}
 		double rewiring_probability = atof(m_config[prefix + "RewiringProbability"].c_str());
-		int rewiring_seed = atoi(m_config[prefix + "NetSeed"].c_str());
 		bool output_option;
 		istringstream(m_config[prefix + "PrintRewireResult"]) >> boolalpha >> output_option;
 		// Generate networks;
-		connectivity_matrix_.Rewire(rewiring_probability, rewiring_seed, output_option);
-		if (output_option) {
-			double mean_path, mean_clustering_coefficient;
-			mean_path = connectivity_matrix_.GetMeanPath();
-			mean_clustering_coefficient = connectivity_matrix_.GetMeanClusteringCoefficient();
-			cout << "After rewiring," << endl;
-			cout << "The mean characteristic path is " << setprecision(4) << (double)mean_path << "." << endl;
-			cout << "The mean clustering coefficient is " << setprecision(4) << (double)mean_clustering_coefficient << "." << endl;
+		cout << 2 * neuron_number_ * con_density << " connections total with ";
+		srand(atoi(m_config[prefix + "NetSeed"].c_str()));
+		double x; // random variable;
+		int ind, empty_connection, count = 0;
+		vector<int> ones, zeros;
+		for (int i = 0; i < neuron_number_; i++) {
+			Scan(con_mat_[i], 1, ones);
+			for (int j = 0; j < ones.size(); j++) {
+				x = rand() / (RAND_MAX + 1.0);
+				if (x <= rewiring_probability) {
+					Scan(con_mat_[i], 0, zeros);
+					for (vector<int>::iterator it = zeros.begin(); it != zeros.end(); it++) {
+						if (*it == i) {
+							zeros.erase(it);
+							break;
+						}
+					}
+					empty_connection = zeros.size();
+					ind = rand() % empty_connection;
+					con_mat_[i][zeros[ind]] = true;
+					con_mat_[i][ones[j]] = false;
+					count += 1;
+				}
+			}
 		}
+		cout << count << " rewirings." << endl;
 	} else if (connecting_mode == 2) {
-		double random_probability = atof(m_config[prefix + "RandomProbability"].c_str());
-		int seed = atoi(m_config[prefix + "NetSeed"].c_str());
-		connectivity_matrix_.RandNet(random_probability, seed);
+		double con_prob_ee = atof(m_config[prefix + "ConnectingProbabilityEE"].c_str());
+		double con_prob_ei = atof(m_config[prefix + "ConnectingProbabilityEI"].c_str());
+		double con_prob_ie = atof(m_config[prefix + "ConnectingProbabilityIE"].c_str());
+		double con_prob_ii = atof(m_config[prefix + "ConnectingProbabilityII"].c_str());
+		srand(atoi(m_config[prefix + "NetSeed"].c_str()));
+		double x;
+		for (size_t i = 0; i < neuron_number_; i ++) {
+			for (size_t j = 0; j < neuron_number_; j ++) {
+				x = rand() / (RAND_MAX * 1.0);
+				if (types_[i]) {
+					if (types_[j]) {
+						if (x <= con_prob_ee) con_mat_[i][j] = true;
+					} else {
+						if (x <= con_prob_ei) con_mat_[i][j] = true;
+					}
+				} else {
+					if (types_[j]) {
+						if (x <= con_prob_ie) con_mat_[i][j] = true;
+					} else {
+						if (x <= con_prob_ii) con_mat_[i][j] = true;
+					}
+				}
+				if (con_mat_[i][j]) {
+					if (!is_con_) is_con_ = true;
+				}
+			}
+		}
 	}
-}
-
-void NeuronalNetwork::RandNet(double p, int seed) {
-	connectivity_matrix_.RandNet(p, seed);
 }
 
 bool CheckExist(int index, vector<int> &list) {
@@ -113,6 +176,7 @@ void NeuronalNetwork::InitializeNeuronalType(double p, int seed) {
 		x = rand() / (RAND_MAX + 1.0);
 		if (x < p) {
 			neurons_[i].SetNeuronType(true);
+			types_[i] = true;
 			counter++;
 		} else neurons_[i].SetNeuronType(false);
 	}
@@ -202,7 +266,7 @@ void NeuronalNetwork::SetDrivingType(bool driving_type) {
 }
 
 void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
-	if (connectivity_matrix_.IsConnect()) {
+	if (is_con_) {
 		vector<SpikeElement> T;
 		double newt;
 		// Creating updating pool;
@@ -225,7 +289,7 @@ void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
 					neurons_[j].Fire(t + newt);
 				} else {
 					//neurons_[j].UpdateNeuronalState(dym_vals_[j], t, newt);
-					if (connectivity_matrix_.ReadMatrix(IND,j) == 1) {
+					if (con_mat_[IND][j]) {
 						neurons_[j].InSpike(ADD_mutual);
 						update_list.push_back(j);
 						// Check whether this neuron appears in the firing list T;
@@ -304,7 +368,7 @@ void NeuronalNetwork::OutPartialCurrent(FILEWRITE& file, bool type) {
 }
 
 void NeuronalNetwork::SaveConMat(string connecting_matrix_file) {
-	connectivity_matrix_.OutMatrix(connecting_matrix_file);
+	Print2D(connecting_matrix_file, con_mat_, "trunc");
 }
 
 void NeuronalNetwork::SaveNeuron(string neuron_file) {
