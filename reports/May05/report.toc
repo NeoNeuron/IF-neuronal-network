@@ -1,4 +1,0 @@
-\beamer@endinputifotherversion {3.36pt}
-\beamer@sectionintoc {1}{Network Dynamics based on High-rate burst firing interneurons}{2}{0}{1}
-\beamer@sectionintoc {2}{Comparison between TDMI and TDLC}{5}{0}{2}
-\beamer@sectionintoc {3}{To do list}{9}{0}{3}
