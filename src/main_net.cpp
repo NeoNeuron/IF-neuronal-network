@@ -16,8 +16,10 @@
 using namespace std;
 
 //	Simulation program for single network system;
+//	
 //	arguments:
 //	argv[1] = Outputing directory for neur al data;
+//
 int main(int argc, const char* argv[]) {
 	if (argc != 2) throw runtime_error("wrong number of args");
 	clock_t start, finish;
@@ -36,51 +38,49 @@ int main(int argc, const char* argv[]) {
 	// load neuron number;
 	int neuron_number = atoi(m_map_config["NeuronNumber"].c_str());
 	NeuronalNetwork net(neuron_number);
-	// Set interneuronal coupling strength;
-	net.SetS(true, atof(m_map_config["SynapticStrengthExcitatory"].c_str()));
-	net.SetRef(atof(m_map_config["RefractoryTime"].c_str()));
-	net.SetDelay(atof(m_map_config["SynapticDelay"].c_str()));
 	// initialize the network;
 	net.InitializeNeuronalType(atof(m_map_config["TypeProbability"].c_str()), atoi(m_map_config["TypeSeed"].c_str()));
 	cout << "in the network." << endl;
 	// load connecting mode;
-	net.InitializeConnectivity(m_map_config, "");
+	net.InitializeConnectivity(m_map_config);
+	// Set interneuronal coupling strength;
+	net.InitializeSynapticStrength(m_map_config);
+	net.SetRef(atof(m_map_config["RefractoryTime"].c_str()));
+	net.SetDelay(atof(m_map_config["SynapticDelay"].c_str()));
 
-	// Set driving types;
+	// Set driving_mode;
 	double maximum_time = atof(m_map_config["MaximumTime"].c_str());
-	bool driving_type, fwd_type;
-	istringstream(m_map_config["DrivingType"]) >> boolalpha >> driving_type;
-	istringstream(m_map_config["HomoDriving"]) >> boolalpha >> fwd_type;
-	vector<vector<double> > fwd_rates(neuron_number);
-	net.SetDrivingType(driving_type);
-	if (fwd_type) {
-		double rate_exc = atof(m_map_config["DrivingRateExcitatory"].c_str());
-		double rate_inh = atof(m_map_config["DrivingRateInhibitory"].c_str());
-		vector<bool> neuron_types;
-		net.GetNeuronType(neuron_types);
-		for (int i = 0; i < neuron_number; i ++) {
-			if (neuron_types[i]) fwd_rates[i] = {rate_exc, 0.0};
-			else fwd_rates[i] = {rate_inh, 0.0};
-		}
-		if (driving_type) {
-			net.InitializeExternalPoissonProcess(fwd_rates, maximum_time, atoi(m_map_config["ExternalDrivingSeed"].c_str()));
-		} else {
-			srand(time(NULL));
-			net.InitializeInternalPoissonRate(fwd_rates);
-		}
-	} else {
+	int driving_mode = atoi(m_map_config["DrivingMode"].c_str());
+	vector<vector<double> > driving_setting;
+	if (driving_mode == 0) {
+		double r_exc = atof(m_map_config["DrivingRateE"].c_str());
+		double r_inh = atof(m_map_config["DrivingRateI"].c_str());
+		double s_exc = atof(m_map_config["DrivingStrengthE"].c_str());
+		double s_inh = atof(m_map_config["DrivingStrengthI"].c_str());
+		driving_setting.resize(neuron_number, vector<double>{r_exc, r_inh, s_exc, s_inh});
+		//vector<bool> neuron_types;
+		//net.GetNeuronType(neuron_types);
+		//for (int i = 0; i < neuron_number; i ++) {
+		//	if (neuron_types[i]) fwd_rates[i] = {rate_exc, 0.0};
+		//	else fwd_rates[i] = {rate_inh, 0.0};
+		//}
+	} else if (driving_mode == 1){
 		// import the data file of feedforward driving rate:
-		Read2D("./doc/fwd_setting.csv", fwd_rates);
-		if (driving_type) {
-			net.InitializeExternalPoissonProcess(fwd_rates, maximum_time, atoi(m_map_config["ExternalDrivingSeed"].c_str()));
-		} else {
-			srand(time(NULL));
-			net.InitializeInternalPoissonRate(fwd_rates);
-		}
+		Read2D(m_map_config["PoissonPath"], driving_setting);
+	} else {
+		throw runtime_error("wrong driving_mode");
 	}
 
-	// Set driving strength;
-	net.SetF(true, atof(m_map_config["DrivingStrength"].c_str()));
+	// Set driving_type
+	bool driving_type;
+	istringstream(m_map_config["DrivingType"]) >> boolalpha >> driving_type;
+	net.SetDrivingType(driving_type);
+	if (driving_type) {
+		net.InitializeExternalPoissonProcess(driving_setting, maximum_time, atoi(m_map_config["ExternalDrivingSeed"].c_str()));
+	} else {
+		srand(time(NULL));
+		net.InitializeInternalPoissonRate(driving_setting);
+	}
 
 	// SETUP DYNAMICS:
 	double t = 0, dt = atof(m_map_config["TimingStep"].c_str()), tmax = maximum_time;

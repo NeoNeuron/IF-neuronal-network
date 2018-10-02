@@ -5,6 +5,7 @@
 //	Description: test program for Class NeuronalNetwork;
 //***************
 #include"../include/network.h"
+#include"../include/get-config.h"
 #include <iostream>
 #include <cstdio>
 #include <ctime>
@@ -14,28 +15,40 @@ using namespace std;
 int main() {
 	clock_t start, finish;
 	start = clock();
-	int neuron_num = 100;
+	// Load config file
+  map<string, string> m_map_config;
+  ReadConfig("./test/config_net.ini", m_map_config);
+  cout << ">> [Config.ini]:\n#####\n";
+	PrintConfig(m_map_config);
+	cout << "#####\n";
+	int neuron_num = atoi(m_map_config["NeuronNumber"].c_str());
 	NeuronalNetwork cells(neuron_num);
-	cells.RandNet(0, 1);
-	double t = 0, dt = 0.5, tmax = 2000;
-	int reps = 8;
-	vector<double> add_rate = {1.5, 0};
-	vector<vector<double> > PRate(neuron_num, add_rate);
-	cells.InitializeNeuronalType(1, 1);
+	cells.InitializeConnectivity(m_map_config);
+	cells.InitializeSynapticStrength(m_map_config);
+	double t = 0;
+	double dt = atof(m_map_config["StartingTimingStep"].c_str());
+	double tmax = atof(m_map_config["MaximumTime"].c_str());
+	int reps = atoi(m_map_config["Reps"].c_str());
+	double pre = atof(m_map_config["DrivingRateE"].c_str());
+	double pri = atof(m_map_config["DrivingRateI"].c_str());
+	double pse = atof(m_map_config["DrivingStrengthE"].c_str());
+	double psi = atof(m_map_config["DrivingStrengthI"].c_str());
+	vector<vector<double> > Pdriving(neuron_num, vector<double>{pre, pri, pse, psi});
+	cells.InitializeNeuronalType(atof(m_map_config["TypeProbability"].c_str()), atoi(m_map_config["TypeSeed"].c_str()));
 	cout << endl;
-	//cells.SetS(true, 1e-10);
-	int sampling_rate = 2;
+	double sampling_rate = 1.0 / atof(m_map_config["SamplingTimingStep"].c_str());
 	// prepare data file;
 	FILEWRITE file("./tmp/data_network_test.bin", "trunc");
 	size_t shape[2];
 	shape[0] = reps;
 	shape[1] = tmax * sampling_rate * neuron_num;
 	file.SetSize(shape);
+	int spike_num;
 	// Start loop;
 	for (int i = 0; i < reps; i++) {
 		cells.RestoreNeurons();
 		cells.SetDrivingType(true); // external type;
-		cells.InitializeExternalPoissonProcess(PRate, tmax, 3);
+		cells.InitializeExternalPoissonProcess(Pdriving, tmax, 3);
 		while (t < tmax) {
 			cells.UpdateNetworkState(t, dt);
 			t += dt;
@@ -43,13 +56,11 @@ int main() {
 				cells.OutPotential(file);
 			}
 		}
-		cout << i << '\n';
+		spike_num = cells.OutSpikeTrains("tmp/spiketrain.csv");
+		printf("[-] dt = %.2e s\tmean firing rate = %.2f Hz\n", dt, spike_num*1000.0/tmax/neuron_num);
 		t = 0;
 		dt /= 2;
 	}	
-	int spike_num;
-	spike_num = cells.OutSpikeTrains("tmp/spiketrain.csv");
-	cout << "Mean firing rate: " << (double)spike_num*1000.0/tmax/neuron_num << endl;
 	finish = clock();
 	cout << endl;
 	double ToTtime;

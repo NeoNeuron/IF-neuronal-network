@@ -13,10 +13,6 @@
 
 using namespace std;
 
-bool Compare(const SpikeElement &x, const SpikeElement &y) {
-	return x.t < y.t;
-}
-
 void Scan(vector<bool> & mat, int target_value, vector<int> &output_indices) {
 	output_indices.clear();
 	for (int s = 0; s < mat.size(); s++) {
@@ -24,11 +20,13 @@ void Scan(vector<bool> & mat, int target_value, vector<int> &output_indices) {
 	}
 }
 
-void NeuronalNetwork::InitializeConnectivity(map<string, string> &m_config, string prefix) {
-	int connecting_mode = atoi(m_config[prefix + "ConnectingMode"].c_str());
+bool compSpikeElement(const SpikeElement &x, const SpikeElement &y) { return x.t < y.t; }
+
+void NeuronalNetwork::InitializeConnectivity(map<string, string> &m_config) {
+	int connecting_mode = atoi(m_config["ConnectingMode"].c_str());
 	if (connecting_mode == 0) { // External connectivity matrix;
 		vector<vector<int> > connecting_matrix;
-		Read2D(m_config[prefix + "MatPath"], connecting_matrix);
+		Read2D(m_config["MatPath"], connecting_matrix);
 		if (connecting_matrix.size() != neuron_number_ || connecting_matrix[0].size() != neuron_number_) {
 			throw runtime_error("wrong size of connectivity matrix");
 		} else {
@@ -42,7 +40,7 @@ void NeuronalNetwork::InitializeConnectivity(map<string, string> &m_config, stri
 			}
 		}
 	} else if (connecting_mode == 1) {
-		int con_density = atoi(m_config[prefix + "ConnectingDensity"].c_str());
+		int con_density = atoi(m_config["ConnectingDensity"].c_str());
 		for (int i = 0; i < neuron_number_; i++)  {
 			for (int j = 0; j < neuron_number_; j++) {
 				if (i != j) {
@@ -53,12 +51,12 @@ void NeuronalNetwork::InitializeConnectivity(map<string, string> &m_config, stri
 				}
 			}
 		}
-		double rewiring_probability = atof(m_config[prefix + "RewiringProbability"].c_str());
+		double rewiring_probability = atof(m_config["RewiringProbability"].c_str());
 		bool output_option;
-		istringstream(m_config[prefix + "PrintRewireResult"]) >> boolalpha >> output_option;
+		istringstream(m_config["PrintRewireResult"]) >> boolalpha >> output_option;
 		// Generate networks;
 		cout << 2 * neuron_number_ * con_density << " connections total with ";
-		srand(atoi(m_config[prefix + "NetSeed"].c_str()));
+		srand(atoi(m_config["NetSeed"].c_str()));
 		double x; // random variable;
 		int ind, empty_connection, count = 0;
 		vector<int> ones, zeros;
@@ -84,11 +82,11 @@ void NeuronalNetwork::InitializeConnectivity(map<string, string> &m_config, stri
 		}
 		cout << count << " rewirings." << endl;
 	} else if (connecting_mode == 2) {
-		double con_prob_ee = atof(m_config[prefix + "ConnectingProbabilityEE"].c_str());
-		double con_prob_ei = atof(m_config[prefix + "ConnectingProbabilityEI"].c_str());
-		double con_prob_ie = atof(m_config[prefix + "ConnectingProbabilityIE"].c_str());
-		double con_prob_ii = atof(m_config[prefix + "ConnectingProbabilityII"].c_str());
-		srand(atoi(m_config[prefix + "NetSeed"].c_str()));
+		double con_prob_ee = atof(m_config["ConnectingProbabilityEE"].c_str());
+		double con_prob_ei = atof(m_config["ConnectingProbabilityEI"].c_str());
+		double con_prob_ie = atof(m_config["ConnectingProbabilityIE"].c_str());
+		double con_prob_ii = atof(m_config["ConnectingProbabilityII"].c_str());
+		srand(atoi(m_config["NetSeed"].c_str()));
 		double x;
 		for (size_t i = 0; i < neuron_number_; i ++) {
 			for (size_t j = 0; j < neuron_number_; j ++) {
@@ -114,6 +112,35 @@ void NeuronalNetwork::InitializeConnectivity(map<string, string> &m_config, stri
 	}
 }
 
+void NeuronalNetwork::InitializeSynapticStrength(map<string, string> &m_config) {
+	int synaptic_mode = atoi(m_config["SynapticMode"].c_str());
+	if (synaptic_mode == 0) {
+		vector<vector<double> > s_vals;
+		Read2D(m_config["SPath"], s_vals);
+		for (size_t i = 0; i < neuron_number_; i ++) {
+			for (size_t j = 0; j < neuron_number_; j ++) {
+				s_mat_[i][j] = s_vals[i][j];
+			}
+		}
+	} else if (synaptic_mode == 1) {
+		double s_ee = atof(m_config["SynapticStrengthEE"].c_str());
+		double s_ei = atof(m_config["SynapticStrengthEI"].c_str());
+		double s_ie = atof(m_config["SynapticStrengthIE"].c_str());
+		double s_ii = atof(m_config["SynapticStrengthII"].c_str());
+		for (size_t i = 0; i < neuron_number_; i ++) {
+			for (size_t j = 0; j < neuron_number_; j ++) {
+				if (types_[i]) {
+					if (types_[j]) s_mat_[i][j] = s_ee;
+					else s_mat_[i][j] = s_ei;
+				} else {
+					if (types_[j]) s_mat_[i][j] = s_ie;
+					else s_mat_[i][j] = s_ii;
+				}
+			}
+		}
+	}
+}
+
 bool CheckExist(int index, vector<int> &list) {
 	for (int i = 0; i < list.size(); i ++) {
 		if (list[i] == index) return true;
@@ -133,7 +160,7 @@ double NeuronalNetwork::SortSpikes(vector<double*> &dym_vals_new, vector<int> &u
 			for (int j = 1; j < 3; j++) dym_vals_new[id][j] = dym_vals_[id][j];
 			neurons_[id].UpdateConductance(dym_vals_new[id], t, dt);
 		} else {
-			SET = neurons_[id].TemporallyUpdateNeuronalState(dym_vals_[id], dym_vals_new[id], t, dt, external_exc_inputs_[id], external_inh_inputs_[id]);
+			SET = neurons_[id].TemporallyUpdateNeuronalState(dym_vals_[id], dym_vals_new[id], t, dt, ext_inputs_[id]);
 			if (SET >= 0) {
 				ADD.index = id;
 				ADD.t = SET;
@@ -147,20 +174,8 @@ double NeuronalNetwork::SortSpikes(vector<double*> &dym_vals_new, vector<int> &u
 	} else if (T.size() == 1) {
 		return (T.front()).t;
 	} else {
-		sort(T.begin(), T.end(), Compare);
+		sort(T.begin(), T.end(), compSpikeElement);
 		return (T.front()).t;
-	}
-}
-
-void NeuronalNetwork::SetS(bool function, double val) {
-	for (int i = 0; i < neuron_number_; i ++) {
-		neurons_[i].SetSynapticStrength(function, val);
-	}
-}
-
-void NeuronalNetwork::SetF(bool function, double val) {
-	for (int i = 0; i < neuron_number_; i ++) {
-		neurons_[i].SetFeedforwardStrength(function, val);
 	}
 }
 
@@ -183,52 +198,55 @@ void NeuronalNetwork::InitializeNeuronalType(double p, int seed) {
 	printf(">> %d excitatory and %d inhibitory neurons ", counter, neuron_number_-counter);
 }
 
-void NeuronalNetwork::InitializeInternalPoissonRate(vector<vector<double> >& rates) {
-	if (rates.size() != neuron_number_) {
+void NeuronalNetwork::InitializeInternalPoissonRate(vector<vector<double> >& driving_setting) {
+	if (driving_setting.size() != neuron_number_) {
 		cout << "Error inputing length! (Not equal to the number of neurons in the net)";
 		return;
 	}
 	for (int i = 0; i < neuron_number_; i++) {
-		neurons_[i].SetPoissonRate(true, rates[i][0]);
-		neurons_[i].SetPoissonRate(false, rates[i][1]);
+		neurons_[i].SetPoissonRate(true, driving_setting[i][0]);
+		neurons_[i].SetPoissonRate(false, driving_setting[i][1]);
+		neurons_[i].SetFeedforwardStrength(true, driving_setting[i][2]);
+		neurons_[i].SetFeedforwardStrength(false, driving_setting[i][3]);
 	}
 }
 
-void NeuronalNetwork::InitializeExternalPoissonProcess(vector<vector<double> >& rates, double tmax, int seed) {
-	if (rates.size() != neuron_number_) {
+void NeuronalNetwork::InitializeExternalPoissonProcess(vector<vector<double> >& driving_setting, double tmax, int seed) {
+	if (driving_setting.size() != neuron_number_) {
 		cout << "Error inputing length! (Not equal to the number of neurons in the net)";
 		return;
 	}
-	vector<double> ADD = {0.0};
+	Spike new_spike;
 	srand(seed);
 	double x; // temp random number;
 	double tLast; // last existing data point;
 	double rate;
-	external_exc_inputs_.resize(neuron_number_, ADD);
-	external_inh_inputs_.resize(neuron_number_, ADD);
+	ext_inputs_.resize(neuron_number_);
+
+	//TODO: solve potential problem in the time consumption to sort external Poisson inputs;
 	for (int i = 0; i < neuron_number_; i++) {
-		rate = rates[i][0];
-		tLast = external_exc_inputs_[i].front();
+		rate = driving_setting[i][0];
+		new_spike.function = true;
+		new_spike.s = driving_setting[i][2];
+		tLast = 0.0;
 		while (tLast < tmax) {
-			x = rand() / (RAND_MAX + 1.0);
-			while (x == 0) x = rand() / (RAND_MAX + 1.0);
+			x = (rand() + 1.0) / (RAND_MAX + 1.0);
 			tLast -= log(x) / rate;
-			external_exc_inputs_[i].push_back(tLast);
+			new_spike.t = tLast;
+			ext_inputs_[i].push_back(new_spike);
 		}
-		//cout << setprecision(15) << (double)external_exc_inputs_[i][10] << ',';
-		//cout << external_exc_inputs_[i].size() << ',';
-	}
-	for (int i = 0; i < neuron_number_; i++) {
-		rate = rates[i][1];
-		tLast = external_inh_inputs_[i].front();
+		rate = driving_setting[i][1];
+		new_spike.function = false;
+		new_spike.s = driving_setting[i][3];
+		tLast = 0.0;
 		while (tLast < tmax) {
-			x = rand() / (RAND_MAX + 1.0);
-			while (x == 0) x = rand() / (RAND_MAX + 1.0);
+			x = (rand() + 1.0) / (RAND_MAX + 1.0);
 			tLast -= log(x) / rate;
-			external_inh_inputs_[i].push_back(tLast);
+			new_spike.t = tLast;
+			ext_inputs_[i].push_back(new_spike);
 		}
+		sort(ext_inputs_[i].begin(), ext_inputs_[i].end(), compSpike);
 	}
-	//cout << endl;
 }
 
 // Used in two layer network system;
@@ -278,7 +296,6 @@ void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
 			int IND = (T.front()).index;
 			fired_list.push_back(IND);
 			Spike ADD_mutual;
-			ADD_mutual.mode = false;
 			ADD_mutual.function = (T.front()).type;
 			ADD_mutual.t = t + newt + interaction_delay_;
 			// erase used spiking events;
@@ -290,6 +307,7 @@ void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
 				} else {
 					//neurons_[j].UpdateNeuronalState(dym_vals_[j], t, newt);
 					if (con_mat_[IND][j]) {
+						ADD_mutual.s = s_mat_[IND][j];
 						neurons_[j].InSpike(ADD_mutual);
 						update_list.push_back(j);
 						// Check whether this neuron appears in the firing list T;
@@ -314,8 +332,8 @@ void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
 	} else {
 		//double spike_time;
 		for (int i = 0; i < neuron_number_; i++) {
-			neurons_[i].UpdateNeuronalState(dym_vals_[i], t, dt, external_exc_inputs_[i], external_inh_inputs_[i]);
-			//spike_time = neurons_[i].TemporallyUpdateNeuronalState(dym_vals_[i], dym_vals_new_[i], t, dt, external_exc_inputs_[i], external_inh_inputs_[i]);
+			neurons_[i].UpdateNeuronalState(dym_vals_[i], t, dt, ext_inputs_[i]);
+			//spike_time = neurons_[i].TemporallyUpdateNeuronalState(dym_vals_[i], dym_vals_new_[i], t, dt, ext_inputs_[i]);
 			//if (spike_time > 0) neurons_[i].Fire(t + spike_time);
 			//neurons_[i].UpdateNeuronalState(dym_vals_[i], dym_vals_new_[i], t + dt);
 		}
@@ -431,8 +449,7 @@ void NeuronalNetwork::RestoreNeurons() {
 	for (int i = 0; i < neuron_number_; i++) {
 		neurons_[i].Reset(dym_vals_[i]);
 	}
-	external_exc_inputs_.clear();
-	external_inh_inputs_.clear();
+	ext_inputs_.clear();
 }
 
 void UpdateSystemState(NeuronalNetwork & pre_network, NeuronalNetwork & post_network, vector<vector<bool> > & connectivity_matrix, double t, double dt) {

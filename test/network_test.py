@@ -7,7 +7,7 @@ import subprocess
 import struct as st
 
 # compile test program
-p = subprocess.call(['g++', '-O2', './src/neuron.cpp', 'src/network.cpp', 'src/math_helper.cpp', 'src/connectivity_matrix.cpp', 'test/network_test.cpp', '-o', 'test/network_test.out'])
+p = subprocess.call(['g++', '--std=c++11', '-O2', 'src/neuron.cpp', 'src/network.cpp', 'src/math_helper.cpp', 'src/get-config.cpp', 'test/network_test.cpp', '-o', 'test/network_test.out'])
 
 if p == 0:
     # excecute test program
@@ -25,15 +25,19 @@ if p == 0:
     dt = np.ones(dat.shape[0] - 1)
     for i in range(len(dt)):
         dt[i] = 0.5/(2**i)
-    plt.loglog(dt, dat_mean[:-1], '.', label = 'data')
-    c_est = dat_mean[0]/dt[0]**1
-    plt.loglog(dt, c_est*dt**1, label = '1st-order')
-    c_est = dat_mean[0]/dt[0]**4
-    plt.loglog(dt, c_est*dt**4, label = '4th-order')
+    fig, ax = plt.subplots(figsize=(6,5), dpi=72)
+    ax.loglog(dt, dat_mean[:-1], 'o', markerfacecolor = 'None', label = 'data')
+    c_est = dat_mean[-2]/dt[-2]**1
+    ax.plot(dt, c_est*dt**1, label = '1st-order')
+    c_est = dat_mean[-2]/dt[-2]**4
+    ax.plot(dt, c_est*dt**4, label = '4th-order')
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.set_yticks(np.logspace(-14,-6,num=5))
     plt.legend()
     plt.grid()
-    plt.xlabel('Timing step (ms)')
-    plt.ylabel('Relative deviation')
+    plt.xlabel('Timing step (ms)', fontsize = 12)
+    plt.ylabel('Relative deviation', fontsize = 12)
     plt.savefig('network_test.png')
 
     # clean test file;

@@ -7,9 +7,9 @@
 #ifndef _IFNET_NETWORK_H_
 #define _IFNET_NETWORK_H_
 
-#include "io.h"
-#include "neuron.h"
-#include "get-config.h"
+#include "../include/io.h"
+#include "../include/neuron.h"
+#include "../include/get-config.h"
 #include <fstream>
 #include <cstdlib>
 #include <iomanip>
@@ -24,19 +24,27 @@ struct SpikeElement {
 	bool type;	// The type of neuron that fired;
 };
 
+bool compSpikeElement(const SpikeElement &x, const SpikeElement &y);
+
 class NeuronalNetwork {
 private:
-	// Parameters:
+	// Network Parameters:
 	int neuron_number_;	// number of the neurons in the group;
 	vector<double*> dym_vals_; // dynamic variables of neurons;
 	vector<double*> dym_vals_new_; // temporal dynamic variables of neurons;
 	vector<Neuron> neurons_;
 	vector<bool> types_; // vector to store types of neurons;
+
+	// Network Structure:
 	vector<vector<bool> > con_mat_; // built-in matrix for neuronal connectivity;
 	bool is_con_;
-	vector<vector<double> > external_exc_inputs_; // temp storage of external Poisson input;
-	vector<vector<double> > external_inh_inputs_;
+	vector<vector<double> > s_mat_; // matrix of inter-neuronal interacting strength;
 	double interaction_delay_;
+
+	// Network Inputs:
+	vector<vector<Spike> > ext_inputs_; // temp storage of external Poisson input;
+
+
 	// Functions:
 	// Sort spikes within single time interval, and return the time of first spike;
 	double SortSpikes(vector<double*> &dym_vals_new, vector<int>& update_list, vector<int>& fired_list, double t, double dt, vector<SpikeElement> &T);
@@ -44,6 +52,7 @@ private:
 public:
 	//	Neuronal network initialization:
 	NeuronalNetwork(int neuron_number) {
+		// Network Parameters:
 		neuron_number_ = neuron_number;
 		dym_vals_.resize(neuron_number_);
 		dym_vals_new_.resize(neuron_number_);
@@ -54,8 +63,10 @@ public:
 			dym_vals_new_[i] = new double[4];
 		}
 		types_.resize(neuron_number_, false);
+		// Network structure:
 		con_mat_.resize(neuron_number_, vector<bool>(neuron_number_, false));
 		is_con_ = false;
+		s_mat_.resize(neuron_number_, vector<double>(neuron_number_, 0.0));
 		interaction_delay_ = 0.0;
 	}
 	
@@ -69,14 +80,11 @@ public:
 	// 0. given pre-defined network connectivity matrix;
 	// 1. small-world network, defined by connectivity density and rewiring;
 	// 2. randomly connected network;
-	void InitializeConnectivity(map<string, string> &m_config, string prefix);
+	void InitializeConnectivity(map<string, string> &m_config);
 	
 	// INPUTS:
 	// Set interneuronal coupling strength;
-	void SetS(bool function, double val);
-
-	// Set feedforward inputing strength: (default: 5e-3)
-	void SetF(bool function, double val);
+	void InitializeSynapticStrength(map<string, string> &m_config);
 
 	// Set time period of refractory:
 	void SetRef(double t_ref);
@@ -93,16 +101,22 @@ public:
 	void SetDrivingType(bool driving_type);
 
 	//	Initialize internal homogeneous feedforward Poisson rate;
-	//	rates: Poisson rates; Each line represents the two parameters for each neuron,
-	//		the first if excitatory	diring rate, and the second is inhibitory.
-	void InitializeInternalPoissonRate(vector<vector<double> >& rates);
+	//	driving_setting: 
+	//		[:,0] excitatory Poisson rate;
+	//		[:,1] inhibitory Poisson rate;
+	//		[:,2] excitatory Poisson strength;
+	//		[:,3] inhibitory Poisson strength;
+	void InitializeInternalPoissonRate(vector<vector<double> >& driving_setting);
 
 	//	Initialize external homogeneous feedforward Poisson process;
-	//	rates: Poisson rates; Each line represents the two parameters for each neuron,
-	//		the first if excitatory	diring rate, and the second is inhibitory.
+	//	driving_setting: 
+	//		[:,0] excitatory Poisson rate;
+	//		[:,1] inhibitory Poisson rate;
+	//		[:,2] excitatory Poisson strength;
+	//		[:,3] inhibitory Poisson strength;
 	//	tmax: maximum time range for Poisson process;
 	//	seed: seed for built-in random generator;
-	void InitializeExternalPoissonProcess(vector<vector<double> >& rates, double tmax, int seed);
+	void InitializeExternalPoissonProcess(vector<vector<double> >& driving_setting, double tmax, int seed);
 
 	// 	Input new spikes for neurons all together;
 	void InNewSpikes(vector<vector<Spike> > &data);
@@ -160,7 +174,7 @@ public:
 
 	int OutSpikeTrains(string path);
 
-  //  Output spikes before t, including their modes and functions;
+  //  Output spikes before t, including their functions;
 	void GetNewSpikes(double t, vector<vector<Spike> >& data);
 
 	void GetNeuronType(vector<bool> & x);

@@ -14,23 +14,23 @@
 #define exp(x) fmath::expd(x)
 using namespace std;
 
-bool compPoisson(const Spike & x, const Spike & y) {
-	return x.t < y.t;
-}
+bool compSpike(const Spike &x, const Spike &y) { return x.t < y.t; }
 
 void Neuron::GenerateInternalPoisson(bool function, double tmax, bool outSet) {
-	double temp, rate;
+	double temp, rate, strength;
 	if (function) {
 		temp = latest_excitatory_poisson_time_;
 		rate = excitatory_poisson_rate_;
+		strength = feedforward_excitatory_intensity_;
 	} else {
 		temp = latest_inhibitory_poisson_time_;
 		rate = inhibitory_poisson_rate_;
+		strength = feedforward_inhibitory_intensity_;
 	}
 	Spike ADD;
 	ADD.t = temp;
 	ADD.function = function;
-	ADD.mode = true;
+	ADD.s = strength;
 	double x, tLast;
 	if (rate > 1e-18) {
 		if (temp < 1e-18) {
@@ -39,8 +39,7 @@ void Neuron::GenerateInternalPoisson(bool function, double tmax, bool outSet) {
 		}
 		tLast = temp;
 		while (tLast < tmax) {
-			x = rand() / (RAND_MAX + 1.0);
-			while (x == 0) x = rand() / (RAND_MAX + 1.0);
+			x = (rand() + 1.0) / (RAND_MAX + 1.0);
 			tLast -= log(x) / rate;
 			// if (tLast > 1e9) cout << "WARNNING: " << tLast << endl;
 			ADD.t = tLast;
@@ -53,33 +52,24 @@ void Neuron::GenerateInternalPoisson(bool function, double tmax, bool outSet) {
 			latest_inhibitory_poisson_time_ = tLast;
 		}
 	}
-	//sort(synaptic_driven_.begin(), synaptic_driven_.end(), compPoisson);
+	//sort(synaptic_driven_.begin(), synaptic_driven_.end(), compSpike);
 }
 
-void Neuron::InputExternalPoisson(bool function, double tmax, vector<double>& x) {
-	Spike ADD;
-	ADD.mode = true;
-	ADD.function = function;
+void Neuron::InputExternalPoisson(double tmax, vector<Spike>& x) {
 	if (!x.empty()) {
-		vector<double>::iterator it = x.begin();
-		while (*it < tmax) {
-			ADD.t = *it;
-			synaptic_driven_.push_back(ADD);
+		vector<Spike>::iterator it = x.begin();
+		while (it->t < tmax) {
+			synaptic_driven_.push_back(*it);
 			it = x.erase(it);
 			if (x.empty()) break;
 		}
 	}
-	//sort(synaptic_driven_.begin(), synaptic_driven_.end(), compPoisson);
+	//sort(synaptic_driven_.begin(), synaptic_driven_.end(), compSpike);
 }
 
-void Neuron::UpdateG(double *dym_val, bool mode, bool function) {
-	if (mode) {
-		if (function) dym_val[gE_idx_] += feedforward_excitatory_intensity_;
-		else dym_val[gI_idx_] += feedforward_inhibitory_intensity_;
-	} else {
-		if (function) dym_val[gE_idx_] += pyramidal_synaptic_intensity_;
-		else dym_val[gI_idx_] += interneuronal_synaptic_intensity_;
-	}
+void Neuron::UpdateG(double *dym_val, bool function, double strength) {
+	if (function) dym_val[gE_idx_] += strength;
+	else dym_val[gI_idx_] += strength;
 }
 
 double Neuron::GetDv(double *dym_val) {
@@ -127,11 +117,11 @@ double Neuron::OffRefractoryPeriod(double *dym_val, double dt) {
 	return UpdatePotential(dym_val, dt - dym_val[tr_idx_]);
 }
 
-double Neuron::PrimelyUpdateState(double *dym_val, bool is_fire, bool mode, bool function, double t, double dt, bool temp_switch) {
+double Neuron::PrimelyUpdateState(double *dym_val, bool is_fire, Spike x, double dt, bool temp_switch) {
 	//if (temp_switch == false) cout << t << ',';
 	double vn = dym_val[v_idx_];
 	// Update conductance;
-	if (is_fire) UpdateG(dym_val, mode, function);
+	if (is_fire) UpdateG(dym_val, x.function, x.s);
   double dvn, t_spike;
   double return_val = -1; // -1 for no spiking case and non-temp update, otherwise, return_val = t_spike;
 	if (dym_val[tr_idx_] <= 0) { // neuron is not in the refractory period;
@@ -145,7 +135,7 @@ double Neuron::PrimelyUpdateState(double *dym_val, bool is_fire, bool mode, bool
 			//cout << vn << ';';
 			if (temp_switch == false) {
 				// Add spike time to spike train;
-				spike_train_.push_back(t + t_spike);
+				spike_train_.push_back(x.t + t_spike);
 				//cout << t+t_spike << endl;
 			} else return_val = t_spike;
 			// update remaining fractory period
@@ -164,7 +154,7 @@ double Neuron::PrimelyUpdateState(double *dym_val, bool is_fire, bool mode, bool
 				//cout << vn << ';';
 				if (temp_switch == false) {
 					// Add spike time to spike train;
-					spike_train_.push_back(t + t_spike + dym_val[tr_idx_]);
+					spike_train_.push_back(x.t + t_spike + dym_val[tr_idx_]);
 					//cout << t+t_spike + dym_val[tr_idx_] << endl;
 				} else return_val = t_spike;
 				// update remaining fractory period
@@ -180,17 +170,17 @@ double Neuron::PrimelyUpdateState(double *dym_val, bool is_fire, bool mode, bool
 	return return_val;
 }
 
-void Neuron::UpdateConductanceOfFiredNeuron(double *dym_val, bool is_fire, bool mode, bool function, double dt) {
+void Neuron::UpdateConductanceOfFiredNeuron(double *dym_val, bool is_fire, Spike x, double dt) {
 	// Update Conductance;
-	if (is_fire) UpdateG(dym_val, mode, function);
+	if (is_fire) UpdateG(dym_val, x.function, x.s);
 	dym_val[gE_idx_] *= exp(- dt / tau_e_);
 	dym_val[gI_idx_] *= exp(- dt / tau_i_);
 }
 
-void Neuron::SetSynapticStrength(bool function, double S) {
-	if (function)	pyramidal_synaptic_intensity_ = S;
-	else interneuronal_synaptic_intensity_ = S;
-}
+//void Neuron::SetSynapticStrength(bool function, double S) {
+//	if (function)	pyramidal_synaptic_intensity_ = S;
+//	else interneuronal_synaptic_intensity_ = S;
+//}
 
 void Neuron::SetFeedforwardStrength(bool function, double F) {
 	if (function)	feedforward_excitatory_intensity_ = F;
@@ -236,7 +226,7 @@ void Neuron::OutSpikeTrain(vector<double> & spikes) {
 
 void Neuron::GetNewSpikes(double t, vector<Spike>& x) {
 	Spike add_spike;
-	add_spike.mode = false;
+	add_spike.s = 0.0;
 	add_spike.function = type_;
 	x.clear();
 	for (vector<double>::reverse_iterator iter = spike_train_.rbegin(); iter != spike_train_.rend(); iter++) {
@@ -254,22 +244,22 @@ double Neuron::UpdateNeuronalState(double *dym_val, double t, double dt) {
 	GenerateInternalPoisson(true, tmax, false);
 	//GenerateInternalPoisson(false, tmax, false);
 	vector<Spike>::iterator s_begin = synaptic_driven_.begin();
-	if (s_begin == synaptic_driven_.end()) {
-		PrimelyUpdateState(dym_val, false, false, false, t, dt, false);
+	Spike no_spike;
+	no_spike.s = 0;
+	no_spike.function = false;
+	no_spike.t = t;
+	if (s_begin == synaptic_driven_.end() || tmax <= s_begin->t) {
+		PrimelyUpdateState(dym_val, false, no_spike, dt, false);
 	} else {
-		if (tmax <= s_begin->t) {
-			PrimelyUpdateState(dym_val, false, false, false, t, dt, false);
-		} else {
-			if (t != s_begin->t) {
-				PrimelyUpdateState(dym_val, false, false, false, t, s_begin->t - t, false);
-			}
-			for (vector<Spike>::iterator iter = s_begin; iter != synaptic_driven_.end(); iter++) {
-				if (iter + 1 == synaptic_driven_.end() || (iter + 1)->t >= tmax) {
-					PrimelyUpdateState(dym_val, true, iter->mode, iter->function, iter->t, tmax - iter->t, false);
-					break;
-				} else {
-					PrimelyUpdateState(dym_val, true, iter->mode, iter->function, iter->t, (iter + 1)->t - iter->t, false);
-				}
+		if (t != s_begin->t) {
+			PrimelyUpdateState(dym_val, false, no_spike, s_begin->t - t, false);
+		}
+		for (vector<Spike>::iterator iter = s_begin; iter != synaptic_driven_.end(); iter++) {
+			if (iter + 1 == synaptic_driven_.end() || (iter + 1)->t >= tmax) {
+				PrimelyUpdateState(dym_val, true, *iter, tmax - iter->t, false);
+				break;
+			} else {
+				PrimelyUpdateState(dym_val, true, *iter, (iter + 1)->t - iter->t, false);
 			}
 		}
 	}
@@ -283,28 +273,32 @@ double Neuron::UpdateNeuronalState(double *dym_val, double t, double dt) {
 	}
 	return dym_val[v_idx_];
 }
-double Neuron::UpdateNeuronalState(double *dym_val, double t, double dt, vector<double> & inPE, vector<double> & inPI) {
+
+double Neuron::UpdateNeuronalState(double *dym_val, double t, double dt, vector<Spike> & extPoisson) {
 	double tmax = t + dt;
 	if (driven_type_) {
-		InputExternalPoisson(true, tmax, inPE);
-		//InputExternalPoisson(false, tmax, inPI);
+		InputExternalPoisson(tmax, extPoisson);
 	} else {
 		GenerateInternalPoisson(true, tmax, false);
 		//GenerateInternalPoisson(false, tmax, false);
 	}
 	vector<Spike>::iterator s_begin = synaptic_driven_.begin();
+	Spike no_spike;
+	no_spike.s = 0;
+	no_spike.function = false;
+	no_spike.t = t;
 	if (s_begin == synaptic_driven_.end() || tmax <= s_begin->t) {
-		PrimelyUpdateState(dym_val, false, false, false, t, dt, false);
+		PrimelyUpdateState(dym_val, false, no_spike, dt, false);
 	} else {
 		if (t != s_begin->t) {
-			PrimelyUpdateState(dym_val, false, false, false, t, s_begin->t - t, false);
+			PrimelyUpdateState(dym_val, false, no_spike, s_begin->t - t, false);
 		}
 		for (vector<Spike>::iterator iter = s_begin; iter != synaptic_driven_.end(); iter++) {
 			if (iter + 1 == synaptic_driven_.end() || (iter + 1)->t >= tmax) {
-				PrimelyUpdateState(dym_val, true, iter->mode, iter->function, iter->t, tmax - iter->t, false);
+				PrimelyUpdateState(dym_val, true, *iter, tmax - iter->t, false);
 				break;
 			} else {
-				PrimelyUpdateState(dym_val, true, iter->mode, iter->function, iter->t, (iter + 1)->t - iter->t, false);
+				PrimelyUpdateState(dym_val, true, *iter, (iter + 1)->t - iter->t, false);
 			}
 		}
 	}
@@ -334,11 +328,10 @@ double Neuron::UpdateNeuronalState(double *dym_val, double *dym_val_new, double 
 	return dym_val[v_idx_];
 }
 
-double Neuron::TemporallyUpdateNeuronalState(double *dym_val, double *dym_val_new, double t, double dt, vector<double> & inPE, vector<double> & inPI) {
+double Neuron::TemporallyUpdateNeuronalState(double *dym_val, double *dym_val_new, double t, double dt, vector<Spike> & extPoisson) {
 	double tmax = t + dt;
 	if (driven_type_) {
-		InputExternalPoisson(true, tmax, inPE);
-		//InputExternalPoisson(false, tmax, inPI);
+		InputExternalPoisson(tmax, extPoisson);
 	} else {
 		GenerateInternalPoisson(true, tmax, false);
 		//GenerateInternalPoisson(false, tmax, false);
@@ -346,22 +339,26 @@ double Neuron::TemporallyUpdateNeuronalState(double *dym_val, double *dym_val_ne
 	// initialize dym_val_new with dym_val:
 	for (int i = 0; i < dym_n_; i ++) dym_val_new[i] = dym_val[i];
 	vector<Spike>::iterator s_begin = synaptic_driven_.begin();
+	Spike no_spike;
+	no_spike.s = 0;
+	no_spike.function = false;
+	no_spike.t = t;
 	double t_spike, return_val = -1;
 	// ATTENTION:  if neuron fires twice within single time step, this algorithm would fail.
 	if (s_begin == synaptic_driven_.end() || tmax <= s_begin->t) {
-		return_val = PrimelyUpdateState(dym_val_new, false, false, false, t, dt, true);
+		return_val = PrimelyUpdateState(dym_val_new, false, no_spike, dt, true);
 	} else {
 		if (t != s_begin->t) {
-			t_spike = PrimelyUpdateState(dym_val_new, false, false, false, t, s_begin->t - t, true);
+			t_spike = PrimelyUpdateState(dym_val_new, false, no_spike, s_begin->t - t, true);
 			if (t_spike >= 0) return_val = t_spike;
 		}
 		for (vector<Spike>::iterator iter = s_begin; iter != synaptic_driven_.end(); iter++) {
 			if (iter + 1 == synaptic_driven_.end() || (iter + 1)->t >= tmax) {
-				t_spike = PrimelyUpdateState(dym_val_new, true, iter->mode, iter->function, iter->t, tmax - iter->t, true);
+				t_spike = PrimelyUpdateState(dym_val_new, true, *iter, tmax - iter->t, true);
 				if (t_spike >= 0) return_val = t_spike + iter->t - t;
 				break;
 			} else {
-				t_spike = PrimelyUpdateState(dym_val_new, true, iter->mode, iter->function, iter->t, (iter + 1)->t - iter->t, true);
+				t_spike = PrimelyUpdateState(dym_val_new, true, *iter, (iter + 1)->t - iter->t, true);
 				if (t_spike >= 0) return_val = t_spike + iter->t - t;
 			}
 		}
@@ -371,18 +368,22 @@ double Neuron::TemporallyUpdateNeuronalState(double *dym_val, double *dym_val_ne
 
 void Neuron::UpdateConductance(double *dym_val, double t, double dt) {
 	double tmax = t + dt;
+	Spike no_spike;
+	no_spike.s = 0;
+	no_spike.function = false;
+	no_spike.t = t;
 	if (synaptic_driven_.empty() || tmax <= synaptic_driven_.begin()->t) {
-		UpdateConductanceOfFiredNeuron(dym_val, false, false, false, dt);
+		UpdateConductanceOfFiredNeuron(dym_val, false, no_spike, dt);
 	} else {
 		if (t != synaptic_driven_.begin()->t) {
-			UpdateConductanceOfFiredNeuron(dym_val, false, false, false, synaptic_driven_.begin()->t - t);
+			UpdateConductanceOfFiredNeuron(dym_val, false, no_spike, synaptic_driven_.begin()->t - t);
 		}
 		for (vector<Spike>::iterator iter = synaptic_driven_.begin(); iter != synaptic_driven_.end(); iter++) {
 			if (iter + 1 == synaptic_driven_.end() || (iter + 1)->t >= tmax) {
-				UpdateConductanceOfFiredNeuron(dym_val, true, iter->mode, iter->function, tmax - iter->t);
+				UpdateConductanceOfFiredNeuron(dym_val, true, *iter, tmax - iter->t);
 				break;
 			} else {
-				UpdateConductanceOfFiredNeuron(dym_val, true, iter->mode, iter->function, (iter + 1)->t - iter->t);
+				UpdateConductanceOfFiredNeuron(dym_val, true, *iter, (iter + 1)->t - iter->t);
 			}
 		}
 	}
@@ -390,22 +391,22 @@ void Neuron::UpdateConductance(double *dym_val, double t, double dt) {
 
 void Neuron::Fire(double *dym_val, double t, double dt) {
 	double tmax = t + dt;
-	if (synaptic_driven_.empty()) {
-		UpdateConductanceOfFiredNeuron(dym_val, false, false, false, dt);
+	Spike no_spike;
+	no_spike.s = 0;
+	no_spike.function = false;
+	no_spike.t = t;
+	if (synaptic_driven_.empty() || tmax <= synaptic_driven_.begin()->t) {
+		UpdateConductanceOfFiredNeuron(dym_val, false, no_spike, dt);
 	} else {
-		if (tmax <= synaptic_driven_.begin()->t) {
-			UpdateConductanceOfFiredNeuron(dym_val, false, false, false, dt);
-		} else {
-			if (t != synaptic_driven_.begin()->t) {
-				UpdateConductanceOfFiredNeuron(dym_val, false, false, false, synaptic_driven_.begin()->t - t);
-			}
-			for (vector<Spike>::iterator iter = synaptic_driven_.begin(); iter != synaptic_driven_.end(); iter++) {
-				if (iter + 1 == synaptic_driven_.end() || (iter + 1)->t >= tmax) {
-					UpdateConductanceOfFiredNeuron(dym_val, true, iter->mode, iter->function, tmax - iter->t);
-					break;
-				} else {
-					UpdateConductanceOfFiredNeuron(dym_val, true, iter->mode, iter->function, (iter + 1)->t - iter->t);
-				}
+		if (t != synaptic_driven_.begin()->t) {
+			UpdateConductanceOfFiredNeuron(dym_val, false, no_spike, synaptic_driven_.begin()->t - t);
+		}
+		for (vector<Spike>::iterator iter = synaptic_driven_.begin(); iter != synaptic_driven_.end(); iter++) {
+			if (iter + 1 == synaptic_driven_.end() || (iter + 1)->t >= tmax) {
+				UpdateConductanceOfFiredNeuron(dym_val, true, *iter, tmax - iter->t);
+				break;
+			} else {
+				UpdateConductanceOfFiredNeuron(dym_val, true, *iter, (iter + 1)->t - iter->t);
 			}
 		}
 	}
@@ -433,7 +434,7 @@ void Neuron::InSpike(Spike x) {
 		synaptic_driven_.push_back(x);
 	} else {
 		synaptic_driven_.push_back(x);
-		sort(synaptic_driven_.begin(),synaptic_driven_.end(),compPoisson);
+		sort(synaptic_driven_.begin(),synaptic_driven_.end(),compSpike);
 	}
 	// cout << x.t << endl;
 }

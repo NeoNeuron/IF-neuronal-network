@@ -2,7 +2,7 @@
 //	Copyright: Kyle Chen
 //	Author: Kyle Chen
 //	Description: Define class Neuron, structure Spike and NeuronState;
-//	Date: 2017-03-08 11:08:45
+//	Date: 2018-09-27
 //******************************
 #ifndef _NEURON_H_
 #define _NEURON_H_
@@ -14,10 +14,12 @@
 using namespace std;
 
 struct Spike {
-	bool function; // function of spike: true for excitation, false for inhibition;
+	bool function; // function of spike: true for excitation(AMPA), false for inhibition(GABA);
 	double t; // Exact spiking time;
-	bool mode; // mode of spike: true for feedforward spike, false for neuronal input spike;
+	double s; // strength of spikes;
 };
+
+bool compSpike(const Spike &x, const Spike &y);
 
 struct NeuronalState {
 	bool type; // neuronal type: true for excitatory, false for inhibitory;
@@ -41,10 +43,8 @@ class Neuron {
 		double threshold_potential_ = 1.0;
 		double excitatory_reversal_potential_ = 14.0 / 3.0;
 		double inhibitory_reversal_potential_ = -2.0 / 3.0;
-		double feedforward_excitatory_intensity_;
-		double feedforward_inhibitory_intensity_;
-		double pyramidal_synaptic_intensity_;
-		double interneuronal_synaptic_intensity_;
+		double feedforward_excitatory_intensity_; // for internal Poisson generators (default: 5e-3);
+		double feedforward_inhibitory_intensity_; // for internal Poisson generators (default: 5e-3);
 
 		// DATA:
 
@@ -81,13 +81,13 @@ class Neuron {
 		// tmax: maximum time of Poisson sequence;
 		// x: container of external inputing spikes;
 		// return: none;
-		void InputExternalPoisson(bool function, double tmax, vector<double> & x);
+		void InputExternalPoisson(double tmax, vector<Spike> & x);
 
 		//	Update excitatory conductance, after receiving a spiking input:
 		//	mode description: true for feedforward input, false for interneuronal input;
 		//	function description: functional type of inputing signal, true for excitation, false for inhibition;
 		//	return: none;
-		void UpdateG(double *dym_val, bool mode, bool function);
+		void UpdateG(double *dym_val, bool function, double strength);
 
 		// ODE govern the dynamic of IF neuron;
 		// voltage: membrane potential V;
@@ -119,24 +119,22 @@ class Neuron {
 		//	Description: operation to update neuronal state in primary level, including updating conductances, membrane potential and checking spiking events; ONE synaptic input most which arrives at the begining of time step;
 		//	dym_val: array of dynamic variables;
 		//	is_fire: true for the presence of a synaptic input at the begining of time step; false for not;
-		//  mode: mode for the synaptic input;
-		//  function: function for synaptic input;
-		//  time: the begining of the time step, used to record the spiking time;
+		//  x: synaptic input, including spike time, spike type and synaptic interacting strength;
 		//  dt: size of time step, unit ms;
-		//  temp_switch: true for update membrane_potential_temp_, conductance and record new spikes; false for similar operation but do not record new spikes;
+		//  temp_switch: false for update membrane_potential_temp_, conductance and record new spikes; false for similar operation but do not record new spikes;
 		//	return:
 		//    for non-temp operation, return -1;
 		//    for temp ones, if fires, return spike time, else return -1;
-		double PrimelyUpdateState(double *dym_val, bool is_fire, bool mode, bool function, double t, double dt, bool temp_switch);
+		double PrimelyUpdateState(double *dym_val, bool is_fire, Spike x, double dt, bool temp_switch);
 
-		//	Update conductance of fired neuron within single time step dt; it has the same structure level as the PrimelyUpdateState(bool, bool, bool, double, double, bool);
+		//	Update conductance of fired neuron within single time step dt; it has the same hierachy level as the PrimelyUpdateState(double*, bool, Spike, double, bool);
 		//	Description: operation to update neuronal state in primary level, ONE synaptic input most which arrives at the begining of time step;
 		//  is_fire: true for the presence of a synaptic input at the begining of time step; false for not;
 		//  mode: mode for the synaptic input;
 		//  function: function for synaptic input;
 		//  dt: size of time step, unit millisecond;
 		//	return: none;
-		void UpdateConductanceOfFiredNeuron(double *dym_val, bool is_fire, bool mode, bool function, double dt);
+		void UpdateConductanceOfFiredNeuron(double *dym_val, bool is_fire, Spike x, double dt);
 
 	public:
 		// Initialization of parameters in Neuron;
@@ -144,8 +142,6 @@ class Neuron {
 			type_ = true;
 			feedforward_excitatory_intensity_ = 5e-3;
 			feedforward_inhibitory_intensity_ = 5e-3;
-			pyramidal_synaptic_intensity_ = 5e-3;
-			interneuronal_synaptic_intensity_ = 5e-3;
 			driven_type_ = false;
 			excitatory_poisson_rate_ = 1e-18;
 			inhibitory_poisson_rate_ = 1e-18;
@@ -170,7 +166,7 @@ class Neuron {
 		void SetDrivingType(bool x) { driven_type_ = x; }
 
 		// Set neuronal interacting strength;
-		void SetSynapticStrength(bool function, double S);
+		//void SetSynapticStrength(bool function, double S);
 		void SetFeedforwardStrength(bool function, double F);
 
 		//	Set Poisson Rate: homogeneous Poisson driving rate of internal driving type;
@@ -203,7 +199,7 @@ class Neuron {
 		//	VECTOR<DOUBLE> inPI: external inhibitory Poisson sequence;
 		//	Return: membrane potential at t = t + dt;
 		double UpdateNeuronalState(double *dym_val, double t, double dt);
-		double UpdateNeuronalState(double *dym_val, double t, double dt, vector<double> & inPE, vector<double> & inPI);
+		double UpdateNeuronalState(double *dym_val, double t, double dt, vector<Spike> & extPoisson);
 		double UpdateNeuronalState(double *dym_val, double * dym_val_new, double tmax);
 		//double UpdateNeuronalState(double t, double dt, vector<double> & inPE, vector<double> & inPI);
 
@@ -217,7 +213,7 @@ class Neuron {
 		//	inPI: external inhibitory Poisson sequence;
 		//	Return: if fire, return the spiking time;
 		//					if not, return -1;
-		double TemporallyUpdateNeuronalState(double *dym_val, double *dym_val_new, double t, double dt, vector<double> & inPE, vector<double> & inPI);
+		double TemporallyUpdateNeuronalState(double *dym_val, double *dym_val_new, double t, double dt, vector<Spike> & extPoisson);
 
 		void UpdateConductance(double *dym_val, double t, double dt);
 		//	Fire: update neuronal state for neurons which fire at t = t + dt;
@@ -243,7 +239,8 @@ class Neuron {
 		//	Output spike train
 		void OutSpikeTrain(vector<double> & spikes);
 
-		//  Output Spikes before t;
+		//  Output Spikes after t;
+		//  the interacting strength of Spikes are set as default(0.0);
 		void GetNewSpikes(double t, vector<Spike> &x);
 
 		// Total membrane current;
