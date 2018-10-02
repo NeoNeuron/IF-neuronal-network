@@ -23,6 +23,7 @@ int main() {
 	cout << "#####\n";
 	int neuron_num = atoi(m_map_config["NeuronNumber"].c_str());
 	NeuronalNetwork cells(neuron_num);
+	cells.InitializeNeuronalType(atof(m_map_config["TypeProbability"].c_str()), atoi(m_map_config["TypeSeed"].c_str()));
 	cells.InitializeConnectivity(m_map_config);
 	cells.InitializeSynapticStrength(m_map_config);
 	double t = 0;
@@ -34,7 +35,6 @@ int main() {
 	double pse = atof(m_map_config["DrivingStrengthE"].c_str());
 	double psi = atof(m_map_config["DrivingStrengthI"].c_str());
 	vector<vector<double> > Pdriving(neuron_num, vector<double>{pre, pri, pse, psi});
-	cells.InitializeNeuronalType(atof(m_map_config["TypeProbability"].c_str()), atoi(m_map_config["TypeSeed"].c_str()));
 	cout << endl;
 	double sampling_rate = 1.0 / atof(m_map_config["SamplingTimingStep"].c_str());
 	// prepare data file;
