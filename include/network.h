@@ -39,13 +39,17 @@ private:
 	vector<vector<bool> > con_mat_; // built-in matrix for neuronal connectivity;
 	bool is_con_;
 	vector<vector<double> > s_mat_; // matrix of inter-neuronal interacting strength;
-	double interaction_delay_;
+	vector<vector<double> > delay_mat_;
 
 	// Network Inputs:
 	vector<vector<Spike> > ext_inputs_; // temp storage of external Poisson input;
 
 
 	// Functions:
+	//
+  // Set interaction delay between neurons;
+	void SetDelay(vector<vector<double> > &coordinates, double speed);
+
 	// Sort spikes within single time interval, and return the time of first spike;
 	double SortSpikes(vector<double*> &dym_vals_new, vector<int>& update_list, vector<int>& fired_list, double t, double dt, vector<SpikeElement> &T);
 
@@ -67,7 +71,7 @@ public:
 		con_mat_.resize(neuron_number_, vector<bool>(neuron_number_, false));
 		is_con_ = false;
 		s_mat_.resize(neuron_number_, vector<double>(neuron_number_, 0.0));
-		interaction_delay_ = 0.0;
+		delay_mat_.resize(neuron_number_, vector<double>(neuron_number_, 0.0));
 	}
 	
 	~NeuronalNetwork() {
@@ -85,12 +89,11 @@ public:
 	// INPUTS:
 	// Set interneuronal coupling strength;
 	void InitializeSynapticStrength(map<string, string> &m_config);
-
+	// Initialize the delay of synaptic interaction;
+	void InitializeSynapticDelay(map<string, string> &m_config);
+	
 	// Set time period of refractory:
 	void SetRef(double t_ref);
-
-  // Set interaction delay between neurons;
-	void SetDelay(double val) { interaction_delay_ = val; }
 
 	// 	Initialize neuronal types in the network;
 	//	p: the probability of the presence of excitatory neuron;

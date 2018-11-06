@@ -22,6 +22,10 @@ void Scan(vector<bool> & mat, int target_value, vector<int> &output_indices) {
 
 bool compSpikeElement(const SpikeElement &x, const SpikeElement &y) { return x.t < y.t; }
 
+double L2(vector<double> &x, vector<double> &y) {	
+	return sqrt((x[0] - x[1])*(x[0] - x[1]) + (y[0] - y[1])*(y[0] - y[1]));
+}
+
 void NeuronalNetwork::InitializeConnectivity(map<string, string> &m_config) {
 	int connecting_mode = atoi(m_config["ConnectingMode"].c_str());
 	if (connecting_mode == 0) { // External connectivity matrix;
@@ -141,11 +145,28 @@ void NeuronalNetwork::InitializeSynapticStrength(map<string, string> &m_config) 
 	}
 }
 
+void NeuronalNetwork::InitializeSynapticDelay(map<string, string> &m_config) {
+	vector<vector<double> > coordinates;
+	Read2D(m_config["CoorPath"], coordinates);
+	SetDelay(coordinates, atoi(m_config["TransmitSpeed"].c_str()));
+}
+
 bool CheckExist(int index, vector<int> &list) {
 	for (int i = 0; i < list.size(); i ++) {
 		if (list[i] == index) return true;
 	}
 	return false;
+}
+
+void NeuronalNetwork::SetDelay(vector<vector<double> > &coordinates, double speed) {
+	double meta_dis;
+	for (int i = 0; i < neuron_number_; i ++) {
+		for (int j = 0; j < i; j ++) {
+			meta_dis = L2(coordinates[i], coordinates[j]) / speed;
+			delay_mat_[i][j] = meta_dis;
+			delay_mat_[j][i] = meta_dis;
+		}
+	}
 }
 
 double NeuronalNetwork::SortSpikes(vector<double*> &dym_vals_new, vector<int> &update_list, vector<int> &fired_list, double t, double dt, vector<SpikeElement> &T) {
@@ -297,7 +318,6 @@ void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
 			fired_list.push_back(IND);
 			Spike ADD_mutual;
 			ADD_mutual.function = (T.front()).type;
-			ADD_mutual.t = t + newt + interaction_delay_;
 			// erase used spiking events;
 			T.erase(T.begin());
 			for (int j = 0; j < neuron_number_; j++) {
@@ -308,6 +328,7 @@ void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
 					//neurons_[j].UpdateNeuronalState(dym_vals_[j], t, newt);
 					if (con_mat_[IND][j]) {
 						ADD_mutual.s = s_mat_[IND][j];
+						ADD_mutual.t = t + newt + delay_mat_[IND][j];
 						neurons_[j].InSpike(ADD_mutual);
 						update_list.push_back(j);
 						// Check whether this neuron appears in the firing list T;

@@ -45,8 +45,8 @@ int main(int argc, const char* argv[]) {
 	net.InitializeConnectivity(m_map_config);
 	// Set interneuronal coupling strength;
 	net.InitializeSynapticStrength(m_map_config);
+	net.InitializeSynapticDelay(m_map_config);
 	net.SetRef(atof(m_map_config["RefractoryTime"].c_str()));
-	net.SetDelay(atof(m_map_config["SynapticDelay"].c_str()));
 
 	// Set driving_mode;
 	double maximum_time = atof(m_map_config["MaximumTime"].c_str());

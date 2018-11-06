@@ -24,7 +24,7 @@ if p == 0:
     # plot figure
     dt = np.ones(dat.shape[0] - 1)
     for i in range(len(dt)):
-        dt[i] = 0.5/(2**i)
+        dt[i] = 0.25/(2**i)
     fig, ax = plt.subplots(figsize=(6,5), dpi=72)
     ax.loglog(dt, dat_mean[:-1], 'o', markerfacecolor = 'None', label = 'data')
     c_est = dat_mean[-2]/dt[-2]**1

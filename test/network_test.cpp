@@ -26,6 +26,7 @@ int main() {
 	cells.InitializeNeuronalType(atof(m_map_config["TypeProbability"].c_str()), atoi(m_map_config["TypeSeed"].c_str()));
 	cells.InitializeConnectivity(m_map_config);
 	cells.InitializeSynapticStrength(m_map_config);
+	cells.InitializeSynapticDelay(m_map_config);
 	double t = 0;
 	double dt = atof(m_map_config["StartingTimingStep"].c_str());
 	double tmax = atof(m_map_config["MaximumTime"].c_str());
