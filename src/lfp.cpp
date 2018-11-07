@@ -60,9 +60,9 @@ int KeySelect(string & key, vector<neuron_type> & types, vector<int> & indices) 
 	return indices.size();
 }
 
-void LFP(string current_path, vector<double>& lfp, vector<int>& neuron_list, double* t_range) {
+void LFP(string current_path, vector<double>& lfp, vector<int>& neuron_list, vector<double>& spatial_weights, double* t_range, double sampling_dt) {
 	// preliminary parameters;
-	double sampling_rate = 2; // Unit ms: 2/ms;
+	double sampling_rate = 1 / sampling_dt; // Unit ms;
 
 	// Preparing time series;
 	size_t t_begin = t_range[0] * sampling_rate; // not included
@@ -99,7 +99,7 @@ void LFP(string current_path, vector<double>& lfp, vector<int>& neuron_list, dou
 		for (int j = 0; j < diff_list.size() - 1; j ++) {
 			current_in_file.seekg(diff_list[j]*sizeof(double), current_in_file.cur);
 			current_in_file.read((char*)&buffer, sizeof(double));
-			temp_lfp += buffer;
+			temp_lfp += buffer * spatial_weights[j];
 		}
 		current_in_file.seekg(*(diff_list.end() - 1)*sizeof(double), current_in_file.cur);
 		lfp[i - t_begin] = temp_lfp / neuron_list.size();

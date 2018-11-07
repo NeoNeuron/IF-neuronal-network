@@ -28,7 +28,7 @@ spike.out : spike.o main_spike.o
 spike2.out : spike.o main_spike2d.o
 	$(CPP) $(CPPFLAGS) -o $@ $^
 
-lfp.out : lfp.o main_lfp.o
+lfp.out : get-config.o lfp.o main_lfp.o
 	$(CPP) $(CPPFLAGS) -o $@ $^
 
 mi.out : mi_uniform.o main_mi.o

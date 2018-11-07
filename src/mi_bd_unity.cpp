@@ -89,7 +89,9 @@ int main(int argc, const char* argv[]) {
 	int neu_num = list.size();
 	printf(">> %d connected neuron contribute to LFP ...\n", neu_num);
 	vector<double> lfp;
-	LFP(lfp_file, lfp, list, trange);
+	//TODO: add spatial module to this part;
+	vector<double> spatial_weights(neu_num, 1);
+	LFP(lfp_file, lfp, list, spatial_weights, trange, dt);
 	clock_end = clock();
 	// print time;
 	cout << "[-] LFP processing took " << (clock_end - clock_begin)*1.0 / CLOCKS_PER_SEC << "s" << endl;

@@ -23,7 +23,7 @@ void Scan(vector<bool> & mat, int target_value, vector<int> &output_indices) {
 bool compSpikeElement(const SpikeElement &x, const SpikeElement &y) { return x.t < y.t; }
 
 double L2(vector<double> &x, vector<double> &y) {	
-	return sqrt((x[0] - x[1])*(x[0] - x[1]) + (y[0] - y[1])*(y[0] - y[1]));
+	return sqrt((x[0] - y[0])*(x[0] - y[0]) + (x[1] - y[1])*(x[1] - y[1]));
 }
 
 void NeuronalNetwork::InitializeConnectivity(map<string, string> &m_config) {
