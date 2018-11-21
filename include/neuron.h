@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <cmath>
+#include "../include/math_helper.h"
 
 using namespace std;
 
@@ -31,10 +33,9 @@ struct NeuronalState {
 };
 
 // Class Neuron: Based on integrate and fire neuron model;
-class Neuron {
-	private:
+class LIF_G_Model {
+	public:
 		// PARAMETERS:
-		bool type_;						// neuronal type: true for excitatory, false for inhibitory;
 		double tau_e_ = 2.0;	// (ms) time const for excitatory conductance;
 		double tau_i_ = 5.0;	// (ms) time const for inhibitory conductance;
 		double g_m_ = 5e-2;		// (1/ms) normalized membrane conductance;
@@ -43,6 +44,173 @@ class Neuron {
 		double threshold_potential_ = 1.0;
 		double excitatory_reversal_potential_ = 14.0 / 3.0;
 		double inhibitory_reversal_potential_ = -2.0 / 3.0;
+
+		// excitatory and inhibitory conductance; evolve precisely with the given expression;
+		const int dym_n_ = 4;
+		const int v_idx_ = 0;
+		const int gE_idx_ = 1;
+		const int gI_idx_ = 2;
+		const int tr_idx_ = 3;
+		// index of remaining refractory period time. if negative, remaining refractory period equals to zero;
+
+		// DYNAMICS:
+
+		//	Purely update conductance after single time step dt;
+		//	dym_val: dynamical variables;
+		//	dt: time step;
+		//	return: none;
+		void UpdateG(double *dym_val, double dt) {
+			dym_val[gE_idx_] *= exp( -dt / tau_e_ );
+			dym_val[gI_idx_] *= exp( -dt / tau_i_ );
+		}
+
+		// ODE govern the dynamic of IF neuron;
+		// dym_val: dynamical variables;
+		// return: dV/dt, the derivative of V;
+		double GetDv(double *dym_val) {
+			return - g_m_ * (dym_val[v_idx_] - resting_potential_)
+				- dym_val[gE_idx_] * (dym_val[v_idx_] - excitatory_reversal_potential_)
+				- dym_val[gI_idx_] * (dym_val[v_idx_] - inhibitory_reversal_potential_);
+		}
+		
+		//	Update the conductance and membrane potential for t = [t_n, t_n + dt];
+		//	Description: 4th-order Runge Kutta integration scheme is applied;
+		//	*voltage: pointer of voltage, updated after excecution;
+		//	dt: size of time step, unit ms;
+		//	return: derivative of membrane potential at t = t(n);
+		double DymInplaceRK4(double *dym_val, double dt) {
+			double exp_E = exp(-0.5 * dt / tau_e_);
+			double exp_I = exp(-0.5 * dt / tau_i_);
+			// k1 = GetDv(t_n, v_n);
+			// k2 = GetDv(t_n+1/2, v_n + k1*dt / 2);
+			// k3 = GetDv(t_n+1/2, v_n + k2*dt / 2);
+			// k4 = GetDv(t_n+1, v_n + k3*dt);
+			// v_n+1 = v_n + dt/6*(k1 + 2*k2 + 2*k3 + k4);
+			double v_n = dym_val[v_idx_];
+			double k1, k2, k3, k4;
+			k1 = GetDv(dym_val);
+			// Update G:
+			dym_val[gE_idx_] *= exp_E;
+			dym_val[gI_idx_] *= exp_I;
+			dym_val[v_idx_] = v_n + 0.5*k1*dt;
+			k2 = GetDv(dym_val);
+			dym_val[v_idx_] = v_n + 0.5*k2*dt;
+			k3 = GetDv(dym_val);
+			// Update G:
+			dym_val[gE_idx_] *= exp_E;
+			dym_val[gI_idx_] *= exp_I;
+			dym_val[v_idx_] = v_n + k3*dt;
+			k4 = GetDv(dym_val);
+			// Get v_n+1;
+			dym_val[v_idx_] = v_n + dt / 6 *(k1 + 2 * k2 + 2 * k3 + k4);
+			return k1;
+		}
+};
+
+// class Neuron:
+// Implement basic operations for sub-timestep dynamics;
+template <class NeuronModel>
+class Neuron: public NeuronModel {
+	using NeuronModel::tau_e_;	// (ms) time const for excitatory conductance;
+	using NeuronModel::tau_i_;	// (ms) time const for inhibitory conductance;
+	using NeuronModel::g_m_;		// (1/ms) normalized membrane conductance;
+	using NeuronModel::tau_;		// (ms) refractory Period;
+	using NeuronModel::resting_potential_;
+	using NeuronModel::threshold_potential_;
+	using NeuronModel::excitatory_reversal_potential_;
+	using NeuronModel::inhibitory_reversal_potential_;
+	using NeuronModel::dym_n_;
+	using NeuronModel::v_idx_;
+	using NeuronModel::gE_idx_;
+	using NeuronModel::gI_idx_;
+	using NeuronModel::tr_idx_;
+	using NeuronModel::UpdateG;
+	using NeuronModel::GetDv;
+	using NeuronModel::DymInplaceRK4;
+	public:
+		int GetDymN() { return dym_n_; }
+		int GetVID() { return v_idx_; }
+		int GetGEID() { return gE_idx_; }
+		int GetGIID() { return gI_idx_; }
+		int GetTRID() { return tr_idx_; }
+		//int Get() {}
+		double GetRestingPotential() { return resting_potential_; }
+		double GetRefTime() { return tau_; }
+		//double Get() {}
+		void SetRefTime(double t_ref) { tau_ = t_ref; }
+		void ResetDymVal(double* dym_val) {
+			dym_val[v_idx_] = 0.0;
+			dym_val[gE_idx_] = 0.0;
+			dym_val[gI_idx_] = 0.0;
+			dym_val[tr_idx_] = -1;
+		}
+		void ManuallyFire(double* dym_val) {
+			dym_val[v_idx_] = 0.0;
+			dym_val[tr_idx_] = tau_;
+		}
+		//	Core operation for updating neuronal state within single timing step dt;
+		//	Description: operation to update neuronal state in primary level, including updating conductances, membrane potential and checking spiking events; 
+		//	dym_val: array of dynamic variables;
+		//  dt: size of time step, unit ms;
+		//	return: -1 for no spiking events; otherwise, return relative spiking time respect to the begining of the time step;
+		double DymCore(double *dym_val, double dt) {
+			double vn = dym_val[v_idx_];
+			// Update conductance;
+			double dvn, dv_new;
+			double t_spike = -1; // spike time within dt;
+			if (dym_val[tr_idx_] <= 0) { // neuron is not in the refractory period;
+				dvn = DymInplaceRK4(dym_val, dt);
+				// Check whether fire or not;
+				if (dym_val[v_idx_] >= threshold_potential_) {
+					dv_new = GetDv(dym_val);
+					t_spike = cubic_hermite_root(dt, vn, dym_val[v_idx_], dvn, dv_new, threshold_potential_);
+					dym_val[v_idx_] = resting_potential_;
+					// update remaining fractory period
+					dym_val[tr_idx_] = tau_ + t_spike - dt;
+				}	
+			} else { // neuron is about to exit the refractory period;
+				if (dym_val[tr_idx_] < dt) {
+					UpdateG(dym_val, dym_val[tr_idx_]);
+					dvn = DymInplaceRK4(dym_val, dt - dym_val[tr_idx_]);
+					// Check whether fire or not;
+					if (dym_val[v_idx_] >= threshold_potential_) {
+						dv_new = GetDv(dym_val);
+						t_spike = cubic_hermite_root(dt - dym_val[tr_idx_], vn, dym_val[v_idx_], dvn, dv_new, threshold_potential_);
+						dym_val[v_idx_] = resting_potential_;
+						// update remaining fractory period
+						t_spike += dym_val[tr_idx_];
+						dym_val[tr_idx_] = tau_ + t_spike;
+					}
+				} else { // neuron is in the refractory period;
+					UpdateG(dym_val, dt);
+				}
+				dym_val[tr_idx_] -= dt;
+			}
+			return t_spike;
+		}
+		//	Update conductance of fired neuron within single time step dt; it has the same hierachy level as the PrimelyUpdateState(double*, bool, Spike, double, bool);
+		//	Description: operation to update neuronal state in primary level, ONE synaptic input most which arrives at the begining of time step;
+		//  is_fire: true for the presence of a synaptic input at the begining of time step; false for not;
+		//  mode: mode for the synaptic input;
+		//  function: function for synaptic input;
+		//  dt: size of time step, unit millisecond;
+		//	return: none;
+	void UpdateConductanceOfFiredNeuron(double *dym_val, double dt) {
+		UpdateG(dym_val, dt);
+	}
+
+};
+
+typedef Neuron<LIF_G_Model> LIF_G;
+
+// Class Neuron: Based on integrate and fire neuron model;
+class NeuronSim {
+	private:
+		// Neuron;
+		LIF_G neuron_;
+
+		// PARAMETERS:
+		bool type_;						// neuronal type: true for excitatory, false for inhibitory;
 		double feedforward_excitatory_intensity_; // for internal Poisson generators (default: 5e-3);
 		double feedforward_inhibitory_intensity_; // for internal Poisson generators (default: 5e-3);
 
@@ -58,14 +226,6 @@ class Neuron {
 		// record last Poisson spike time generated by Poisson generator;
 		double latest_excitatory_poisson_time_; 
 		double latest_inhibitory_poisson_time_; 
-
-		// excitatory and inhibitory conductance; evolve precisely with the given expression;
-		const int dym_n_ = 4;
-		const int v_idx_ = 0;
-		const int gE_idx_ = 1;
-		const int gI_idx_ = 2;
-		const int tr_idx_ = 3;
-		// index of remaining refractory period time. if negative, remaining refractory period equals to zero;
 
 		// FUNCTIONS:
 
@@ -83,62 +243,9 @@ class Neuron {
 		// return: none;
 		void InputExternalPoisson(double tmax, vector<Spike> & x);
 
-		//	Update excitatory conductance, after receiving a spiking input:
-		//	mode description: true for feedforward input, false for interneuronal input;
-		//	function description: functional type of inputing signal, true for excitation, false for inhibition;
-		//	return: none;
-		void UpdateG(double *dym_val, bool function, double strength);
-
-		// ODE govern the dynamic of IF neuron;
-		// voltage: membrane potential V;
-		// return: dV/dt, the derivative of V;
-		double GetDv(double *dym_val);
-		
-		//	Update the conductance and membrane potential for t = [t_n, t_n + dt];
-		//	Description: 4th-order Runge Kutta integration scheme is applied;
-		//	*voltage: pointer of voltage, updated after excecution;
-		//	dt: size of time step, unit ms;
-		//	return: derivative of membrane potential at t = t(n);
-		double UpdatePotential(double *dym_val, double dt);
-
-		//	Find the exact firing time for t = [t_n, t_n + dt] with cubic Hermite interpolation;
-		//	k1: the derivative of V at t = t_n;
-		//	voltage: the membrane potential at t = t_n + dt;
-		//	dt: size of time step, unit millisecond;
-		//	return: the exact spike time;
-		double FindExactSpike(double v1, double dv1, double *dym_val, double dt);
-
-		//	Off refractory period operation; Update conductance;
-		//	Description: calculate the first non-zero membrane potential after refractory period;
-		//	*voltage: point of voltage at t = t_n + dt;
-		//	dt: size of time step, unit ms;
-		//	Return: V at t = t_n + dt;
-		double OffRefractoryPeriod(double *dym_val, double dt);
-
-		//	Prime operation for updating neuronal state within single time step dt;
-		//	Description: operation to update neuronal state in primary level, including updating conductances, membrane potential and checking spiking events; ONE synaptic input most which arrives at the begining of time step;
-		//	dym_val: array of dynamic variables;
-		//	is_fire: true for the presence of a synaptic input at the begining of time step; false for not;
-		//  x: synaptic input, including spike time, spike type and synaptic interacting strength;
-		//  dt: size of time step, unit ms;
-		//  temp_switch: false for update membrane_potential_temp_, conductance and record new spikes; false for similar operation but do not record new spikes;
-		//	return:
-		//    for non-temp operation, return -1;
-		//    for temp ones, if fires, return spike time, else return -1;
-		double PrimelyUpdateState(double *dym_val, bool is_fire, Spike x, double dt, bool temp_switch);
-
-		//	Update conductance of fired neuron within single time step dt; it has the same hierachy level as the PrimelyUpdateState(double*, bool, Spike, double, bool);
-		//	Description: operation to update neuronal state in primary level, ONE synaptic input most which arrives at the begining of time step;
-		//  is_fire: true for the presence of a synaptic input at the begining of time step; false for not;
-		//  mode: mode for the synaptic input;
-		//  function: function for synaptic input;
-		//  dt: size of time step, unit millisecond;
-		//	return: none;
-		void UpdateConductanceOfFiredNeuron(double *dym_val, bool is_fire, Spike x, double dt);
-
-	public:
+		public:
 		// Initialization of parameters in Neuron;
-		Neuron(double *&dym_val) {
+		NeuronSim(double *&dym_val) {
 			type_ = true;
 			feedforward_excitatory_intensity_ = 5e-3;
 			feedforward_inhibitory_intensity_ = 5e-3;
@@ -148,11 +255,8 @@ class Neuron {
 			latest_excitatory_poisson_time_ = 0.0;
 			latest_inhibitory_poisson_time_ = 0.0;
 			cycle_ = 0;
-			dym_val = new double[dym_n_];
-			dym_val[v_idx_] = 0.0;
-			dym_val[gE_idx_] = 0.0;
-			dym_val[gI_idx_] = 0.0;
-			dym_val[tr_idx_] = -1.0;
+			dym_val = new double[ neuron_.GetDymN() ];
+			neuron_.ResetDymVal(dym_val);
 		}
 
 		// INPUTS:
@@ -160,7 +264,7 @@ class Neuron {
 		void SetNeuronType(bool x) { type_ = x; }
 
 		// Set refractory period:
-		void SetRef(double t_ref) { tau_ = t_ref; }
+		void SetRef(double t_ref) { neuron_.SetRefTime(t_ref); }
 
 		//	Set driving type: true for external, false for internal;
 		void SetDrivingType(bool x) { driven_type_ = x; }
@@ -198,27 +302,14 @@ class Neuron {
 		//	VECTOR<DOUBLE> inPE: external excitatory Poisson sequence;
 		//	VECTOR<DOUBLE> inPI: external inhibitory Poisson sequence;
 		//	Return: membrane potential at t = t + dt;
-		double UpdateNeuronalState(double *dym_val, double t, double dt);
-		double UpdateNeuronalState(double *dym_val, double t, double dt, vector<Spike> & extPoisson);
-		double UpdateNeuronalState(double *dym_val, double * dym_val_new, double tmax);
-		//double UpdateNeuronalState(double t, double dt, vector<double> & inPE, vector<double> & inPI);
-
-		//	Temporally update neuronal state;
-		//	Description: update neuron state to check whether it would fire, while don't change its stored parameters, including membrane potential, conductances and counter of refractory period;
-		//	dym_val: array of dynamic variables at t_n;
-		//	dym_val_new: array of dynamic variables at t_n+1;
-		//	t: time point of the begining of the time step;
-		//	dt: size of time step;
-		//	inPE: external excitatory Poisson sequence;
-		//	inPI: external inhibitory Poisson sequence;
-		//	Return: if fire, return the spiking time;
-		//					if not, return -1;
-		double TemporallyUpdateNeuronalState(double *dym_val, double *dym_val_new, double t, double dt, vector<Spike> & extPoisson);
+		//double UpdateNeuronalState(double *dym_val, double t, double dt);
+		double UpdateNeuronalState(double *dym_val, double t, double dt, vector<Spike> & extPoisson, vector<double>& new_spikes);
+		double CleanUsedInputs(double *dym_val, double * dym_val_new, double tmax);
 
 		void UpdateConductance(double *dym_val, double t, double dt);
 		//	Fire: update neuronal state for neurons which fire at t = t + dt;
 		void Fire(double *dym_val, double t, double dt);
-		void Fire(double spike_time);
+		void Fire(double dt, vector<double>& spike_times);
 
 		// OUTPUTS:
 
@@ -231,7 +322,7 @@ class Neuron {
 		double GetLastSpike() { return spike_train_.back(); }
 
 		//	Get potential: return the current value of membrane potential;
-		double GetPotential(double *dym_val) { return dym_val[v_idx_]; }
+		double GetPotential(double *dym_val) { return dym_val[neuron_.GetVID()]; }
 
 		//	Get neuronal type: true for excitatory, false for inhibitory;
 		bool GetNeuronalType() { return type_; }

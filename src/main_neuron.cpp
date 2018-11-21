@@ -34,7 +34,8 @@ int main(int argc, const char* argv[]) {
 	cout << "#####\n";
 	double *dym_val, *dym_val_new;
 	dym_val_new = new double[4];
-	Neuron cell(dym_val);
+	NeuronSim cell(dym_val);
+	for (int i = 0; i < 4; i ++) dym_val_new[i] = dym_val[i];
 	double t = 0, dt = atof(m_map_config["TimingStep"].c_str()), tmax = atof(m_map_config["MaximumTime"].c_str());
 	bool neuron_type, driving_type;
 	istringstream(m_map_config["Type"]) >> boolalpha >> neuron_type;
@@ -50,6 +51,12 @@ int main(int argc, const char* argv[]) {
 		srand(time(NULL));
 		cell.SetPoissonRate(true, rate_exc);
 		cell.SetPoissonRate(false, 0);
+	}
+	vector<Spike> pe_spike(in_E.size());
+	for (int i = 0; i < in_E.size(); i ++) {
+		pe_spike[i].function = true;
+		pe_spike[i].t = in_E[i];
+		pe_spike[i].s = atof(m_map_config["DrivingStrength"].c_str());
 	}
 	// Set driving strength;
 	cell.SetFeedforwardStrength(true, atof(m_map_config["DrivingStrength"].c_str()));
@@ -68,26 +75,27 @@ int main(int argc, const char* argv[]) {
 	// Initialize files:
 	ofstream V_file, I_file;
 	V_file.open(V_path.c_str(), ios::binary);
-	I_file.open(I_path.c_str(), ios::binary);
+	//I_file.open(I_path.c_str(), ios::binary);
 	V_file.write((char*)shape, 2*sizeof(size_t));
-	I_file.write((char*)shape, 2*sizeof(size_t));
+	//I_file.write((char*)shape, 2*sizeof(size_t));
 	double V, I;
-	double spike_time;
+	vector<double> new_spikes;
 	while (t < tmax) {
-		spike_time = cell.TemporallyUpdateNeuronalState(dym_val, dym_val_new, t, dt, in_E, in_I);
-		if (spike_time > 0) cell.Fire(t + spike_time);
-		cell.UpdateNeuronalState(dym_val, dym_val_new, t + dt);
-		//cell.UpdateNeuronalState(dym_val, t, dt, in_E, in_I);
+		cell.UpdateNeuronalState(dym_val, t, dt, pe_spike, new_spikes);
+		//cell.UpdateNeuronalState(dym_val_new, t, dt, pe_spike, new_spikes);
+		if (new_spikes.size() > 0) cell.Fire(t, new_spikes);
+		cell.CleanUsedInputs(dym_val, dym_val, t + dt);
+		//cell.CleanUsedInputs(dym_val, dym_val_new, t + dt);
 		t += dt;
 		if (abs(recording_rate*t - floor(recording_rate*t)) == 0) {
 			V = cell.GetPotential(dym_val);
-			I = cell.OutTotalCurrent(dym_val);
+			//I = cell.OutTotalCurrent(dym_val);
 			V_file.write((char*)&V, sizeof(double));
-			I_file.write((char*)&I, sizeof(double));
+			//I_file.write((char*)&I, sizeof(double));
 		}
 	}
 	V_file.close();
-	I_file.close();
+	//I_file.close();
 
 	cell.GetCycle();
 	cout<< endl;
