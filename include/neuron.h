@@ -190,14 +190,10 @@ class Neuron: public NeuronModel {
 		}
 		//	Update conductance of fired neuron within single time step dt; it has the same hierachy level as the PrimelyUpdateState(double*, bool, Spike, double, bool);
 		//	Description: operation to update neuronal state in primary level, ONE synaptic input most which arrives at the begining of time step;
-		//  is_fire: true for the presence of a synaptic input at the begining of time step; false for not;
-		//  mode: mode for the synaptic input;
-		//  function: function for synaptic input;
+		//	dym_val: array of dynamic variables;
 		//  dt: size of time step, unit millisecond;
 		//	return: none;
-	void UpdateConductanceOfFiredNeuron(double *dym_val, double dt) {
-		UpdateG(dym_val, dt);
-	}
+		void UpdateConductanceOfFiredNeuron(double *dym_val, double dt) { UpdateG(dym_val, dt); }
 
 };
 
@@ -277,16 +273,6 @@ class NeuronSim {
 		//	function: type of Poisson drive, true for excitatory, false for inhibitory;
 		void SetPoissonRate(bool function, double rate);
 
-		// Define a 'neuron_file' type to store neuronal condition;
-		// A ROW VECTOR:
-		//	0: neuronal type;
-		//	1: neuronal index;
-		//	2: membrane potential;
-		//	3: excitatory conductivity;
-		//	4: inhibitory conductivity;
-		//	5: remaining refractory period;
-		void LoadNeuronalState(NeuronalState & data);
-
 		//	Input synaptic inputs, either feedforward or interneuronal ones, autosort after insertion;
 		void InSpike(Spike x);
 
@@ -297,19 +283,25 @@ class NeuronSim {
 
 		// 	Update neuronal state:
 		//	Description: update neuron within single time step, including its membrane potential, conductances and counter of refractory period;
-		//	DOUBLE t: time point of the begining of the time step;
-		//	DOUBLE dt: size of time step;
-		//	VECTOR<DOUBLE> inPE: external excitatory Poisson sequence;
-		//	VECTOR<DOUBLE> inPI: external inhibitory Poisson sequence;
+		//	dym_val: dynamic variables;
+		//	double t: time point of the begining of the time step;
+		//	double dt: size of time step;
+		//	vector<Spike> extPoisson: external Poisson sequence;
+		//	vector<double> new_spikes: new spikes generated during dt;
 		//	Return: membrane potential at t = t + dt;
-		//double UpdateNeuronalState(double *dym_val, double t, double dt);
 		double UpdateNeuronalState(double *dym_val, double t, double dt, vector<Spike> & extPoisson, vector<double>& new_spikes);
+
+		// Clean used synaptic inputs:
+		// clean used synaptic inputs and update dym_val with dym_val_new;
+		// return the new v;
 		double CleanUsedInputs(double *dym_val, double * dym_val_new, double tmax);
 
+		// Purely update conductances for fired neurons;
 		void UpdateConductance(double *dym_val, double t, double dt);
+
 		//	Fire: update neuronal state for neurons which fire at t = t + dt;
-		void Fire(double *dym_val, double t, double dt);
-		void Fire(double dt, vector<double>& spike_times);
+		void Fire(double t, double spike_time);
+		void Fire(double t, vector<double>& spike_times);
 
 		// OUTPUTS:
 
@@ -324,6 +316,12 @@ class NeuronSim {
 		//	Get potential: return the current value of membrane potential;
 		double GetPotential(double *dym_val) { return dym_val[neuron_.GetVID()]; }
 
+		// True return excitatory conductance, false return inhibitory conductance;
+		double GetConductance(double *dym_val, bool x) {
+			if (x) return dym_val[ neuron_.GetGEID() ];
+			else return dym_val[ neuron_.GetGIID() ];
+		}
+
 		//	Get neuronal type: true for excitatory, false for inhibitory;
 		bool GetNeuronalType() { return type_; }
 
@@ -333,29 +331,6 @@ class NeuronSim {
 		//  Output Spikes after t;
 		//  the interacting strength of Spikes are set as default(0.0);
 		void GetNewSpikes(double t, vector<Spike> &x);
-
-		// Total membrane current;
-		double OutTotalCurrent(double *dym_val);
-
-		// Leaky current;
-		double OutLeakyCurrent(double *dym_val);
-
-		// Excitatory or inhibitory membrane current;
-		double OutSynapticCurrent(double *dym_val, bool type);
-
-		// True return excitatory conductance, false return inhibitory conductance;
-		double GetConductance(double *dym_val, bool x);
-
-		//Save corrent neuronal States:
-		//Define a 'neuronFile' type to store neuronal condition;
-		//A ROW VECTOR:
-		//	0: neuronal type;
-		//	1: neuronal index;
-		//	2: membrane potential;
-		//	3: excitatory conductivity;
-		//	4: inhibitory conductivity;
-		//	5: remaining refractory period;
-		void Save(NeuronalState & vals);
 };
 
 //	external Poisson generator:

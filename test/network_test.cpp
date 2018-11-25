@@ -19,7 +19,7 @@ int main() {
   map<string, string> m_map_config;
   ReadConfig("./test/config_net.ini", m_map_config);
   cout << ">> [Config.ini]:\n#####\n";
-	PrintConfig(m_map_config);
+	//PrintConfig(m_map_config);
 	cout << "#####\n";
 	int neuron_num = atoi(m_map_config["NeuronNumber"].c_str());
 	NeuronalNetwork cells(neuron_num);
@@ -45,6 +45,8 @@ int main() {
 	shape[1] = tmax * sampling_rate * neuron_num;
 	file.SetSize(shape);
 	int spike_num;
+	vector<vector<double> > spike_trains;
+	vector<double> add_spike_train;
 	// Start loop;
 	for (int i = 0; i < reps; i++) {
 		cells.RestoreNeurons();
@@ -57,7 +59,12 @@ int main() {
 				cells.OutPotential(file);
 			}
 		}
-		spike_num = cells.OutSpikeTrains("tmp/spiketrain.csv");
+		spike_num = cells.OutSpikeTrains(spike_trains);
+		add_spike_train.clear();
+		for (int i = 0; i < spike_trains.size(); i ++) {
+			add_spike_train.insert(add_spike_train.end(), spike_trains[i].begin(), spike_trains[i].end());
+		}
+		Print1D("./tmp/spiketrains.csv", add_spike_train, "app", 0);
 		printf("[-] dt = %.2e s\tmean firing rate = %.2f Hz\n", dt, spike_num*1000.0/tmax/neuron_num);
 		t = 0;
 		dt /= 2;

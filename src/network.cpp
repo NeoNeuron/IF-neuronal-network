@@ -114,6 +114,13 @@ void NeuronalNetwork::InitializeConnectivity(map<string, string> &m_config) {
 			}
 		}
 	}
+	//cout << "Connectivity matrix:\n";
+	//for (int i = 0; i < neuron_number_; i ++) {
+	//	for (int j = 0; j < neuron_number_; j ++) {
+	//		cout << con_mat_[i][j] << '\t';
+	//	}
+	//	cout << endl;
+	//}
 }
 
 void NeuronalNetwork::InitializeSynapticStrength(map<string, string> &m_config) {
@@ -143,12 +150,23 @@ void NeuronalNetwork::InitializeSynapticStrength(map<string, string> &m_config) 
 			}
 		}
 	}
+	//cout << "Strength matrix:\n";
+	//for (int i = 0; i < neuron_number_; i ++) {
+	//	for (int j = 0; j < neuron_number_; j ++) {
+	//		cout << s_mat_[i][j] << '\t';
+	//	}
+	//	cout << endl;
+	//}
 }
 
 void NeuronalNetwork::InitializeSynapticDelay(map<string, string> &m_config) {
-	vector<vector<double> > coordinates;
-	Read2D(m_config["CoorPath"], coordinates);
-	SetDelay(coordinates, atoi(m_config["TransmitSpeed"].c_str()));
+	if (atoi(m_config["DelayMode"].c_str()) == 0) {
+		delay_mat_.resize(neuron_number_, vector<double>(neuron_number_, atof(m_config["HomoSynapticDelay"].c_str())));
+	} else if (atoi(m_config["DelayMode"].c_str()) == 0) {
+		vector<vector<double> > coordinates;
+		Read2D(m_config["CoorPath"], coordinates);
+		SetDelay(coordinates, atoi(m_config["TransmitSpeed"].c_str()));
+	}
 }
 
 bool CheckExist(int index, vector<int> &list) {
@@ -169,8 +187,8 @@ void NeuronalNetwork::SetDelay(vector<vector<double> > &coordinates, double spee
 	}
 }
 
-double NeuronalNetwork::SortSpikes(vector<double*> &dym_vals_new, vector<int> &update_list, vector<int> &fired_list, double t, double dt, vector<SpikeElement> &T) {
-	double SET;
+double NeuronalNetwork::SortSpikes(vector<int> &update_list, vector<int> &fired_list, double t, double dt, vector<SpikeElement> &T) {
+	vector<double> tmp_spikes;
 	SpikeElement ADD;	
 	// start scanning;
 	double id;
@@ -178,13 +196,14 @@ double NeuronalNetwork::SortSpikes(vector<double*> &dym_vals_new, vector<int> &u
 		id = update_list[i];
 		// Check whether id's neuron is in the fired list;
 		if (CheckExist(id, fired_list)) {
-			for (int j = 1; j < 3; j++) dym_vals_new[id][j] = dym_vals_[id][j];
-			neurons_[id].UpdateConductance(dym_vals_new[id], t, dt);
+			for (int j = 1; j < 3; j ++) dym_vals_new_[id][j] = dym_vals_[id][j];
+			neurons_[id].UpdateConductance(dym_vals_new_[id], t, dt);
 		} else {
-			SET = neurons_[id].TemporallyUpdateNeuronalState(dym_vals_[id], dym_vals_new[id], t, dt, ext_inputs_[id]);
-			if (SET >= 0) {
+			for (int j = 0; j < 4; j ++) dym_vals_new_[id][j] = dym_vals_[id][j];
+			neurons_[id].UpdateNeuronalState(dym_vals_new_[id], t, dt, ext_inputs_[id], tmp_spikes);
+			if (tmp_spikes.size() > 0) {
 				ADD.index = id;
-				ADD.t = SET;
+				ADD.t = tmp_spikes.front();
 				ADD.type = neurons_[id].GetNeuronalType();
 				T.push_back(ADD);
 			}
@@ -282,22 +301,6 @@ void NeuronalNetwork::InNewSpikes(vector<vector<Spike> > & data) {
 	}
 }
 
-void NeuronalNetwork::LoadNeuronalState(string neuron_file) {
-	vector<vector<double> > neuronalSetups;
-	Read2D(neuron_file, neuronalSetups);
-	NeuronalState add;
-	for (int i = 0; i < neuron_number_; i++) {
-		if (neuronalSetups[i][0] == 1) add.type = true;
-		else add.type = false;
-		add.index = neuronalSetups[i][1];
-		add.membrane_potential_ = neuronalSetups[i][2];
-		add.ge = neuronalSetups[i][3];
-		add.gi = neuronalSetups[i][4];
-		add.remaining_refractory_time = neuronalSetups[i][5];
-		neurons_[i].LoadNeuronalState(add);
-	}
-}
-
 void NeuronalNetwork::SetDrivingType(bool driving_type) {
 	for (int i = 0; i < neuron_number_; i++) {
 		neurons_[i].SetDrivingType(driving_type);
@@ -311,7 +314,7 @@ void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
 		// Creating updating pool;
 		vector<int> update_list, fired_list;
 		for (int i = 0; i < neuron_number_; i++) update_list.push_back(i);
-		newt = SortSpikes(dym_vals_new_, update_list, fired_list, t, dt, T);
+		newt = SortSpikes(update_list, fired_list, t, dt, T);
 		while (newt > 0) {
 			update_list.clear();
 			int IND = (T.front()).index;
@@ -322,10 +325,8 @@ void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
 			T.erase(T.begin());
 			for (int j = 0; j < neuron_number_; j++) {
 				if (j == IND) {
-					//neurons_[j].Fire(dym_vals_[j], t, newt);
-					neurons_[j].Fire(t + newt);
+					neurons_[j].Fire(t, newt);
 				} else {
-					//neurons_[j].UpdateNeuronalState(dym_vals_[j], t, newt);
 					if (con_mat_[IND][j]) {
 						ADD_mutual.s = s_mat_[IND][j];
 						ADD_mutual.t = t + newt + delay_mat_[IND][j];
@@ -341,22 +342,17 @@ void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
 					}
 				}
 			}
-			//dt -= newt;
-			//t += newt;
-			//T.clear();
-			newt = SortSpikes(dym_vals_new_, update_list, fired_list, t, dt, T);
+			newt = SortSpikes(update_list, fired_list, t, dt, T);
 		}
 		for (int i = 0; i < neuron_number_; i++) {
-			//neurons_[i].UpdateNeuronalState(dym_vals_[i], t, dt);
-			neurons_[i].UpdateNeuronalState(dym_vals_[i], dym_vals_new_[i], t + dt);
+			neurons_[i].CleanUsedInputs(dym_vals_[i], dym_vals_new_[i], t + dt);
 		}
 	} else {
-		//double spike_time;
+		vector<double> new_spikes;
 		for (int i = 0; i < neuron_number_; i++) {
-			neurons_[i].UpdateNeuronalState(dym_vals_[i], t, dt, ext_inputs_[i]);
-			//spike_time = neurons_[i].TemporallyUpdateNeuronalState(dym_vals_[i], dym_vals_new_[i], t, dt, ext_inputs_[i]);
-			//if (spike_time > 0) neurons_[i].Fire(t + spike_time);
-			//neurons_[i].UpdateNeuronalState(dym_vals_[i], dym_vals_new_[i], t + dt);
+			neurons_[i].UpdateNeuronalState(dym_vals_[i], t, dt, ext_inputs_[i], new_spikes);
+			if ( new_spikes.size() > 0 ) neurons_[i].Fire(t, new_spikes);
+			neurons_[i].CleanUsedInputs(dym_vals_[i], dym_vals_[i], t + dt);
 		}
 	}
 }
@@ -378,65 +374,26 @@ void NeuronalNetwork::OutPotential(FILEWRITE& file) {
 
 void NeuronalNetwork::OutConductance(FILEWRITE& file, bool function) {
 	vector<double> conductance(neuron_number_);
-	if (function) {
-		for (int i = 0; i < neuron_number_; i++) {
-			conductance[i] = neurons_[i].GetConductance(dym_vals_[i], true);
-		}
-	} else {
-		for (int i = 0; i < neuron_number_; i++) {
-			conductance[i] = neurons_[i].GetConductance(dym_vals_[i], false);
-		}
+	for (int i = 0; i < neuron_number_; i++) {
+		conductance[i] = neurons_[i].GetConductance(dym_vals_[i], function);
 	}
 	file.Write(conductance);
-}
-
-void NeuronalNetwork::OutCurrent(FILEWRITE& file) {
-	vector<double> current(neuron_number_);
-	for (int i = 0; i < neuron_number_; i++) {
-		current[i] = neurons_[i].OutTotalCurrent(dym_vals_[i]);
-	}
-	file.Write(current);
-}
-
-void NeuronalNetwork::OutPartialCurrent(FILEWRITE& file, bool type) {
-	vector<double> current(neuron_number_);
-	for (int i = 0; i < neuron_number_; i++) {
-		current[i] = neurons_[i].OutLeakyCurrent(dym_vals_[i]) + neurons_[i].OutSynapticCurrent(dym_vals_[i], type);
-	}
-	file.Write(current);
 }
 
 void NeuronalNetwork::SaveConMat(string connecting_matrix_file) {
 	Print2D(connecting_matrix_file, con_mat_, "trunc");
 }
 
-void NeuronalNetwork::SaveNeuron(string neuron_file) {
-	ofstream data;
-	data.open(neuron_file.c_str(), ios::binary);
-	NeuronalState add;
-	for (int i = 0; i < neuron_number_; i++) {
-		neurons_[i].Save(add);
-		data.write((char*)&add, sizeof(add));
-		// data << (bool)add.type << ',';
-		// data << (int)add.index << ',';
-		// data << (double)add.membrane_potential_ << ',';
-		// data << (double)add.ge << ',';
-		// data << (double)add.gi << ',';
-		// data << (double)add.remaining_refractory_time << '\n';
-	}
-	data.close();
-}
-
-int NeuronalNetwork::OutSpikeTrains(string path) {
-	vector<vector<double> > spikes(neuron_number_);
+int NeuronalNetwork::OutSpikeTrains(vector<vector<double> >& spike_trains) {
+	spike_trains.resize(neuron_number_);
 	vector<double> add_spike_train;
 	int spike_num = 0;
 	for (int i = 0; i < neuron_number_; i++) {
 		neurons_[i].OutSpikeTrain(add_spike_train);
-		spikes[i] = add_spike_train;
+		spike_trains[i] = add_spike_train;
 		spike_num += add_spike_train.size();
 	}
-	Print2D(path, spikes, "trunc");
+	//Print2D(path, spikes, "trunc");
 	return spike_num;
 }
 

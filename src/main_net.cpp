@@ -93,18 +93,18 @@ int main(int argc, const char* argv[]) {
 	// Define file-outputing flags;
 	bool v_flag, i_flag, ge_flag, gi_flag;
 	istringstream(m_map_config["SaveV"]) >> boolalpha >> v_flag;
-	istringstream(m_map_config["SaveI"]) >> boolalpha >> i_flag;
+	//istringstream(m_map_config["SaveI"]) >> boolalpha >> i_flag;
 	istringstream(m_map_config["SaveGE"]) >> boolalpha >> ge_flag;
 	istringstream(m_map_config["SaveGI"]) >> boolalpha >> gi_flag;
 
 	// Create file-write objects;
 	FILEWRITE v_file(dir + "V.bin", "trunc");
-	FILEWRITE i_file(dir + "I.bin", "trunc");
+	//FILEWRITE i_file(dir + "I.bin", "trunc");
 	FILEWRITE ge_file(dir + "GE.bin", "trunc");
 	FILEWRITE gi_file(dir + "GI.bin", "trunc");
 	// Initialize size parameter in files:
 	if (v_flag) v_file.SetSize(shape);
-	if (i_flag) i_file.SetSize(shape);
+	//if (i_flag) i_file.SetSize(shape);
 	if (ge_flag) ge_file.SetSize(shape);
 	if (gi_flag) gi_file.SetSize(shape);
 
@@ -116,7 +116,7 @@ int main(int argc, const char* argv[]) {
 		// Output temporal data;
 		if (abs(recording_rate*t - floor(recording_rate*t)) == 0) {
 			if (v_flag) net.OutPotential(v_file);
-			if (i_flag) net.OutCurrent(i_file);
+			//if (i_flag) net.OutCurrent(i_file);
 			if (ge_flag) net.OutConductance(ge_file, true);
 			if (gi_flag) net.OutConductance(gi_file, false);
 		}
@@ -130,18 +130,19 @@ int main(int argc, const char* argv[]) {
 
 	// delete files;
 	if (!v_flag) v_file.Remove();
-	if (!i_flag) i_file.Remove();
+	//if (!i_flag) i_file.Remove();
 	if (!ge_flag) ge_file.Remove();
 	if (!gi_flag) gi_file.Remove();
 	
 	net.PrintCycle();
 	
 	// OUTPUTS:
-	net.SaveNeuron(dir + "neuron.bin");
 	net.SaveConMat(dir + "mat.csv");
 
+	vector<vector<double> > spike_trains;
+	int spike_num = net.OutSpikeTrains(spike_trains);
 	string raster_path = dir + "raster.csv";
-	int spike_num = net.OutSpikeTrains(raster_path);
+	Print2D(raster_path, spike_trains, "trunc");
 	cout << "Mean firing rate: " << (double)spike_num*1000.0/tmax/neuron_number << endl;
 
 	// Timing:

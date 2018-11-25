@@ -28,11 +28,13 @@ bool compSpikeElement(const SpikeElement &x, const SpikeElement &y);
 
 class NeuronalNetwork {
 private:
+	// Neuron Simulators:
+	vector<NeuronSim> neurons_;
+
 	// Network Parameters:
 	int neuron_number_;	// number of the neurons in the group;
 	vector<double*> dym_vals_; // dynamic variables of neurons;
 	vector<double*> dym_vals_new_; // temporal dynamic variables of neurons;
-	vector<Neuron> neurons_;
 	vector<bool> types_; // vector to store types of neurons;
 
 	// Network Structure:
@@ -51,7 +53,7 @@ private:
 	void SetDelay(vector<vector<double> > &coordinates, double speed);
 
 	// Sort spikes within single time interval, and return the time of first spike;
-	double SortSpikes(vector<double*> &dym_vals_new, vector<int>& update_list, vector<int>& fired_list, double t, double dt, vector<SpikeElement> &T);
+	double SortSpikes(vector<int>& update_list, vector<int>& fired_list, double t, double dt, vector<SpikeElement> &T);
 
 public:
 	//	Neuronal network initialization:
@@ -61,7 +63,7 @@ public:
 		dym_vals_.resize(neuron_number_);
 		dym_vals_new_.resize(neuron_number_);
 		for (int i = 0; i < neuron_number_; i++) {
-			neurons_.push_back(Neuron(dym_vals_[i]));
+			neurons_.push_back(NeuronSim(dym_vals_[i]));
 			//TODO: allocate memory for dynamic variable for different neuronal model;
 			//dym_vals_new[i] = new double[GetLen(dym_vals_[i])];
 			dym_vals_new_[i] = new double[4];
@@ -124,17 +126,6 @@ public:
 	// 	Input new spikes for neurons all together;
 	void InNewSpikes(vector<vector<Spike> > &data);
 
-	// Load neuronal states:
-	// Define a 'NeuronState' type to store neuronal condition;
-	// A ROW VECTOR:
-	//	0: neuronal type;
-	//	1: neuronal index;
-	//	2: membrane potential;
-	//	3: excitatory conductivity;
-	//	4: inhibitory conductivity;
-	//	5: remaining refractory period;
-	void LoadNeuronalState(string neuronFile);
-
 	// DYNAMICS:
 
 	//	Restore neuronal state for all neurons, including neuronal potential, conductances, refractory periods and external network drive;
@@ -155,27 +146,12 @@ public:
   //		BOOL function: function of synaptic conductance, true for excitation, false for inhibition;
   void OutConductance(FILEWRITE& file, bool function);
 
-  //	Output the total membrane ionic current of each neuron:
-  void OutCurrent(FILEWRITE& file);
-
-  //	Output the partial membrane ionic current of each neuron:
-  void OutPartialCurrent(FILEWRITE& file, bool type);
-	
 	// Save connectivity matrix
 	void SaveConMat(string connecting_matrix_file);
 
-	//	Save corrent neuronal States:
-	//	Define a 'neuronFile' type to store neuronal condition;
-	//	A ROW VECTOR:
-	//		0: neuronal type;
-	//		1: neuronal index;
-	//		2: membrane potential;
-	//		3: excitatory conductivity;
-	//		4: inhibitory conductivity;
-	//		5: remaining refractory period;
-	void SaveNeuron(string neuron_file);
-
-	int OutSpikeTrains(string path);
+	// Output spike trains of the network to spike_trains;
+	// return: the total number of spikes in the network during the simulation;
+	int OutSpikeTrains(vector<vector<double> >& spike_trains);
 
   //  Output spikes before t, including their functions;
 	void GetNewSpikes(double t, vector<vector<Spike> >& data);
