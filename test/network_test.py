@@ -10,7 +10,7 @@ import struct as st
 p = subprocess.call(['g++', '--std=c++11', '-O2', 'src/neuron.cpp', 'src/network.cpp', 'src/math_helper.cpp', 'src/get-config.cpp', 'test/network_test.cpp', '-o', 'test/network_test.out'])
 
 if p == 0:
-    subprocess.Popen('rm -f tmp/data_network_test.bin tmp/spiketrains.csv', shell = True)
+    subprocess.Popen('rm -f tmp/data_network_test.bin tmp/data_network_raster.csv', shell = True)
     # excecute test program
     subprocess.call(['./test/network_test.out'])
     #============================================================ 
@@ -24,7 +24,7 @@ if p == 0:
         dat[i] = np.array(st.unpack('d'*shape[1], f.read(8*shape[1])))
     f.close()
     # import spike trains;
-    dat_spike = np.genfromtxt('tmp/spiketrains.csv', delimiter = ',')
+    dat_spike = np.genfromtxt('tmp/data_network_raster.csv', delimiter = ',')
     dat_spike = dat_spike[:,:-1]
     #============================================================ 
     dat = np.array([abs(x - dat[-1]) for x in dat])
@@ -36,7 +36,7 @@ if p == 0:
     #============================================================ 
     dt = np.ones(dat.shape[0] - 1)
     for i in range(len(dt)):
-        dt[i] = 0.25/(2**i)
+        dt[i] = 0.5/(2**i)
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize = (12,6), dpi = 72)
     # subplot 1 ==================
     ax1.plot(dt, dat_mean[:-1], 'o', markerfacecolor = 'None', label = 'data')

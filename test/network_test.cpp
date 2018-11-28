@@ -64,7 +64,7 @@ int main() {
 		for (int i = 0; i < spike_trains.size(); i ++) {
 			add_spike_train.insert(add_spike_train.end(), spike_trains[i].begin(), spike_trains[i].end());
 		}
-		Print1D("./tmp/spiketrains.csv", add_spike_train, "app", 0);
+		Print1D("./tmp/data_network_raster.csv", add_spike_train, "app", 0);
 		printf("[-] dt = %.2e s\tmean firing rate = %.2f Hz\n", dt, spike_num*1000.0/tmax/neuron_num);
 		t = 0;
 		dt /= 2;

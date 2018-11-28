@@ -5,6 +5,7 @@
 //	Description: test program for Class Neuron;
 //***************
 #include"../include/neuron.h"
+#include "../include/io.h"
 #include<iostream>
 #include<fstream>
 #include<iomanip>
@@ -39,6 +40,7 @@ int main() {
 	vector<Spike> in_E_tmp, in_I_tmp;
 	double sampling_rate = 2;
 	vector<double> new_spikes;
+	vector<double> spike_train;
 	for (int i = 0; i < 8; i++) {
 		cell.Reset(dym_val);
 		for (int j = 0; j < 4; j ++) dym_val_new[j] = dym_val[j];
@@ -48,22 +50,19 @@ int main() {
 			//v = cell.UpdateNeuronalState(dym_val, t, dt, in_E_tmp, in_I_tmp);
 			cell.UpdateNeuronalState(dym_val_new, t, dt, in_E_tmp, new_spikes);
 			if (new_spikes.size() > 0) cell.Fire(t, new_spikes);
-			v = cell.UpdateNeuronalState(dym_val, dym_val_new, t + dt);
+			v = cell.CleanUsedInputs(dym_val, dym_val_new, t + dt);
 			t += dt;
 			if (abs(floor(sampling_rate * t) - sampling_rate * t) < 1e-15) {
 				data << setprecision(20) << (double)v << ",";
 			}
 		}
 		data << endl;
+		cell.OutSpikeTrain(spike_train);
+		Print1D("./tmp/data_neuron_raster.csv", spike_train, "app", 0);
+		printf(">> dt = %.2e, mean firing rate: %.2f Hz\n",dt,(double)spike_train.size()*1000.0/tmax);
 		dt /= 2;
 		t = 0;
-		cout << i << '\n';
-		cout << endl;
 	}
-	cout << endl;
-	vector<double> spikes;
-	cell.OutSpikeTrain(spikes);
-	cout << "Mean firing rate: " << (double)spikes.size()*1000.0/tmax << endl;
 	finish = clock();
 	// readout runing time;
 	cout << "It takes " << (finish - start) / CLOCKS_PER_SEC << " s" << endl;
