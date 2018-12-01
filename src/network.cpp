@@ -197,7 +197,7 @@ double NeuronalNetwork::SortSpikes(vector<int> &update_list, vector<int> &fired_
 		// Check whether id's neuron is in the fired list;
 		if (CheckExist(id, fired_list)) {
 			for (int j = 1; j < 3; j ++) dym_vals_new_[id][j] = dym_vals_[id][j];
-			neurons_[id].UpdateConductance(dym_vals_new_[id], t, dt);
+			neurons_[id].UpdateSource(dym_vals_new_[id], t, dt);
 		} else {
 			for (int j = 0; j < 4; j ++) dym_vals_new_[id][j] = dym_vals_[id][j];
 			neurons_[id].UpdateNeuronalState(dym_vals_new_[id], t, dt, ext_inputs_[id], tmp_spikes);
@@ -378,6 +378,14 @@ void NeuronalNetwork::OutConductance(FILEWRITE& file, bool function) {
 		conductance[i] = neurons_[i].GetConductance(dym_vals_[i], function);
 	}
 	file.Write(conductance);
+}
+
+void NeuronalNetwork::OutCurrent(FILEWRITE& file) {
+	vector<double> current(neuron_number_);
+	for (int i = 0; i < neuron_number_; i++) {
+		current[i] = neurons_[i].GetCurrent(dym_vals_[i]);
+	}
+	file.Write(current);
 }
 
 void NeuronalNetwork::SaveConMat(string connecting_matrix_file) {

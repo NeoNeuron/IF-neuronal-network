@@ -34,7 +34,7 @@ int main(int argc, const char* argv[]) {
 	cout << "#####\n";
 	double *dym_val, *dym_val_new;
 	dym_val_new = new double[4];
-	NeuronSim cell(dym_val);
+	NeuronSim cell(m_map_config["NeuronType"], dym_val);
 	for (int i = 0; i < 4; i ++) dym_val_new[i] = dym_val[i];
 	double t = 0, dt = atof(m_map_config["TimingStep"].c_str()), tmax = atof(m_map_config["MaximumTime"].c_str());
 	bool neuron_type, driving_type;

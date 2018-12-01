@@ -57,13 +57,13 @@ private:
 
 public:
 	//	Neuronal network initialization:
-	NeuronalNetwork(int neuron_number) {
+	NeuronalNetwork(string neuron_type, int neuron_number) {
 		// Network Parameters:
 		neuron_number_ = neuron_number;
-		dym_vals_.resize(neuron_number_);
-		dym_vals_new_.resize(neuron_number_);
+		dym_vals_.resize(neuron_number_, NULL);
+		dym_vals_new_.resize(neuron_number_, NULL);
 		for (int i = 0; i < neuron_number_; i++) {
-			neurons_.push_back(NeuronSim(dym_vals_[i]));
+			neurons_.push_back(NeuronSim(neuron_type, dym_vals_[i]));
 			//TODO: allocate memory for dynamic variable for different neuronal model;
 			//dym_vals_new[i] = new double[GetLen(dym_vals_[i])];
 			dym_vals_new_[i] = new double[4];
@@ -78,7 +78,8 @@ public:
 	
 	~NeuronalNetwork() {
 		for (int i = 0; i < neuron_number_; i++) {
-			delete [] dym_vals_new_[i];
+			delete dym_vals_[i];
+			delete dym_vals_new_[i];
 		}
 	}
 	// Initialize network connectivity matrix:
@@ -145,6 +146,9 @@ public:
   //	Output synaptic conductance to *.csv files:
   //		BOOL function: function of synaptic conductance, true for excitation, false for inhibition;
   void OutConductance(FILEWRITE& file, bool function);
+
+	//	Output current to *.csv file;
+	void OutCurrent(FILEWRITE& file);
 
 	// Save connectivity matrix
 	void SaveConMat(string connecting_matrix_file);

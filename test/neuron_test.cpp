@@ -21,7 +21,7 @@ int main() {
 	double *dym_val; 
 	double *dym_val_new;
 	dym_val_new = new double[4];
-	NeuronSim cell(dym_val);
+	NeuronSim cell("LIF_G", dym_val);
 	double t = 0, dt = 0.5, tmax = 4000;
 	double rateE = 1.5;
 	double rateI = 0.0;

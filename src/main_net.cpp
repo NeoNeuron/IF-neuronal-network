@@ -37,7 +37,7 @@ int main(int argc, const char* argv[]) {
 	cout << "#####\n";
 	// load neuron number;
 	int neuron_number = atoi(m_map_config["NeuronNumber"].c_str());
-	NeuronalNetwork net(neuron_number);
+	NeuronalNetwork net(m_map_config["NeuronType"], neuron_number);
 	// initialize the network;
 	net.InitializeNeuronalType(atof(m_map_config["TypeProbability"].c_str()), atoi(m_map_config["TypeSeed"].c_str()));
 	cout << "in the network." << endl;
@@ -58,12 +58,6 @@ int main(int argc, const char* argv[]) {
 		double s_exc = atof(m_map_config["DrivingStrengthE"].c_str());
 		double s_inh = atof(m_map_config["DrivingStrengthI"].c_str());
 		driving_setting.resize(neuron_number, vector<double>{r_exc, r_inh, s_exc, s_inh});
-		//vector<bool> neuron_types;
-		//net.GetNeuronType(neuron_types);
-		//for (int i = 0; i < neuron_number; i ++) {
-		//	if (neuron_types[i]) fwd_rates[i] = {rate_exc, 0.0};
-		//	else fwd_rates[i] = {rate_inh, 0.0};
-		//}
 	} else if (driving_mode == 1){
 		// import the data file of feedforward driving rate:
 		Read2D(m_map_config["PoissonPath"], driving_setting);
@@ -93,18 +87,18 @@ int main(int argc, const char* argv[]) {
 	// Define file-outputing flags;
 	bool v_flag, i_flag, ge_flag, gi_flag;
 	istringstream(m_map_config["SaveV"]) >> boolalpha >> v_flag;
-	//istringstream(m_map_config["SaveI"]) >> boolalpha >> i_flag;
+	istringstream(m_map_config["SaveI"]) >> boolalpha >> i_flag;
 	istringstream(m_map_config["SaveGE"]) >> boolalpha >> ge_flag;
 	istringstream(m_map_config["SaveGI"]) >> boolalpha >> gi_flag;
 
 	// Create file-write objects;
 	FILEWRITE v_file(dir + "V.bin", "trunc");
-	//FILEWRITE i_file(dir + "I.bin", "trunc");
+	FILEWRITE i_file(dir + "I.bin", "trunc");
 	FILEWRITE ge_file(dir + "GE.bin", "trunc");
 	FILEWRITE gi_file(dir + "GI.bin", "trunc");
 	// Initialize size parameter in files:
 	if (v_flag) v_file.SetSize(shape);
-	//if (i_flag) i_file.SetSize(shape);
+	if (i_flag) i_file.SetSize(shape);
 	if (ge_flag) ge_file.SetSize(shape);
 	if (gi_flag) gi_file.SetSize(shape);
 
@@ -116,21 +110,20 @@ int main(int argc, const char* argv[]) {
 		// Output temporal data;
 		if (abs(recording_rate*t - floor(recording_rate*t)) == 0) {
 			if (v_flag) net.OutPotential(v_file);
-			//if (i_flag) net.OutCurrent(i_file);
+			if (i_flag) net.OutCurrent(i_file);
 			if (ge_flag) net.OutConductance(ge_file, true);
 			if (gi_flag) net.OutConductance(gi_file, false);
 		}
 		if (floor(t * 10 / tmax) > progress) {
 			progress = floor(t * 10/tmax);
 			cout << ">> Processing ... " << (int)progress << "0%\n" << flush;
-			//printf(">> Processing ... %d0%\n", progress);
 		}
 	}
 	finish = clock();
 
 	// delete files;
 	if (!v_flag) v_file.Remove();
-	//if (!i_flag) i_file.Remove();
+	if (!i_flag) i_file.Remove();
 	if (!ge_flag) ge_file.Remove();
 	if (!gi_flag) gi_file.Remove();
 	

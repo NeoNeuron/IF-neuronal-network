@@ -22,7 +22,7 @@ int main() {
 	//PrintConfig(m_map_config);
 	cout << "#####\n";
 	int neuron_num = atoi(m_map_config["NeuronNumber"].c_str());
-	NeuronalNetwork cells(neuron_num);
+	NeuronalNetwork cells(m_map_config["NeuronType"], neuron_num);
 	cells.InitializeNeuronalType(atof(m_map_config["TypeProbability"].c_str()), atoi(m_map_config["TypeSeed"].c_str()));
 	cells.InitializeConnectivity(m_map_config);
 	cells.InitializeSynapticStrength(m_map_config);

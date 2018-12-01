@@ -10,6 +10,9 @@ results/*
 # ignore tmp files
 tmp/*
 
+# ignore executable files
+*.out
+
 # ignore config files
 *.ini
 
