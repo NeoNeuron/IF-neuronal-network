@@ -326,8 +326,9 @@ class NeuronSim {
 		// function: function of Poisson spike, true for exc, false for inh;
 		// tmax: maximum time of Poisson sequence;
 		// x: container of external inputing spikes;
+		// it_cur: current iterator of external inputing spikes;
 		// return: none;
-		void InputExternalPoisson(double tmax, vector<Spike> & x);
+		void InputExternalPoisson(double tmax, vector<Spike> & x, vector<Spike>::iterator &it_cur);
 
 		public:
 		// Initialization of parameters in Neuron;
@@ -384,7 +385,7 @@ class NeuronSim {
 		//	vector<Spike> extPoisson: external Poisson sequence;
 		//	vector<double> new_spikes: new spikes generated during dt;
 		//	Return: membrane potential at t = t + dt;
-		double UpdateNeuronalState(double *dym_val, double t, double dt, vector<Spike> & extPoisson, vector<double>& new_spikes);
+		double UpdateNeuronalState(double *dym_val, double t, double dt, vector<Spike> & extPoisson, vector<Spike>::iterator& it_cur, vector<double>& new_spikes);
 
 		// Clean used synaptic inputs:
 		// clean used synaptic inputs and update dym_val with dym_val_new;

@@ -19,7 +19,7 @@ int main() {
   map<string, string> m_map_config;
   ReadConfig("./test/config_net.ini", m_map_config);
   cout << ">> [Config.ini]:\n#####\n";
-	//PrintConfig(m_map_config);
+	PrintConfig(m_map_config);
 	cout << "#####\n";
 	int neuron_num = atoi(m_map_config["NeuronNumber"].c_str());
 	NeuronalNetwork cells(m_map_config["NeuronType"], neuron_num);
@@ -55,7 +55,7 @@ int main() {
 		while (t < tmax) {
 			cells.UpdateNetworkState(t, dt);
 			t += dt;
-			if (floor(sampling_rate * t)  == sampling_rate * t) {
+			if (floor(sampling_rate * t) == sampling_rate * t) {
 				cells.OutPotential(file);
 			}
 		}

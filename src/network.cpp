@@ -114,13 +114,6 @@ void NeuronalNetwork::InitializeConnectivity(map<string, string> &m_config) {
 			}
 		}
 	}
-	//cout << "Connectivity matrix:\n";
-	//for (int i = 0; i < neuron_number_; i ++) {
-	//	for (int j = 0; j < neuron_number_; j ++) {
-	//		cout << con_mat_[i][j] << '\t';
-	//	}
-	//	cout << endl;
-	//}
 }
 
 void NeuronalNetwork::InitializeSynapticStrength(map<string, string> &m_config) {
@@ -150,13 +143,6 @@ void NeuronalNetwork::InitializeSynapticStrength(map<string, string> &m_config) 
 			}
 		}
 	}
-	//cout << "Strength matrix:\n";
-	//for (int i = 0; i < neuron_number_; i ++) {
-	//	for (int j = 0; j < neuron_number_; j ++) {
-	//		cout << s_mat_[i][j] << '\t';
-	//	}
-	//	cout << endl;
-	//}
 }
 
 void NeuronalNetwork::InitializeSynapticDelay(map<string, string> &m_config) {
@@ -200,7 +186,7 @@ double NeuronalNetwork::SortSpikes(vector<int> &update_list, vector<int> &fired_
 			neurons_[id].UpdateSource(dym_vals_new_[id], t, dt);
 		} else {
 			for (int j = 0; j < 4; j ++) dym_vals_new_[id][j] = dym_vals_[id][j];
-			neurons_[id].UpdateNeuronalState(dym_vals_new_[id], t, dt, ext_inputs_[id], tmp_spikes);
+			neurons_[id].UpdateNeuronalState(dym_vals_new_[id], t, dt, ext_inputs_[id], ext_iters_[id], tmp_spikes);
 			if (tmp_spikes.size() > 0) {
 				ADD.index = id;
 				ADD.t = tmp_spikes.front();
@@ -262,6 +248,7 @@ void NeuronalNetwork::InitializeExternalPoissonProcess(vector<vector<double> >& 
 	double tLast; // last existing data point;
 	double rate;
 	ext_inputs_.resize(neuron_number_);
+	ext_iters_.resize(neuron_number_);
 
 	//TODO: solve potential problem in the time consumption to sort external Poisson inputs;
 	for (int i = 0; i < neuron_number_; i++) {
@@ -286,6 +273,8 @@ void NeuronalNetwork::InitializeExternalPoissonProcess(vector<vector<double> >& 
 			ext_inputs_[i].push_back(new_spike);
 		}
 		sort(ext_inputs_[i].begin(), ext_inputs_[i].end(), compSpike);
+		// Initialize iterators for external Poisson Inputs;
+		ext_iters_[i] = ext_inputs_[i].begin();
 	}
 }
 
@@ -350,7 +339,7 @@ void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
 	} else {
 		vector<double> new_spikes;
 		for (int i = 0; i < neuron_number_; i++) {
-			neurons_[i].UpdateNeuronalState(dym_vals_[i], t, dt, ext_inputs_[i], new_spikes);
+			neurons_[i].UpdateNeuronalState(dym_vals_[i], t, dt, ext_inputs_[i], ext_iters_[i], new_spikes);
 			if ( new_spikes.size() > 0 ) neurons_[i].Fire(t, new_spikes);
 			neurons_[i].CleanUsedInputs(dym_vals_[i], dym_vals_[i], t + dt);
 		}
@@ -436,37 +425,4 @@ void NeuronalNetwork::RestoreNeurons() {
 		neurons_[i].Reset(dym_vals_[i]);
 	}
 	ext_inputs_.clear();
-}
-
-void UpdateSystemState(NeuronalNetwork & pre_network, NeuronalNetwork & post_network, vector<vector<bool> > & connectivity_matrix, double t, double dt) {
-	//	Update pre_network in two network system;
-	pre_network.UpdateNetworkState(t, dt);
-	// Get neuronal number:
-	int number_pre = pre_network.GetNeuronNumber();
-	int number_post = post_network.GetNeuronNumber();
-	//	Transmit spiking information from pre_network to post_network;
-	vector<vector<Spike> > tempPreSpikes(number_pre), tempPostSpikes(number_post);
-	pre_network.GetNewSpikes(t, tempPreSpikes);
-	// Set transmit time:
-	// double transmit_time = 2;
-	// for (vector<vector<Spike> >::iterator it = tempPreSpikes.begin(); it != tempPreSpikes.end(); it ++) {
-	// 	if (it -> size() > 0) {
-	// 		for (vector<Spike>::iterator itt = it -> begin(); itt != it -> end(); itt ++) {
-	// 			itt -> t += transmit_time;
-	// 		}
-	// 	}
-	// }
-	// find temporal spiking sequence for post network;
-	for (int i = 0; i < number_pre; i++) {
-		if (!tempPreSpikes[i].empty()) {
-			for (int j = 0; j < number_post; j++) {
-				if (connectivity_matrix[i][j]) {
-					tempPostSpikes[j].insert(tempPostSpikes[j].end(), tempPreSpikes[i].begin(), tempPreSpikes[i].end());
-				}
-			}
-		}
-	}
-	post_network.InNewSpikes(tempPostSpikes);
-	//	Update post_network in two network system;
-	post_network.UpdateNetworkState(t, dt);
 }

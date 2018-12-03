@@ -80,8 +80,9 @@ int main(int argc, const char* argv[]) {
 	//I_file.write((char*)shape, 2*sizeof(size_t));
 	double V, I;
 	vector<double> new_spikes;
+	vector<Spike>::iterator it = pe_spike.begin();
 	while (t < tmax) {
-		cell.UpdateNeuronalState(dym_val, t, dt, pe_spike, new_spikes);
+		cell.UpdateNeuronalState(dym_val, t, dt, pe_spike, it, new_spikes);
 		//cell.UpdateNeuronalState(dym_val_new, t, dt, pe_spike, new_spikes);
 		if (new_spikes.size() > 0) cell.Fire(t, new_spikes);
 		cell.CleanUsedInputs(dym_val, dym_val, t + dt);

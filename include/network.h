@@ -45,6 +45,7 @@ private:
 
 	// Network Inputs:
 	vector<vector<Spike> > ext_inputs_; // temp storage of external Poisson input;
+	vector<vector<Spike>::iterator > ext_iters_; // iterator for current used external Poisson Drives;
 
 
 	// Functions:
@@ -166,7 +167,5 @@ public:
 
 	void GetConductance(int i, bool function);
 };
-
-void UpdateSystemState(NeuronalNetwork & pre_network, NeuronalNetwork & post_network, vector<vector<bool> > &connectivity_matrix, double t, double dt);
 
 #endif // _IFNET_NETWORK_H_

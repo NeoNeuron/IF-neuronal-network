@@ -54,13 +54,12 @@ void NeuronSim::GenerateInternalPoisson(bool function, double tmax, bool outSet)
 	sort(synaptic_driven_.begin(), synaptic_driven_.end(), compSpike);
 }
 
-void NeuronSim::InputExternalPoisson(double tmax, vector<Spike>& x) {
-	if (!x.empty()) {
-		vector<Spike>::iterator it = x.begin();
-		while (it->t < tmax) {
-			synaptic_driven_.push_back(*it);
-			it = x.erase(it);
-			if (x.empty()) break;
+void NeuronSim::InputExternalPoisson(double tmax, vector<Spike>& x, vector<Spike>::iterator &it_cur) {
+	if (it_cur != x.end()) {
+		while (it_cur->t < tmax) {
+			synaptic_driven_.push_back(*it_cur);
+			it_cur ++;
+			if (it_cur == x.end()) break;
 		}
 	}
 	sort(synaptic_driven_.begin(), synaptic_driven_.end(), compSpike);
@@ -110,11 +109,11 @@ void NeuronSim::GetNewSpikes(double t, vector<Spike>& x) {
 	}
 }
 
-double NeuronSim::UpdateNeuronalState(double *dym_val, double t, double dt, vector<Spike>& extPoisson, vector<double>& new_spikes) {
+double NeuronSim::UpdateNeuronalState(double *dym_val, double t, double dt, vector<Spike>& extPoisson, vector<Spike>::iterator &it_cur, vector<double>& new_spikes) {
 	new_spikes.clear();
 	double tmax = t + dt;
 	if (driven_type_) {
-		InputExternalPoisson(tmax, extPoisson);
+		InputExternalPoisson(tmax, extPoisson, it_cur);
 	} else {
 		GenerateInternalPoisson(true, tmax, false);
 		//GenerateInternalPoisson(false, tmax, false);
