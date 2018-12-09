@@ -16,9 +16,9 @@ using namespace std;
 
 bool compSpike(const Spike &x, const Spike &y) { return x.t < y.t; }
 
-void NeuronSim::GenerateInternalPoisson(bool function, double tmax, bool outSet) {
+void NeuronSim::GenerateInternalPoisson(bool type, double tmax, bool outSet) {
 	double temp, rate, strength;
-	if (function) {
+	if (type) {
 		temp = latest_excitatory_poisson_time_;
 		rate = excitatory_poisson_rate_;
 		strength = feedforward_excitatory_intensity_;
@@ -29,7 +29,7 @@ void NeuronSim::GenerateInternalPoisson(bool function, double tmax, bool outSet)
 	}
 	Spike ADD;
 	ADD.t = temp;
-	ADD.function = function;
+	ADD.type = type;
 	ADD.s = strength;
 	double x, tLast;
 	if (rate > 1e-18) {
@@ -45,7 +45,7 @@ void NeuronSim::GenerateInternalPoisson(bool function, double tmax, bool outSet)
 			synaptic_driven_.push_back(ADD);
 			if (outSet) cout << ADD.t << '\t';
 		}
-		if (function) {
+		if (type) {
 			latest_excitatory_poisson_time_ = tLast;
 		} else {
 			latest_inhibitory_poisson_time_ = tLast;
@@ -65,13 +65,13 @@ void NeuronSim::InputExternalPoisson(double tmax, vector<Spike>& x, vector<Spike
 	sort(synaptic_driven_.begin(), synaptic_driven_.end(), compSpike);
 }
 
-void NeuronSim::SetFeedforwardStrength(bool function, double F) {
-	if (function)	feedforward_excitatory_intensity_ = F;
+void NeuronSim::SetFeedforwardStrength(bool type, double F) {
+	if (type)	feedforward_excitatory_intensity_ = F;
 	else feedforward_inhibitory_intensity_ = F;
 }
 
-void NeuronSim::SetPoissonRate(bool function, double rate) {
-	if (function) {
+void NeuronSim::SetPoissonRate(bool type, double rate) {
+	if (type) {
 		excitatory_poisson_rate_ = rate;
 	} else {
 		inhibitory_poisson_rate_ = rate;
@@ -99,7 +99,8 @@ void NeuronSim::OutSpikeTrain(vector<double> & spikes) {
 void NeuronSim::GetNewSpikes(double t, vector<Spike>& x) {
 	Spike add_spike;
 	add_spike.s = 0.0;
-	add_spike.function = type_;
+	// NOTE: the type of new spike always set to true, to be determined in network class
+	add_spike.type = true;
 	x.clear();
 	for (vector<double>::reverse_iterator iter = spike_train_.rbegin(); iter != spike_train_.rend(); iter++) {
 		if (*iter >= t) {
@@ -132,7 +133,7 @@ double NeuronSim::UpdateNeuronalState(double *dym_val, double t, double dt, vect
 		}
 		for (vector<Spike>::iterator iter = s_begin; iter != synaptic_driven_.end(); iter++) {
 			// Update conductance due to the synaptic inputs;
-			if (iter -> s) dym_val[ p_neuron_ -> GetGEID() ] += iter -> s;
+			if (iter -> type) dym_val[ p_neuron_ -> GetGEID() ] += iter -> s;
 			else dym_val[ p_neuron_ -> GetGIID() ] += iter -> s;
 			if (iter + 1 == synaptic_driven_.end() || (iter + 1)->t >= tmax) {
 				t_spike = p_neuron_ -> DymCore(dym_val, tmax - iter->t);

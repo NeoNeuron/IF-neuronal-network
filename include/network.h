@@ -151,6 +151,9 @@ public:
 	//	Output current to *.csv file;
 	void OutCurrent(FILEWRITE& file);
 
+	// Save neuronal type vector;
+	void SaveNeuronType(string neuron_type_file);
+
 	// Save connectivity matrix
 	void SaveConMat(string connecting_matrix_file);
 
@@ -160,8 +163,6 @@ public:
 
   //  Output spikes before t, including their functions;
 	void GetNewSpikes(double t, vector<vector<Spike> >& data);
-
-	void GetNeuronType(vector<bool> & x);
 
 	int GetNeuronNumber();
 

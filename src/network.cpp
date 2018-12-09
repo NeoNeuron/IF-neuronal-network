@@ -190,7 +190,7 @@ double NeuronalNetwork::SortSpikes(vector<int> &update_list, vector<int> &fired_
 			if (tmp_spikes.size() > 0) {
 				ADD.index = id;
 				ADD.t = tmp_spikes.front();
-				ADD.type = neurons_[id].GetNeuronalType();
+				ADD.type = types_[id];
 				T.push_back(ADD);
 			}
 		}
@@ -216,11 +216,12 @@ void NeuronalNetwork::InitializeNeuronalType(double p, int seed) {
 	for (int i = 0; i < neuron_number_; i++) {
 		x = rand() / (RAND_MAX + 1.0);
 		if (x < p) {
-			neurons_[i].SetNeuronType(true);
 			types_[i] = true;
 			counter++;
-		} else neurons_[i].SetNeuronType(false);
+		}
+		cout << types_[i] << ',';
 	}
+	cout << endl;
 	printf(">> %d excitatory and %d inhibitory neurons ", counter, neuron_number_-counter);
 }
 
@@ -253,7 +254,7 @@ void NeuronalNetwork::InitializeExternalPoissonProcess(vector<vector<double> >& 
 	//TODO: solve potential problem in the time consumption to sort external Poisson inputs;
 	for (int i = 0; i < neuron_number_; i++) {
 		rate = driving_setting[i][0];
-		new_spike.function = true;
+		new_spike.type = true;
 		new_spike.s = driving_setting[i][2];
 		tLast = 0.0;
 		while (tLast < tmax) {
@@ -263,7 +264,7 @@ void NeuronalNetwork::InitializeExternalPoissonProcess(vector<vector<double> >& 
 			ext_inputs_[i].push_back(new_spike);
 		}
 		rate = driving_setting[i][1];
-		new_spike.function = false;
+		new_spike.type = false;
 		new_spike.s = driving_setting[i][3];
 		tLast = 0.0;
 		while (tLast < tmax) {
@@ -309,7 +310,7 @@ void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
 			int IND = (T.front()).index;
 			fired_list.push_back(IND);
 			Spike ADD_mutual;
-			ADD_mutual.function = (T.front()).type;
+			ADD_mutual.type = (T.front()).type;
 			// erase used spiking events;
 			T.erase(T.begin());
 			for (int j = 0; j < neuron_number_; j++) {
@@ -361,10 +362,10 @@ void NeuronalNetwork::OutPotential(FILEWRITE& file) {
 	file.Write(potential);
 }
 
-void NeuronalNetwork::OutConductance(FILEWRITE& file, bool function) {
+void NeuronalNetwork::OutConductance(FILEWRITE& file, bool type) {
 	vector<double> conductance(neuron_number_);
 	for (int i = 0; i < neuron_number_; i++) {
-		conductance[i] = neurons_[i].GetConductance(dym_vals_[i], function);
+		conductance[i] = neurons_[i].GetConductance(dym_vals_[i], type);
 	}
 	file.Write(conductance);
 }
@@ -375,6 +376,10 @@ void NeuronalNetwork::OutCurrent(FILEWRITE& file) {
 		current[i] = neurons_[i].GetCurrent(dym_vals_[i]);
 	}
 	file.Write(current);
+}
+
+void NeuronalNetwork::SaveNeuronType(string neuron_type_file) {
+	Print1D(neuron_type_file, types_, "trunc", 0);
 }
 
 void NeuronalNetwork::SaveConMat(string connecting_matrix_file) {
@@ -404,20 +409,12 @@ void NeuronalNetwork::GetNewSpikes(double t, vector<vector<Spike> >& data) {
 	}
 }
 
-void NeuronalNetwork::GetNeuronType(vector<bool>& types) {
-	types.clear();
-	types.resize(neuron_number_);
-	for (int i = 0; i < neuron_number_; i++) {
-		types[i] = neurons_[i].GetNeuronalType();
-	}
-}
-
 int NeuronalNetwork::GetNeuronNumber() {
 	return neuron_number_;
 }
 
-void NeuronalNetwork::GetConductance(int i, bool function) {
-	neurons_[i].GetConductance(dym_vals_[i], function);
+void NeuronalNetwork::GetConductance(int i, bool type) {
+	neurons_[i].GetConductance(dym_vals_[i], type);
 }
 
 void NeuronalNetwork::RestoreNeurons() {

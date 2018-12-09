@@ -16,21 +16,12 @@
 using namespace std;
 
 struct Spike {
-	bool function; // function of spike: true for excitation(AMPA), false for inhibition(GABA);
+	bool type; // type of spike: true for excitation(AMPA), false for inhibition(GABA);
 	double t; // Exact spiking time;
 	double s; // strength of spikes;
 };
 
 bool compSpike(const Spike &x, const Spike &y);
-
-struct NeuronalState {
-	bool type; // neuronal type: true for excitatory, false for inhibitory;
-	int index; // index of neuron in loop lattice;
-	double membrane_potential_; // membrane potential;
-	double ge; // excitatory conductance;
-	double gi; // inhibitory conductance;
-	double remaining_refractory_time;
-};
 
 // Neuron Base:
 class NeuronBase {
@@ -296,7 +287,6 @@ class NeuronSim {
 		NeuronBase* p_neuron_ = NULL; 
 
 		// PARAMETERS:
-		bool type_;						// neuronal type: true for excitatory, false for inhibitory;
 		double feedforward_excitatory_intensity_; // for internal Poisson generators (default: 5e-3);
 		double feedforward_inhibitory_intensity_; // for internal Poisson generators (default: 5e-3);
 
@@ -316,14 +306,13 @@ class NeuronSim {
 		// FUNCTIONS:
 
 		// Generate Poisson sequence within each time step; autosort after generatation if synaptic delay is nonzero;
-		// function: function of Poisson spike, true for exc, false for inh;
+		// type: type of Poisson spike, true for exc, false for inh;
 		// tmax: maximum time of Poisson sequence;
 		// outSet: whether print spike times of each spiking events, true for print, false for not;
 		// return: none;
-		void GenerateInternalPoisson(bool function, double tmax, bool outSet);
+		void GenerateInternalPoisson(bool type, double tmax, bool outSet);
 
 		// Input external Poisson sequence within each time step, autosort after generatation if synaptic delay is nonzero;
-		// function: function of Poisson spike, true for exc, false for inh;
 		// tmax: maximum time of Poisson sequence;
 		// x: container of external inputing spikes;
 		// it_cur: current iterator of external inputing spikes;
@@ -338,7 +327,6 @@ class NeuronSim {
 			} else if (neuron_type == "LIF_G") {
 				p_neuron_ = new LIF_G();
 			} else throw runtime_error("ERROR: wrong neuron type");
-			type_ = true;
 			feedforward_excitatory_intensity_ = 5e-3;
 			feedforward_inhibitory_intensity_ = 5e-3;
 			driven_type_ = false;
@@ -352,9 +340,6 @@ class NeuronSim {
 		}
 
 		// INPUTS:
-		// Set neuronal type: true for excitatory; false for inhibitory;
-		void SetNeuronType(bool x) { type_ = x; }
-
 		// Set refractory period:
 		void SetRef(double t_ref) { p_neuron_ -> SetRefTime(t_ref); }
 
@@ -362,12 +347,11 @@ class NeuronSim {
 		void SetDrivingType(bool x) { driven_type_ = x; }
 
 		// Set neuronal interacting strength;
-		//void SetSynapticStrength(bool function, double S);
-		void SetFeedforwardStrength(bool function, double F);
+		void SetFeedforwardStrength(bool type, double F);
 
 		//	Set Poisson Rate: homogeneous Poisson driving rate of internal driving type;
-		//	function: type of Poisson drive, true for excitatory, false for inhibitory;
-		void SetPoissonRate(bool function, double rate);
+		//	type: type of Poisson drive, true for excitatory, false for inhibitory;
+		void SetPoissonRate(bool type, double rate);
 
 		//	Input synaptic inputs, either feedforward or interneuronal ones, autosort after insertion;
 		void InSpike(Spike x);
@@ -408,9 +392,6 @@ class NeuronSim {
 		}
 		// Get last spike: return the time point of latest spiking events;
 		double GetLastSpike() { return spike_train_.back(); }
-
-		//	Get neuronal type: true for excitatory, false for inhibitory;
-		bool GetNeuronalType() { return type_; }
 
 		// Get potential: return the current value of membrane potential;
 		double GetPotential(double *dym_val) { return dym_val[p_neuron_ -> GetVID()]; }
