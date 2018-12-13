@@ -153,7 +153,7 @@ class LIF_I_Model {
 		double GetDv(double *dym_val) const {
 			return - g_m_ * (dym_val[v_idx_] - resting_potential_) 
 				+ dym_val[gE_idx_] 
-				+ dym_val[gI_idx_];
+				- dym_val[gI_idx_];
 		}
 		
 		//	Update the conductance and membrane potential for t = [t_n, t_n + dt];

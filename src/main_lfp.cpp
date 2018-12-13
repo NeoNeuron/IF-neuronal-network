@@ -21,7 +21,7 @@ using namespace std;
 //
 //	arguments:
 //
-//	argv[1] = dir of neural data;
+//	argv[1] = path of neural data file;
 //	argv[2] = path of output LFP file;
 //
 double L2(vector<double>& a, vector<double>& b) {
@@ -84,6 +84,9 @@ int main(int argc, const char* argv[]) {
 			break;
 		}
 	}
+
+	//spatial_weights.clear();
+	//spatial_weights.resize(neuron_num, 1.0);
 
 	//	Choose objective time range;
 	double t_range[2]; // t_range[0] = t_min; t_range[1] = t_max;

@@ -39,8 +39,7 @@ int main(int argc, const char* argv[]) {
 	int neuron_number = atoi(m_map_config["NeuronNumber"].c_str());
 	NeuronalNetwork net(m_map_config["NeuronType"], neuron_number);
 	// initialize the network;
-	net.InitializeNeuronalType(atof(m_map_config["TypeProbability"].c_str()), atoi(m_map_config["TypeSeed"].c_str()));
-	cout << "in the network." << endl;
+	net.InitializeNeuronalType(m_map_config);
 	// load connecting mode;
 	net.InitializeConnectivity(m_map_config);
 	// Set interneuronal coupling strength;
@@ -130,6 +129,7 @@ int main(int argc, const char* argv[]) {
 	net.PrintCycle();
 	
 	// OUTPUTS:
+	net.SaveNeuronType(dir + "neuron_type.csv");
 	net.SaveConMat(dir + "mat.csv");
 
 	vector<vector<double> > spike_trains;

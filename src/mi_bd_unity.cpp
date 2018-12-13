@@ -111,7 +111,7 @@ int main(int argc, const char* argv[]) {
 	TDMI2bins(binary_spikes, lfp, tdmi_shuffle, delay_range, param);
 	clock_end = clock();
 	// print time;
-	cout << "[-] LFP processing took " << (clock_end - clock_begin)*1.0 / CLOCKS_PER_SEC << "s" << endl;
+	cout << "[-] TDMI processing took " << (clock_end - clock_begin)*1.0 / CLOCKS_PER_SEC << "s" << endl;
 
 	//	Output data:
 	ofstream data_out;

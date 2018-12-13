@@ -209,20 +209,24 @@ void NeuronalNetwork::SetRef(double t_ref) {
 	for (int i = 0; i < neuron_number_; i ++) { neurons_[i].SetRef(t_ref); }
 }
 
-void NeuronalNetwork::InitializeNeuronalType(double p, int seed) {
-	srand(seed);
-	double x = 0;
+void NeuronalNetwork::InitializeNeuronalType(map<string, string> &m_config) {
 	int counter = 0;
-	for (int i = 0; i < neuron_number_; i++) {
-		x = rand() / (RAND_MAX + 1.0);
-		if (x < p) {
-			types_[i] = true;
-			counter++;
+	double p = atof(m_config["TypeProbability"].c_str());
+	if (atoi(m_config["TypeMode"].c_str()) == 0) {
+		counter = floor(neuron_number_*p);
+		for (int i = 0; i < counter; i++) types_[i] = true;
+	} else if (atoi(m_config["TypeProbability"].c_str()) == 1) {
+		srand(atoi(m_config["TypeSeed"].c_str()));
+		double x = 0;
+		for (int i = 0; i < neuron_number_; i++) {
+			x = rand() / (RAND_MAX + 1.0);
+			if (x < p) {
+				types_[i] = true;
+				counter++;
+			}
 		}
-		cout << types_[i] << ',';
-	}
-	cout << endl;
-	printf(">> %d excitatory and %d inhibitory neurons ", counter, neuron_number_-counter);
+	} 
+	printf(">> %d excitatory and %d inhibitory neurons in the network.\n", counter, neuron_number_-counter);
 }
 
 void NeuronalNetwork::InitializeInternalPoissonRate(vector<vector<double> >& driving_setting) {

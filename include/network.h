@@ -102,7 +102,7 @@ public:
 	// 	Initialize neuronal types in the network;
 	//	p: the probability of the presence of excitatory neuron;
 	//	seed: seed for random number generator;
-	void InitializeNeuronalType(double p, int seed);
+	void InitializeNeuronalType(map<string, string> &m_config);
 
 	//	Set driving type: true for external Poisson driven, false for internal ones;
 	void SetDrivingType(bool driving_type);

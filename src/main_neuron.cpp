@@ -37,10 +37,8 @@ int main(int argc, const char* argv[]) {
 	NeuronSim cell(m_map_config["NeuronType"], dym_val);
 	for (int i = 0; i < 4; i ++) dym_val_new[i] = dym_val[i];
 	double t = 0, dt = atof(m_map_config["TimingStep"].c_str()), tmax = atof(m_map_config["MaximumTime"].c_str());
-	bool neuron_type, driving_type;
-	istringstream(m_map_config["Type"]) >> boolalpha >> neuron_type;
+	bool driving_type;
 	istringstream(m_map_config["DrivingType"]) >> boolalpha >> driving_type;
-	cell.SetNeuronType(neuron_type);
 	cell.SetDrivingType(driving_type);
 	double rate_exc = atof(m_map_config["DrivingRate"].c_str());
 	vector<double> in_E, in_I;
@@ -54,7 +52,7 @@ int main(int argc, const char* argv[]) {
 	}
 	vector<Spike> pe_spike(in_E.size());
 	for (int i = 0; i < in_E.size(); i ++) {
-		pe_spike[i].function = true;
+		pe_spike[i].type = true;
 		pe_spike[i].t = in_E[i];
 		pe_spike[i].s = atof(m_map_config["DrivingStrength"].c_str());
 	}
