@@ -4,14 +4,15 @@
 //	Date: 2017-02-21 16:05:00
 //	Description: test program for Class Neuron;
 //***************
-#include"../include/neuron.h"
+#include "../include/neuron.h"
 #include "../include/io.h"
-#include<iostream>
-#include<fstream>
-#include<iomanip>
-#include<cstdlib>
-#include<ctime>
-#include<cmath>
+#include "../include/poisson_generator.h"
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <cstdlib>
+#include <ctime>
+#include <cmath>
 
 using namespace std;
 
@@ -27,15 +28,11 @@ int main() {
 	double v;
 	ofstream data;
 	data.open("./tmp/data_new.txt");
-	vector<double> pe;
-	GenerateExternalPoissonSequence(rateE, tmax, 1, pe);
-	vector<Spike> pe_spike(pe.size());
-	for (int i = 0; i < pe.size(); i ++) {
-		pe_spike[i].function = true;
-		pe_spike[i].t = pe[i];
-		pe_spike[i].s = 9e-3;
-	}
-	vector<Spike> pe_tmp;
+	PoissonGenerator pg;
+	pg.SetRate(rateE);
+	pg.SetStrength(9e-3);
+	vector<Spike> pe_spike;
+	pg.GenerateNewPoisson(tmax, pe_spike);
 	vector<Spike>::iterator it_cur;
 	double sampling_rate = 2;
 	vector<double> new_spikes;
@@ -43,11 +40,9 @@ int main() {
 	for (int i = 0; i < 8; i++) {
 		cell.Reset(dym_val);
 		for (int j = 0; j < 4; j ++) dym_val_new[j] = dym_val[j];
-		pe_tmp = pe_spike;
 		it_cur = pe_spike.begin();
-		cell.SetDrivingType(true);
 		while (t < tmax) {
-			cell.UpdateNeuronalState(dym_val_new, t, dt, pe_tmp, it_cur, new_spikes);
+			cell.UpdateNeuronalState(dym_val_new, t, dt, pe_spike, it_cur, new_spikes);
 			if (new_spikes.size() > 0) cell.Fire(t, new_spikes);
 			v = cell.CleanUsedInputs(dym_val, dym_val_new, t + dt);
 			t += dt;

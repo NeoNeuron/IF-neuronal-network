@@ -23,7 +23,7 @@ int main() {
 	cout << "#####\n";
 	int neuron_num = atoi(m_map_config["NeuronNumber"].c_str());
 	NeuronalNetwork cells(m_map_config["NeuronType"], neuron_num);
-	cells.InitializeNeuronalType(atof(m_map_config["TypeProbability"].c_str()), atoi(m_map_config["TypeSeed"].c_str()));
+	cells.InitializeNeuronalType(m_map_config);
 	cells.InitializeConnectivity(m_map_config);
 	cells.InitializeSynapticStrength(m_map_config);
 	cells.InitializeSynapticDelay(m_map_config);
@@ -31,12 +31,6 @@ int main() {
 	double dt = atof(m_map_config["StartingTimingStep"].c_str());
 	double tmax = atof(m_map_config["MaximumTime"].c_str());
 	int reps = atoi(m_map_config["Reps"].c_str());
-	double pre = atof(m_map_config["DrivingRateE"].c_str());
-	double pri = atof(m_map_config["DrivingRateI"].c_str());
-	double pse = atof(m_map_config["DrivingStrengthE"].c_str());
-	double psi = atof(m_map_config["DrivingStrengthI"].c_str());
-	vector<vector<double> > Pdriving(neuron_num, vector<double>{pre, pri, pse, psi});
-	cout << endl;
 	double sampling_rate = 1.0 / atof(m_map_config["SamplingTimingStep"].c_str());
 	// prepare data file;
 	FILEWRITE file("./tmp/data_network_test.bin", "trunc");
@@ -50,8 +44,7 @@ int main() {
 	// Start loop;
 	for (int i = 0; i < reps; i++) {
 		cells.RestoreNeurons();
-		cells.SetDrivingType(true); // external type;
-		cells.InitializeExternalPoissonProcess(Pdriving, tmax, 3);
+		cells.InitializePoissonGenerator(m_map_config);
 		while (t < tmax) {
 			cells.UpdateNetworkState(t, dt);
 			t += dt;

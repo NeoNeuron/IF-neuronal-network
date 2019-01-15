@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import subprocess
 
 # compile test program
-p = subprocess.call(['g++', '--std=c++11', '-O2', './src/neuron.cpp', './src/math_helper.cpp', 'test/neuron_test.cpp', '-o', 'test/neuron_test.out'])
+p = subprocess.call(['g++', '--std=c++11', '-O2', './src/neuron.cpp', 'src/poisson_generator.cpp', './src/math_helper.cpp', 'test/neuron_test.cpp', '-o', 'test/neuron_test.out'])
 
 if p == 0:
     # clear previous data files

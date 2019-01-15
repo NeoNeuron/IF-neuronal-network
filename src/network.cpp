@@ -229,57 +229,42 @@ void NeuronalNetwork::InitializeNeuronalType(map<string, string> &m_config) {
 	printf(">> %d excitatory and %d inhibitory neurons in the network.\n", counter, neuron_number_-counter);
 }
 
-void NeuronalNetwork::InitializeInternalPoissonRate(vector<vector<double> >& driving_setting) {
-	if (driving_setting.size() != neuron_number_) {
-		cout << "Error inputing length! (Not equal to the number of neurons in the net)";
-		return;
-	}
-	for (int i = 0; i < neuron_number_; i++) {
-		neurons_[i].SetPoissonRate(true, driving_setting[i][0]);
-		neurons_[i].SetPoissonRate(false, driving_setting[i][1]);
-		neurons_[i].SetFeedforwardStrength(true, driving_setting[i][2]);
-		neurons_[i].SetFeedforwardStrength(false, driving_setting[i][3]);
-	}
-}
-
-void NeuronalNetwork::InitializeExternalPoissonProcess(vector<vector<double> >& driving_setting, double tmax, int seed) {
-	if (driving_setting.size() != neuron_number_) {
-		cout << "Error inputing length! (Not equal to the number of neurons in the net)";
-		return;
-	}
-	Spike new_spike;
-	srand(seed);
-	double x; // temp random number;
-	double tLast; // last existing data point;
-	double rate;
-	ext_inputs_.resize(neuron_number_);
-	ext_iters_.resize(neuron_number_);
-
-	//TODO: solve potential problem in the time consumption to sort external Poisson inputs;
-	for (int i = 0; i < neuron_number_; i++) {
-		rate = driving_setting[i][0];
-		new_spike.type = true;
-		new_spike.s = driving_setting[i][2];
-		tLast = 0.0;
-		while (tLast < tmax) {
-			x = (rand() + 1.0) / (RAND_MAX + 1.0);
-			tLast -= log(x) / rate;
-			new_spike.t = tLast;
-			ext_inputs_[i].push_back(new_spike);
+void NeuronalNetwork::InitializePoissonGenerator(map<string, string>& m_config) {
+	vector<vector<double> > poisson_settings;
+	//	poisson_setting: 
+	//		[:,0] excitatory Poisson rate;
+	//		[:,1] excitatory Poisson strength;
+	int driving_mode = atoi(m_config["DrivingMode"].c_str());
+	if (driving_mode == 0) {
+		double pr = atof(m_config["pr"].c_str());
+		double ps = atof(m_config["ps"].c_str());
+		poisson_settings.resize(neuron_number_, vector<double>{pr, ps});
+	} else if (driving_mode == 1){
+		// import the data file of feedforward driving rate:
+		Read2D(m_config["PoissonPath"], poisson_settings);
+		if (poisson_settings.size() != neuron_number_) {
+			cout << "Error inputing length! (Not equal to the number of neurons in the net)";
+			return;
 		}
-		rate = driving_setting[i][1];
-		new_spike.type = false;
-		new_spike.s = driving_setting[i][3];
-		tLast = 0.0;
-		while (tLast < tmax) {
-			x = (rand() + 1.0) / (RAND_MAX + 1.0);
-			tLast -= log(x) / rate;
-			new_spike.t = tLast;
-			ext_inputs_[i].push_back(new_spike);
+	} else throw runtime_error("wrong driving_mode");
+
+	bool poisson_output;
+	istringstream(m_config["PoissonOutput"]) >> boolalpha >> poisson_output;
+	for (int i = 0; i < neuron_number_; i++) {
+		pgs_[i].SetRate(poisson_settings[i][0]);
+		pgs_[i].SetStrength(poisson_settings[i][1]);
+		if (poisson_output) {
+			pgs_[i].SetOuput( m_config["PoissonDir"] + "pg" + to_string(i) + ".csv" );
 		}
-		sort(ext_inputs_[i].begin(), ext_inputs_[i].end(), compSpike);
-		// Initialize iterators for external Poisson Inputs;
-		ext_iters_[i] = ext_inputs_[i].begin();
+	}
+	istringstream(m_config["PoissonGeneratorMode"]) >> boolalpha >> pg_mode;
+
+	if ( pg_mode ) {
+		srand(atoi(m_config["pSeed"].c_str()));
+		for (int i = 0; i < neuron_number_; i ++) {
+			pgs_[i].GenerateNewPoisson(atof(m_config["MaximumTime"].c_str()), ext_inputs_[i] );
+			ext_iters_[i] = ext_inputs_[i].begin();
+		}
 	}
 }
 
@@ -292,12 +277,6 @@ void NeuronalNetwork::InNewSpikes(vector<vector<Spike> > & data) {
 				neurons_[i].InSpike(*it);
 			}
 		}
-	}
-}
-
-void NeuronalNetwork::SetDrivingType(bool driving_type) {
-	for (int i = 0; i < neuron_number_; i++) {
-		neurons_[i].SetDrivingType(driving_type);
 	}
 }
 
@@ -424,6 +403,7 @@ void NeuronalNetwork::GetConductance(int i, bool type) {
 void NeuronalNetwork::RestoreNeurons() {
 	for (int i = 0; i < neuron_number_; i++) {
 		neurons_[i].Reset(dym_vals_[i]);
+		pgs_[i].Reset();
 	}
 	ext_inputs_.clear();
 }

@@ -48,35 +48,11 @@ int main(int argc, const char* argv[]) {
 	net.SetRef(atof(m_map_config["RefractoryTime"].c_str()));
 
 	// Set driving_mode;
-	double maximum_time = atof(m_map_config["MaximumTime"].c_str());
-	int driving_mode = atoi(m_map_config["DrivingMode"].c_str());
-	vector<vector<double> > driving_setting;
-	if (driving_mode == 0) {
-		double r_exc = atof(m_map_config["DrivingRateE"].c_str());
-		double r_inh = atof(m_map_config["DrivingRateI"].c_str());
-		double s_exc = atof(m_map_config["DrivingStrengthE"].c_str());
-		double s_inh = atof(m_map_config["DrivingStrengthI"].c_str());
-		driving_setting.resize(neuron_number, vector<double>{r_exc, r_inh, s_exc, s_inh});
-	} else if (driving_mode == 1){
-		// import the data file of feedforward driving rate:
-		Read2D(m_map_config["PoissonPath"], driving_setting);
-	} else {
-		throw runtime_error("wrong driving_mode");
-	}
-
-	// Set driving_type
-	bool driving_type;
-	istringstream(m_map_config["DrivingType"]) >> boolalpha >> driving_type;
-	net.SetDrivingType(driving_type);
-	if (driving_type) {
-		net.InitializeExternalPoissonProcess(driving_setting, maximum_time, atoi(m_map_config["ExternalDrivingSeed"].c_str()));
-	} else {
-		srand(time(NULL));
-		net.InitializeInternalPoissonRate(driving_setting);
-	}
+	net.InitializePoissonGenerator(m_map_config);
 
 	// SETUP DYNAMICS:
-	double t = 0, dt = atof(m_map_config["TimingStep"].c_str()), tmax = maximum_time;
+	double t = 0, dt = atof(m_map_config["TimingStep"].c_str());
+	double tmax = atof(m_map_config["MaximumTime"].c_str());
 	double recording_rate = 1.0 / atof(m_map_config["SamplingTimingStep"].c_str());
 	// Define the shape of data;
 	size_t shape[2];

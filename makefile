@@ -16,10 +16,10 @@ vpath %.out $(BIN)
 all : net.out spike.out spike2.out lfp.out mi.out mi_dd.out mi_dd_LFP.out mi_bd.out mi_bd_2bins.out mi_bb.out mi_bd_unity.out transpose.out sta.out move
 	echo 'All targets are done'
 
-neuron.out : get-config.o neuron.o math_helper.o main_neuron.o
+neuron.out : get-config.o neuron.o poisson_generator.o math_helper.o main_neuron.o
 	$(CPP) $(CPPFLAGS) -o $@ $^
 
-net.out : get-config.o neuron.o	network.o math_helper.o main_net.o
+net.out : get-config.o neuron.o poisson_generator.o	network.o math_helper.o main_net.o
 	$(CPP) $(CPPFLAGS) -o $@ $^
 
 spike.out : spike.o main_spike.o

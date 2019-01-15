@@ -10,6 +10,7 @@
 #include "../include/io.h"
 #include "../include/neuron.h"
 #include "../include/get-config.h"
+#include "../include/poisson_generator.h"
 #include <fstream>
 #include <cstdlib>
 #include <iomanip>
@@ -30,6 +31,10 @@ class NeuronalNetwork {
 private:
 	// Neuron Simulators:
 	vector<NeuronSim> neurons_;
+	
+	// PoissonGenerators:
+	vector<PoissonGenerator> pgs_;
+	bool pg_mode;
 
 	// Network Parameters:
 	int neuron_number_;	// number of the neurons in the group;
@@ -69,12 +74,15 @@ public:
 			//dym_vals_new[i] = new double[GetLen(dym_vals_[i])];
 			dym_vals_new_[i] = new double[4];
 		}
+		pgs_.resize(neuron_number_);
 		types_.resize(neuron_number_, false);
 		// Network structure:
 		con_mat_.resize(neuron_number_, vector<bool>(neuron_number_, false));
 		is_con_ = false;
 		s_mat_.resize(neuron_number_, vector<double>(neuron_number_, 0.0));
 		delay_mat_.resize(neuron_number_, vector<double>(neuron_number_, 0.0));
+		ext_inputs_.resize(neuron_number_);
+		ext_iters_.resize(neuron_number_);
 	}
 	
 	~NeuronalNetwork() {
@@ -108,22 +116,7 @@ public:
 	void SetDrivingType(bool driving_type);
 
 	//	Initialize internal homogeneous feedforward Poisson rate;
-	//	driving_setting: 
-	//		[:,0] excitatory Poisson rate;
-	//		[:,1] inhibitory Poisson rate;
-	//		[:,2] excitatory Poisson strength;
-	//		[:,3] inhibitory Poisson strength;
-	void InitializeInternalPoissonRate(vector<vector<double> >& driving_setting);
-
-	//	Initialize external homogeneous feedforward Poisson process;
-	//	driving_setting: 
-	//		[:,0] excitatory Poisson rate;
-	//		[:,1] inhibitory Poisson rate;
-	//		[:,2] excitatory Poisson strength;
-	//		[:,3] inhibitory Poisson strength;
-	//	tmax: maximum time range for Poisson process;
-	//	seed: seed for built-in random generator;
-	void InitializeExternalPoissonProcess(vector<vector<double> >& driving_setting, double tmax, int seed);
+	void InitializePoissonGenerator(map<string, string>& m_config);
 
 	// 	Input new spikes for neurons all together;
 	void InNewSpikes(vector<vector<Spike> > &data);

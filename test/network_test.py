@@ -7,7 +7,7 @@ import subprocess
 import struct as st
 
 # compile test program
-p = subprocess.call(['g++', '--std=c++11', '-O2', 'src/neuron.cpp', 'src/network.cpp', 'src/math_helper.cpp', 'src/get-config.cpp', 'test/network_test.cpp', '-o', 'test/network_test.out'])
+p = subprocess.call(['g++', '--std=c++11', '-O2', 'src/neuron.cpp', 'src/network.cpp', 'src/poisson_generator.cpp', 'src/math_helper.cpp', 'src/get-config.cpp', 'test/network_test.cpp', '-o', 'test/network_test.out'])
 
 if p == 0:
     subprocess.Popen('rm -f tmp/data_network_test.bin tmp/data_network_raster.csv', shell = True)

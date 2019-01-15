@@ -16,44 +16,6 @@ using namespace std;
 
 bool compSpike(const Spike &x, const Spike &y) { return x.t < y.t; }
 
-void NeuronSim::GenerateInternalPoisson(bool type, double tmax, bool outSet) {
-	double temp, rate, strength;
-	if (type) {
-		temp = latest_excitatory_poisson_time_;
-		rate = excitatory_poisson_rate_;
-		strength = feedforward_excitatory_intensity_;
-	} else {
-		temp = latest_inhibitory_poisson_time_;
-		rate = inhibitory_poisson_rate_;
-		strength = feedforward_inhibitory_intensity_;
-	}
-	Spike ADD;
-	ADD.t = temp;
-	ADD.type = type;
-	ADD.s = strength;
-	double x, tLast;
-	if (rate > 1e-18) {
-		if (temp < 1e-18) {
-			synaptic_driven_.push_back(ADD);
-			if (outSet) cout << ADD.t << '\t';
-		}
-		tLast = temp;
-		while (tLast < tmax) {
-			x = (rand() + 1.0) / (RAND_MAX + 1.0);
-			tLast -= log(x) / rate;
-			ADD.t = tLast;
-			synaptic_driven_.push_back(ADD);
-			if (outSet) cout << ADD.t << '\t';
-		}
-		if (type) {
-			latest_excitatory_poisson_time_ = tLast;
-		} else {
-			latest_inhibitory_poisson_time_ = tLast;
-		}
-	}
-	sort(synaptic_driven_.begin(), synaptic_driven_.end(), compSpike);
-}
-
 void NeuronSim::InputExternalPoisson(double tmax, vector<Spike>& x, vector<Spike>::iterator &it_cur) {
 	if (it_cur != x.end()) {
 		while (it_cur->t < tmax) {
@@ -65,27 +27,9 @@ void NeuronSim::InputExternalPoisson(double tmax, vector<Spike>& x, vector<Spike
 	sort(synaptic_driven_.begin(), synaptic_driven_.end(), compSpike);
 }
 
-void NeuronSim::SetFeedforwardStrength(bool type, double F) {
-	if (type)	feedforward_excitatory_intensity_ = F;
-	else feedforward_inhibitory_intensity_ = F;
-}
-
-void NeuronSim::SetPoissonRate(bool type, double rate) {
-	if (type) {
-		excitatory_poisson_rate_ = rate;
-	} else {
-		inhibitory_poisson_rate_ = rate;
-	}
-}
-
 void NeuronSim::Reset(double *dym_val) {
 	synaptic_driven_.clear();
 	spike_train_.clear();
-	driven_type_ = false;
-	latest_excitatory_poisson_time_ = 0;
-	latest_inhibitory_poisson_time_ = 0;
-	excitatory_poisson_rate_ = 0;
-	inhibitory_poisson_rate_ = 0;
 	cycle_ = 0;
 	// reset dynamic variables;
 	p_neuron_ -> SetDefaultDymVal(dym_val);
@@ -113,12 +57,7 @@ void NeuronSim::GetNewSpikes(double t, vector<Spike>& x) {
 double NeuronSim::UpdateNeuronalState(double *dym_val, double t, double dt, vector<Spike>& extPoisson, vector<Spike>::iterator &it_cur, vector<double>& new_spikes) {
 	new_spikes.clear();
 	double tmax = t + dt;
-	if (driven_type_) {
-		InputExternalPoisson(tmax, extPoisson, it_cur);
-	} else {
-		GenerateInternalPoisson(true, tmax, false);
-		//GenerateInternalPoisson(false, tmax, false);
-	}
+	InputExternalPoisson(tmax, extPoisson, it_cur);
 	double t_spike;
 	vector<Spike>::iterator s_begin = synaptic_driven_.begin();
 	if (s_begin == synaptic_driven_.end() || tmax <= s_begin->t) {
