@@ -406,4 +406,5 @@ void NeuronalNetwork::RestoreNeurons() {
 		pgs_[i].Reset();
 	}
 	ext_inputs_.clear();
+	ext_inputs_.resize(neuron_number_);
 }

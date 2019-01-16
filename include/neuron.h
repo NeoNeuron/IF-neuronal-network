@@ -238,7 +238,7 @@ class Neuron_LIF: public NeuronModel, public NeuronBase {
 		//	dym_val: array of dynamic variables;
 		//  dt: size of time step, unit ms;
 		//	return: -1 for no spiking events; otherwise, return relative spiking time respect to the begining of the time step;
-		//	TODO: fix the compatibility for zero refractory period case;
+		//	Remark: if the input current (strength of synaptic input) is too large, or the neuron are at bursting state, the function might fail;
 		double DymCore(double *dym_val, double dt) const override {
 			double vn = dym_val[v_idx_];
 			// Update conductance;
@@ -253,6 +253,12 @@ class Neuron_LIF: public NeuronModel, public NeuronBase {
 					dym_val[v_idx_] = resting_potential_;
 					// update remaining fractory period
 					dym_val[tr_idx_] = tau_ + t_spike - dt;
+					// if the refractory period is short enough, the neuron will be reactivate;
+					if (dym_val[tr_idx_] < 0) {
+						// restore the source (driving current or conductance);
+						UpdateG( dym_val, dym_val[tr_idx_] );
+						DymInplaceRK4( dym_val, -dym_val[tr_idx_] );
+					}
 				}	
 			} else { // neuron is about to exit the refractory period;
 				if (dym_val[tr_idx_] < dt) {

@@ -23,6 +23,7 @@ int main() {
 	double *dym_val_new;
 	dym_val_new = new double[4];
 	NeuronSim cell("LIF_G", dym_val);
+	cell.SetRef(0.0);
 	double t = 0, dt = 0.5, tmax = 4000;
 	double rateE = 1.5;
 	double v;
