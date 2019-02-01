@@ -67,27 +67,28 @@ int main(int argc, const char* argv[]) {
 	int neuron_num = list.size();
 	printf(">> %d connected neuron contribute to LFP\n", neuron_num);
 
-	// Calculate the spatial weights of selected neurons:
-	vector<double> electrode_pos = {atof(m_map_config["PosX"].c_str()), atof(m_map_config["PosY"].c_str())};
-	int decay_order = atoi(m_map_config["DecayOrder"].c_str());
-	// read the coordinate file;
-	vector<vector<double> > coordinates;
-	Read2D(m_map_config["CoorPath"], coordinates);
-	vector<double> spatial_weights(neuron_num);
-	double distance;
-	for (int i = 0; i < neuron_num; i ++) {
-		distance = L2(electrode_pos, coordinates[list[i]]);
-		if (decay_order == 1) spatial_weights[i] = 1.0 / distance;
-		else if (decay_order == 2) spatial_weights[i] = 1.0 / distance / distance;
-		else {
-			cout << "Not proper decay order\n";
-			break;
+	bool is_spatial;
+	istringstream(m_map_config["IsSpatial"]) >> boolalpha >> is_spatial;
+	vector<double> spatial_weights(neuron_num, 1.0);
+	if (is_spatial) {
+		// Calculate the spatial weights of selected neurons:
+		vector<double> electrode_pos = {atof(m_map_config["PosX"].c_str()), atof(m_map_config["PosY"].c_str())};
+		int decay_order = atoi(m_map_config["DecayOrder"].c_str());
+		// read the coordinate file;
+		vector<vector<double> > coordinates;
+		Read2D(m_map_config["CoorPath"], coordinates);
+		double distance;
+		for (int i = 0; i < neuron_num; i ++) {
+			distance = L2(electrode_pos, coordinates[list[i]]);
+			if (decay_order == 1) spatial_weights[i] = 1.0 / distance;
+			else if (decay_order == 2) spatial_weights[i] = 1.0 / distance / distance;
+			else {
+				cout << "Not proper decay order\n";
+				break;
+			}
 		}
 	}
-
-	//spatial_weights.clear();
-	//spatial_weights.resize(neuron_num, 1.0);
-
+	
 	//	Choose objective time range;
 	double t_range[2]; // t_range[0] = t_min; t_range[1] = t_max;
 	t_range[0] = atof(m_map_config["TimeRangeMin"].c_str());

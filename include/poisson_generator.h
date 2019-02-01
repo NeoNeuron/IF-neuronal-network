@@ -4,8 +4,12 @@
 // Description: Module of Poisson Generators
 // Date: 2018-12-13
 //#############################################################
+#ifndef _POISSON_GENERATOR_H_
+#define _POISSON_GENERATOR_H_
+
 #include <string>
 #include <vector>
+#include <queue>
 #include <fstream>
 #include "../include/io.h"
 #include "../include/neuron.h"
@@ -49,7 +53,8 @@ class PoissonGenerator {
 		// tmax: maximum time of Poisson sequence;
 		// synaptic_driven: container for new poisson spikes;
 		// return: none;
-		void GenerateNewPoisson( double tmax, vector<Spike>& synaptic_driven );
-
+		void GenerateNewPoisson( double tmax, queue<Spike>& poisson_driven );
 
 };
+
+#endif

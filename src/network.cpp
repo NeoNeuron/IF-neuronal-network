@@ -148,10 +148,10 @@ void NeuronalNetwork::InitializeSynapticStrength(map<string, string> &m_config) 
 void NeuronalNetwork::InitializeSynapticDelay(map<string, string> &m_config) {
 	if (atoi(m_config["DelayMode"].c_str()) == 0) {
 		delay_mat_.resize(neuron_number_, vector<double>(neuron_number_, atof(m_config["HomoSynapticDelay"].c_str())));
-	} else if (atoi(m_config["DelayMode"].c_str()) == 0) {
+	} else if (atoi(m_config["DelayMode"].c_str()) == 1) {
 		vector<vector<double> > coordinates;
 		Read2D(m_config["CoorPath"], coordinates);
-		SetDelay(coordinates, atoi(m_config["TransmitSpeed"].c_str()));
+		SetDelay(coordinates, atof(m_config["TransmitSpeed"].c_str()));
 	}
 }
 
@@ -186,7 +186,7 @@ double NeuronalNetwork::SortSpikes(vector<int> &update_list, vector<int> &fired_
 			neurons_[id].UpdateSource(dym_vals_new_[id], t, dt);
 		} else {
 			for (int j = 0; j < 4; j ++) dym_vals_new_[id][j] = dym_vals_[id][j];
-			neurons_[id].UpdateNeuronalState(dym_vals_new_[id], t, dt, ext_inputs_[id], ext_iters_[id], tmp_spikes);
+			neurons_[id].UpdateNeuronalState(dym_vals_new_[id], t, dt, ext_inputs_[id], tmp_spikes);
 			if (tmp_spikes.size() > 0) {
 				ADD.index = id;
 				ADD.t = tmp_spikes.front();
@@ -215,7 +215,7 @@ void NeuronalNetwork::InitializeNeuronalType(map<string, string> &m_config) {
 	if (atoi(m_config["TypeMode"].c_str()) == 0) {
 		counter = floor(neuron_number_*p);
 		for (int i = 0; i < counter; i++) types_[i] = true;
-	} else if (atoi(m_config["TypeProbability"].c_str()) == 1) {
+	} else if (atoi(m_config["TypeMode"].c_str()) == 1) {
 		srand(atoi(m_config["TypeSeed"].c_str()));
 		double x = 0;
 		for (int i = 0; i < neuron_number_; i++) {
@@ -263,7 +263,6 @@ void NeuronalNetwork::InitializePoissonGenerator(map<string, string>& m_config) 
 		srand(atoi(m_config["pSeed"].c_str()));
 		for (int i = 0; i < neuron_number_; i ++) {
 			pgs_[i].GenerateNewPoisson(atof(m_config["MaximumTime"].c_str()), ext_inputs_[i] );
-			ext_iters_[i] = ext_inputs_[i].begin();
 		}
 	}
 }
@@ -281,6 +280,12 @@ void NeuronalNetwork::InNewSpikes(vector<vector<Spike> > & data) {
 }
 
 void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
+	if ( !pg_mode ) {
+		for (int i = 0; i < neuron_number_; i ++) {
+			pgs_[i].GenerateNewPoisson(t + dt, ext_inputs_[i] );
+		}
+	}
+
 	if (is_con_) {
 		vector<SpikeElement> T;
 		double newt;
@@ -323,7 +328,7 @@ void NeuronalNetwork::UpdateNetworkState(double t, double dt) {
 	} else {
 		vector<double> new_spikes;
 		for (int i = 0; i < neuron_number_; i++) {
-			neurons_[i].UpdateNeuronalState(dym_vals_[i], t, dt, ext_inputs_[i], ext_iters_[i], new_spikes);
+			neurons_[i].UpdateNeuronalState(dym_vals_[i], t, dt, ext_inputs_[i], new_spikes);
 			if ( new_spikes.size() > 0 ) neurons_[i].Fire(t, new_spikes);
 			neurons_[i].CleanUsedInputs(dym_vals_[i], dym_vals_[i], t + dt);
 		}

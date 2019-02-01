@@ -9,6 +9,7 @@
 
 #include <string>
 #include <vector>
+#include <queue>
 #include <iostream>
 #include <cmath>
 #include "../include/math_helper.h"
@@ -316,9 +317,8 @@ class NeuronSim {
 		// Input external Poisson sequence within each time step, autosort after generatation if synaptic delay is nonzero;
 		// tmax: maximum time of Poisson sequence;
 		// x: container of external inputing spikes;
-		// it_cur: current iterator of external inputing spikes;
 		// return: none;
-		void InputExternalPoisson(double tmax, vector<Spike> & x, vector<Spike>::iterator &it_cur);
+		void InputExternalPoisson(double tmax, queue<Spike> & x);
 
 		public:
 		// Initialization of parameters in Neuron;
@@ -353,10 +353,10 @@ class NeuronSim {
 		//	dym_val: dynamic variables;
 		//	double t: time point of the begining of the time step;
 		//	double dt: size of time step;
-		//	vector<Spike> extPoisson: external Poisson sequence;
+		//	queue<Spike> extPoisson: external Poisson sequence;
 		//	vector<double> new_spikes: new spikes generated during dt;
 		//	Return: membrane potential at t = t + dt;
-		double UpdateNeuronalState(double *dym_val, double t, double dt, vector<Spike> & extPoisson, vector<Spike>::iterator& it_cur, vector<double>& new_spikes);
+		double UpdateNeuronalState(double *dym_val, double t, double dt, queue<Spike> & extPoisson, vector<double>& new_spikes);
 
 		// Clean used synaptic inputs:
 		// clean used synaptic inputs and update dym_val with dym_val_new;
@@ -398,12 +398,5 @@ class NeuronSim {
 		//  the interacting strength of Spikes are set as default(0.0);
 		void GetNewSpikes(double t, vector<Spike> &x);
 };
-
-//	external Poisson generator:
-//	rate: mean Poisson firing rate;
-//	tmax: maximum timel'
-//	seed: random seed;
-//	list: memory storage for Poisson squence;
-void GenerateExternalPoissonSequence(double rate, double tmax, int seed, vector<double> & list);
 
 #endif 	// _NEURON_H_

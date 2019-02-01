@@ -49,8 +49,7 @@ private:
 	vector<vector<double> > delay_mat_;
 
 	// Network Inputs:
-	vector<vector<Spike> > ext_inputs_; // temp storage of external Poisson input;
-	vector<vector<Spike>::iterator > ext_iters_; // iterator for current used external Poisson Drives;
+	vector<queue<Spike> > ext_inputs_; // temp storage of external Poisson input;
 
 
 	// Functions:
@@ -82,7 +81,6 @@ public:
 		s_mat_.resize(neuron_number_, vector<double>(neuron_number_, 0.0));
 		delay_mat_.resize(neuron_number_, vector<double>(neuron_number_, 0.0));
 		ext_inputs_.resize(neuron_number_);
-		ext_iters_.resize(neuron_number_);
 	}
 	
 	~NeuronalNetwork() {

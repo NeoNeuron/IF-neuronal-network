@@ -67,12 +67,12 @@ int main(int argc, const char* argv[]) {
 	// ========================================
 	srand( atoi(m_map_config["pSeed"].c_str()) );
 	//srand((int)time(NULL));
-	vector<Spike> pe_spike;
+	queue<Spike> pe_spike;
 	for (int i = 0; i < poisson_num; i ++) {
 		pgs[i].GenerateNewPoisson( tmax, pe_spike );
 	}
 	// erase the spike at t = 0;
-	pe_spike.erase(pe_spike.begin(), pe_spike.begin() + poisson_num);
+	//pe_spike.erase(pe_spike.begin(), pe_spike.begin() + poisson_num);
 	// SETUP DYNAMICS:
 	double recording_rate = 2;
 	// Define the shape of data;
@@ -90,7 +90,8 @@ int main(int argc, const char* argv[]) {
 	//I_file.write((char*)shape, 2*sizeof(size_t));
 	double V, I;
 	vector<double> new_spikes;
-	vector<Spike>::iterator it = pe_spike.begin();
+	//vector<Spike>::iterator it = pe_spike.begin();
+	vector<Spike>::iterator it;
 
 	// ========================================
 	// Start simulation; 

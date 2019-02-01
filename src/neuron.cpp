@@ -16,12 +16,12 @@ using namespace std;
 
 bool compSpike(const Spike &x, const Spike &y) { return x.t < y.t; }
 
-void NeuronSim::InputExternalPoisson(double tmax, vector<Spike>& x, vector<Spike>::iterator &it_cur) {
-	if (it_cur != x.end()) {
-		while (it_cur->t < tmax) {
-			synaptic_driven_.push_back(*it_cur);
-			it_cur ++;
-			if (it_cur == x.end()) break;
+void NeuronSim::InputExternalPoisson(double tmax, queue<Spike>& x) {
+	if ( !x.empty() ) {
+		while ( x.front().t < tmax ) {
+			synaptic_driven_.push_back( x.front() );
+			x.pop();
+			if ( x.empty() ) break;
 		}
 	}
 	sort(synaptic_driven_.begin(), synaptic_driven_.end(), compSpike);
@@ -54,10 +54,10 @@ void NeuronSim::GetNewSpikes(double t, vector<Spike>& x) {
 	}
 }
 
-double NeuronSim::UpdateNeuronalState(double *dym_val, double t, double dt, vector<Spike>& extPoisson, vector<Spike>::iterator &it_cur, vector<double>& new_spikes) {
+double NeuronSim::UpdateNeuronalState(double *dym_val, double t, double dt, queue<Spike>& extPoisson, vector<double>& new_spikes) {
 	new_spikes.clear();
 	double tmax = t + dt;
-	InputExternalPoisson(tmax, extPoisson, it_cur);
+	InputExternalPoisson(tmax, extPoisson);
 	double t_spike;
 	vector<Spike>::iterator s_begin = synaptic_driven_.begin();
 	if (s_begin == synaptic_driven_.end() || tmax <= s_begin->t) {
@@ -136,7 +136,9 @@ void NeuronSim::Fire(double t, vector<double>& spike_times) {
 }	
 
 void NeuronSim::InSpike(Spike x) {
-	if ((synaptic_driven_.back()).t < x.t) {
+	if (synaptic_driven_.empty()) {
+		synaptic_driven_.push_back(x);
+	} else if (synaptic_driven_.back().t < x.t) {
 		synaptic_driven_.push_back(x);
 	} else {
 		synaptic_driven_.push_back(x);
@@ -144,13 +146,3 @@ void NeuronSim::InSpike(Spike x) {
 	}
 }
 
-void GenerateExternalPoissonSequence(double rate, double tmax, int seed, vector<double> & list) {
-	srand(seed);
-	list.push_back(0);
-	double x, tLast = 0;
-	while (tLast < tmax) {
-		x = (rand() + 1.0) / (RAND_MAX + 1.0);
-		tLast -= log(x) / rate;
-		list.push_back(tLast);
-	}
-}
