@@ -27,6 +27,13 @@ void NeuronSim::InputExternalPoisson(double tmax, queue<Spike>& x) {
 	sort(synaptic_driven_.begin(), synaptic_driven_.end(), compSpike);
 }
 
+void NeuronSim::SetDefaultDymVal(double *&dym_val) {
+	if ( !dym_val ) {
+		dym_val = new double[ p_neuron_ -> GetDymNum() ];
+	}
+	p_neuron_ -> SetDefaultDymVal(dym_val);
+}
+
 void NeuronSim::Reset(double *dym_val) {
 	synaptic_driven_.clear();
 	spike_train_.clear();

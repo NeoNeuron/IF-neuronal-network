@@ -147,6 +147,7 @@ void NeuronalNetwork::InitializeSynapticStrength(map<string, string> &m_config) 
 
 void NeuronalNetwork::InitializeSynapticDelay(map<string, string> &m_config) {
 	if (atoi(m_config["DelayMode"].c_str()) == 0) {
+		delay_mat_.clear();
 		delay_mat_.resize(neuron_number_, vector<double>(neuron_number_, atof(m_config["HomoSynapticDelay"].c_str())));
 	} else if (atoi(m_config["DelayMode"].c_str()) == 1) {
 		vector<vector<double> > coordinates;

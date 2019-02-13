@@ -322,16 +322,16 @@ class NeuronSim {
 
 		public:
 		// Initialization of parameters in Neuron;
-		NeuronSim(string neuron_type, double *&dym_val) {
+		NeuronSim(string neuron_type) {
 			if (neuron_type == "LIF_I") {
 				p_neuron_ = new LIF_I();
 			} else if (neuron_type == "LIF_G") {
 				p_neuron_ = new LIF_G();
 			} else throw runtime_error("ERROR: wrong neuron type");
 			cycle_ = 0;
-			dym_val = new double[ p_neuron_ -> GetDymNum() ];
-			p_neuron_ -> SetDefaultDymVal(dym_val);
 		}
+
+		void SetDefaultDymVal(double *&dym_val);
 
 		// INPUTS:
 		// Set refractory period:
