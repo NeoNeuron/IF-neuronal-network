@@ -22,7 +22,7 @@ void Scan(vector<bool> & mat, int target_value, vector<int> &output_indices) {
 
 bool compSpikeElement(const SpikeElement &x, const SpikeElement &y) { return x.t < y.t; }
 
-double L2(vector<double> &x, vector<double> &y) {	
+inline double L2(vector<double> &x, vector<double> &y) {	
 	return sqrt((x[0] - y[0])*(x[0] - y[0]) + (x[1] - y[1])*(x[1] - y[1]));
 }
 
@@ -140,6 +140,32 @@ void NeuronalNetwork::InitializeSynapticStrength(map<string, string> &m_config) 
 					if (types_[j]) s_mat_[i][j] = s_ie;
 					else s_mat_[i][j] = s_ii;
 				}
+			}
+		}
+	} else if (synaptic_mode == 2) {
+		double s_ee = atof(m_config["SynapticStrengthEE"].c_str());
+		double s_ei = atof(m_config["SynapticStrengthEI"].c_str());
+		double s_ie = atof(m_config["SynapticStrengthIE"].c_str());
+		double s_ii = atof(m_config["SynapticStrengthII"].c_str());
+		for (size_t i = 0; i < neuron_number_; i ++) {
+			for (size_t j = 0; j < neuron_number_; j ++) {
+				if (types_[i]) {
+					if (types_[j]) s_mat_[i][j] = s_ee;
+					else s_mat_[i][j] = s_ei;
+				} else {
+					if (types_[j]) s_mat_[i][j] = s_ie;
+					else s_mat_[i][j] = s_ii;
+				}
+			}
+		}
+		vector<vector<double> > coordinates;
+		Read2D(m_config["CoorPath"], coordinates);
+		double meta_dis;
+		for (int i = 0; i < neuron_number_; i ++) {
+			for (int j = 0; j < i; j ++) {
+				meta_dis = 0.02 / pow(L2(coordinates[i], coordinates[j]), 2);
+				delay_mat_[i][j] *= meta_dis;
+				delay_mat_[j][i] *= meta_dis;
 			}
 		}
 	}
