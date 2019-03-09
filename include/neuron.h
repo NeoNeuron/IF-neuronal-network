@@ -7,11 +7,7 @@
 #ifndef _NEURON_H_
 #define _NEURON_H_
 
-#include <string>
-#include <vector>
-#include <queue>
-#include <iostream>
-#include <cmath>
+#include "../include/common_header.h"
 #include "../include/math_helper.h"
 
 using namespace std;

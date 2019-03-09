@@ -1,8 +1,7 @@
 #include "../include/poisson_generator.h"
-#include <cmath>
-#include <cstdlib>
+using namespace std;
 
-void PoissonGenerator::GenerateNewPoisson( double tmax, queue<Spike>& poisson_driven) {
+void PoissonGenerator::GenerateNewPoisson( double tmax, queue<Spike>& poisson_driven ) {
 	Spike new_spike;
 	new_spike.type = true;
 	new_spike.s = strength_;
@@ -14,7 +13,7 @@ void PoissonGenerator::GenerateNewPoisson( double tmax, queue<Spike>& poisson_dr
 			outfile_ << setprecision(18) << tLast << ',';
 		}
 		// Generate new Poisson time point;
-		x = (rand() + 1.0) / (RAND_MAX + 1.0);
+		x = rand_distribution(rand_gen);
 		tLast -= log(x) / rate_;
 	}
 	last_poisson_time_ = tLast;

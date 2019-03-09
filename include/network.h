@@ -11,11 +11,7 @@
 #include "../include/neuron.h"
 #include "../include/get-config.h"
 #include "../include/poisson_generator.h"
-#include <fstream>
-#include <cstdlib>
-#include <iomanip>
-#include <string>
-#include <vector>
+#include "../include/common_header.h"
 
 using namespace std;
 

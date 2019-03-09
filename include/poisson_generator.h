@@ -7,12 +7,9 @@
 #ifndef _POISSON_GENERATOR_H_
 #define _POISSON_GENERATOR_H_
 
-#include <string>
-#include <vector>
-#include <queue>
-#include <fstream>
 #include "../include/io.h"
 #include "../include/neuron.h"
+#include "../include/common_header.h"
 using namespace std;
 
 class PoissonGenerator {
@@ -29,6 +26,7 @@ class PoissonGenerator {
 			last_poisson_time_	= 0.0;
 			output_flag_ = false;
 		}
+		PoissonGenerator(const PoissonGenerator&) {  }
 		//~PoissonGenerator() {
 		//	if (outfile_.is_open()) outfile_.close();
 		//}

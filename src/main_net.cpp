@@ -6,14 +6,10 @@
 //*************************
 
 #include "../include/network.h"
-#include <iostream>
-#include <cstdlib>
-#include <cstdio>
-#include <cmath>
-#include <ctime>
-#include <sstream>
-#include <stdexcept>
 using namespace std;
+
+mt19937 rand_gen(1);
+uniform_real_distribution<> rand_distribution(0.0, 1.0);
 
 //	Simulation program for single network system;
 //	
@@ -39,8 +35,10 @@ int main(int argc, const char* argv[]) {
 	int neuron_number = atoi(m_map_config["NeuronNumber"].c_str());
 	NeuronalNetwork net(m_map_config["NeuronType"], neuron_number);
 	// initialize the network;
+	rand_gen.seed(atoi(m_map_config["TypeSeed"].c_str()));
 	net.InitializeNeuronalType(m_map_config);
 	// load connecting mode;
+	rand_gen.seed(atoi(m_map_config["NetSeed"].c_str()));
 	net.InitializeConnectivity(m_map_config);
 	// Set interneuronal coupling strength;
 	net.InitializeSynapticStrength(m_map_config);
@@ -48,6 +46,7 @@ int main(int argc, const char* argv[]) {
 	net.SetRef(atof(m_map_config["RefractoryTime"].c_str()));
 
 	// Set driving_mode;
+	rand_gen.seed(atoi(m_map_config["pSeed"].c_str()));
 	net.InitializePoissonGenerator(m_map_config);
 
 	// SETUP DYNAMICS:

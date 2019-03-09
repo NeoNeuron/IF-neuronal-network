@@ -4,10 +4,6 @@
 //	Description: Define class Neuron, structure Spike and NeuronState;
 //	Date: 2018-05-30
 //******************************
-#include<iostream>
-#include<cmath>
-#include<ctime>
-#include<algorithm>
 #include "../include/neuron.h"
 #include "../include/math_helper.h"
 #include "../include/fmath.hpp"

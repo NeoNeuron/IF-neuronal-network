@@ -5,11 +5,6 @@
 //	Date: 2017-02-21 16:06:30
 //******************************
 #include "../include/network.h"
-#include <iostream>
-#include <algorithm>
-#include <ctime>
-#include <cmath>
-#include <cstring>
 
 using namespace std;
 
@@ -60,14 +55,13 @@ void NeuronalNetwork::InitializeConnectivity(map<string, string> &m_config) {
 		istringstream(m_config["PrintRewireResult"]) >> boolalpha >> output_option;
 		// Generate networks;
 		cout << 2 * neuron_number_ * con_density << " connections total with ";
-		srand(atoi(m_config["NetSeed"].c_str()));
 		double x; // random variable;
 		int ind, empty_connection, count = 0;
 		vector<int> ones, zeros;
 		for (int i = 0; i < neuron_number_; i++) {
 			Scan(con_mat_[i], 1, ones);
 			for (int j = 0; j < ones.size(); j++) {
-				x = rand() / (RAND_MAX + 1.0);
+				x = rand_distribution(rand_gen);
 				if (x <= rewiring_probability) {
 					Scan(con_mat_[i], 0, zeros);
 					for (vector<int>::iterator it = zeros.begin(); it != zeros.end(); it++) {
@@ -77,7 +71,7 @@ void NeuronalNetwork::InitializeConnectivity(map<string, string> &m_config) {
 						}
 					}
 					empty_connection = zeros.size();
-					ind = rand() % empty_connection;
+					ind = rand_gen() % empty_connection;
 					con_mat_[i][zeros[ind]] = true;
 					con_mat_[i][ones[j]] = false;
 					count += 1;
@@ -90,11 +84,10 @@ void NeuronalNetwork::InitializeConnectivity(map<string, string> &m_config) {
 		double con_prob_ei = atof(m_config["ConnectingProbabilityEI"].c_str());
 		double con_prob_ie = atof(m_config["ConnectingProbabilityIE"].c_str());
 		double con_prob_ii = atof(m_config["ConnectingProbabilityII"].c_str());
-		srand(atoi(m_config["NetSeed"].c_str()));
 		double x;
 		for (size_t i = 0; i < neuron_number_; i ++) {
 			for (size_t j = 0; j < neuron_number_; j ++) {
-				x = rand() / (RAND_MAX * 1.0);
+				x = rand_distribution(rand_gen);
 				if (types_[i]) {
 					if (types_[j]) {
 						if (x <= con_prob_ee) con_mat_[i][j] = true;
@@ -243,16 +236,24 @@ void NeuronalNetwork::InitializeNeuronalType(map<string, string> &m_config) {
 		counter = floor(neuron_number_*p);
 		for (int i = 0; i < counter; i++) types_[i] = true;
 	} else if (atoi(m_config["TypeMode"].c_str()) == 1) {
-		srand(atoi(m_config["TypeSeed"].c_str()));
 		double x = 0;
 		for (int i = 0; i < neuron_number_; i++) {
-			x = rand() / (RAND_MAX + 1.0);
+			x = rand_distribution(rand_gen);
 			if (x < p) {
 				types_[i] = true;
 				counter++;
 			}
 		}
-	} 
+	} else if (atoi(m_config["TypeMode"].c_str()) == 2) {
+		vector<int> type_seq;
+		Read1D(m_config["TypePath"], type_seq, 0, 0);
+		for (int i = 0; i < neuron_number_; i ++) {
+			if ( type_seq[i] ) {
+				types_[i] = true;
+				counter++;
+			}
+		}
+	}
 	printf(">> %d excitatory and %d inhibitory neurons in the network.\n", counter, neuron_number_-counter);
 }
 
@@ -287,9 +288,8 @@ void NeuronalNetwork::InitializePoissonGenerator(map<string, string>& m_config) 
 	istringstream(m_config["PoissonGeneratorMode"]) >> boolalpha >> pg_mode;
 
 	if ( pg_mode ) {
-		srand(atoi(m_config["pSeed"].c_str()));
 		for (int i = 0; i < neuron_number_; i ++) {
-			pgs_[i].GenerateNewPoisson(atof(m_config["MaximumTime"].c_str()), ext_inputs_[i] );
+			pgs_[i].GenerateNewPoisson( atof(m_config["MaximumTime"].c_str()), ext_inputs_[i] );
 		}
 	}
 }
