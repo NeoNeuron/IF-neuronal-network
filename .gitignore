@@ -33,3 +33,6 @@ doc/externalMat.csv
 
 # ignore old scripts
 script.old/*
+
+# ignore folder config file
+.DS_Store
