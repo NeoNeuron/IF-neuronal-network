@@ -110,22 +110,23 @@ template <class T> void Read1DBin(string path, vector<T>& data, int index, int a
   ifile.read((char*)&shape, 2*sizeof(size_t));
   // clear the data vector;
   data.clear();
+	vector<double> buffer_vec(shape[0]*shape[1]);
   T buffer;
   if (axis == 0) {
     data.resize(shape[1]);
     size_t prefix = index * shape[1] * sizeof(T);
-    ifile.seekg(prefix, ifile.cur);
+    ifile.read((char*)buffer_vec.data(), prefix);
     for (int i = 0; i < shape[1]; i ++) {
       ifile.read((char*)&buffer, sizeof(T));
       data[i] = buffer;
     }
   } else {
-    ifile.seekg(index * sizeof(T), ifile.cur);
+    ifile.read((char*)buffer_vec.data(), index * sizeof(T));
     data.resize(shape[0]);
     for (size_t i = 0; i < shape[0]; i ++) {
       ifile.read((char*)&buffer, sizeof(T));
       data[i] = buffer;
-      ifile.seekg((shape[1] - 1) * sizeof(T), ifile.cur);
+      ifile.read((char*)buffer_vec.data(), (shape[1] - 1) * sizeof(T));
     }
   }
   ifile.close();

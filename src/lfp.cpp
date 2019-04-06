@@ -89,19 +89,20 @@ void LFP(string current_path, vector<double>& lfp, vector<int>& neuron_list, vec
 			else diff_list[i] = neuron_list[i] - neuron_list[i - 1] - 1;
 		}
 	}
+	vector<double> buffer_vec(shape[0]*shape[1]);
 	// For t = [0, t_begin];
-	current_in_file.seekg(shape[1]*t_begin*sizeof(double), current_in_file.cur);
+	current_in_file.read((char*)buffer_vec.data(), shape[1]*t_begin*sizeof(double));
 	// For t = (t_begin, t_end]
-	double temp_lfp;
 	double buffer;
+	double temp_lfp;
 	for (size_t i = t_begin; i < t_end; i++) {
 		temp_lfp = 0;
 		for (int j = 0; j < diff_list.size() - 1; j ++) {
-			current_in_file.seekg(diff_list[j]*sizeof(double), current_in_file.cur);
+			current_in_file.read((char*)buffer_vec.data(), diff_list[j]*sizeof(double));
 			current_in_file.read((char*)&buffer, sizeof(double));
 			temp_lfp += buffer * spatial_weights[j];
 		}
-		current_in_file.seekg(*(diff_list.end() - 1)*sizeof(double), current_in_file.cur);
+		current_in_file.read((char*)buffer_vec.data(), *(diff_list.end() - 1)*sizeof(double));
 		lfp[i - t_begin] = temp_lfp / neuron_list.size();
 	}
 	current_in_file.close();

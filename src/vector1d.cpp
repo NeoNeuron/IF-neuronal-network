@@ -1,4 +1,5 @@
 #include "../include/io.h"
+#include <cmath>
 #include <stdexcept>
 using namespace std;
 

@@ -6,7 +6,6 @@
 //***************
 #include "../include/mi_uniform.h"
 #include "../include/io.h"
-#include "../include/vecmanip.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>

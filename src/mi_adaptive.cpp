@@ -9,7 +9,7 @@
 #include <cmath>
 using namespace std;
 
-bool comp(const double &a, const double &b) return a < b;
+bool comp(const double &a, const double &b) { return a < b; }
 
 double HistBool(vector<bool>& data) {
 	int num_true = count(data.begin(), data.end(), true);
@@ -135,7 +135,7 @@ double MI(vector<bool>& bool_series, vector<double>& double_series, int bin_num)
 	// calculate histogram;
 	vector<double> edges;
 	FindEdges(double_copy, edges, occupancy);
-	double* p_spike(2);
+	double p_spike[2];
 	p_spike[0] = HistBool(bool_series);
 	p_spike[1] = 1 - p_spike[0];
 	// Calculate conditional probability;
@@ -144,8 +144,8 @@ double MI(vector<bool>& bool_series, vector<double>& double_series, int bin_num)
 	// Calculate mutual information;
 	double mi = 0.0; // Pxy = P(x,y);
 	for (int i = 0; i< bin_num; i++) {
-		for (int j = 0, j < bin_num, j++) {
-			if (abs(jointpdf[i][j]) < 1e-20) {
+		for (int j = 0; j < bin_num; j++) {
+			if (abs(jointpdf[i][j]) < 2e-20) {
 				mi += jointpdf[i][j] *log(bin_num*jointpdf[i][j] / p_spike[i]);
 			}
 		}

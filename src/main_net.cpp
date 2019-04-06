@@ -19,6 +19,7 @@ uniform_real_distribution<> rand_distribution(0.0, 1.0);
 int main(int argc, const char* argv[]) {
 	if (argc != 2) throw runtime_error("wrong number of args");
 	clock_t start, finish;
+	start = clock();
 	// 	Setup directory for output files;
 	//	it must be existing dir;
 	string dir;
@@ -76,8 +77,12 @@ int main(int argc, const char* argv[]) {
 	if (ge_flag) ge_file.SetSize(shape);
 	if (gi_flag) gi_file.SetSize(shape);
 
+	finish = clock();
+	printf(">> Initialization : %3.3f s\n", (finish - start)*1.0 / CLOCKS_PER_SEC);
+	fflush(stdout);
+
 	start = clock();
-	int progress;
+	int progress = 0;
 	while (t < tmax) {
 		net.UpdateNetworkState(t, dt);
 		t += dt;
@@ -88,9 +93,10 @@ int main(int argc, const char* argv[]) {
 			if (ge_flag) net.OutConductance(ge_file, true);
 			if (gi_flag) net.OutConductance(gi_file, false);
 		}
-		if (floor(t * 10 / tmax) > progress) {
-			progress = floor(t * 10/tmax);
-			cout << ">> Processing ... " << (int)progress << "0%\n" << flush;
+		if (floor(t / tmax * 100) > progress) {
+			progress = floor(t / tmax * 100);
+			printf(">> Running ... %d%%\r", progress);
+			fflush(stdout);
 		}
 	}
 	finish = clock();
@@ -101,6 +107,7 @@ int main(int argc, const char* argv[]) {
 	if (!ge_flag) ge_file.Remove();
 	if (!gi_flag) gi_file.Remove();
 	
+	cout << endl;
 	net.PrintCycle();
 	
 	// OUTPUTS:
@@ -111,9 +118,9 @@ int main(int argc, const char* argv[]) {
 	int spike_num = net.OutSpikeTrains(spike_trains);
 	string raster_path = dir + "raster.csv";
 	Print2D(raster_path, spike_trains, "trunc");
-	cout << "Mean firing rate: " << (double)spike_num*1000.0/tmax/neuron_number << endl;
+	cout << ">> Mean firing rate: " << (double)spike_num*1000.0/tmax/neuron_number << endl;
 
 	// Timing:
-	printf(">> It takes %.6fs\n", (finish - start)*1.0 / CLOCKS_PER_SEC);
+	printf(">> Simulation : %3.3f s\n", (finish - start)*1.0 / CLOCKS_PER_SEC);
 	return 0;
 }

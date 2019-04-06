@@ -21,6 +21,11 @@ tmp/*
 
 # ignore c/c++ objective files
 obj/*
+*.o
+
+# ignore prerequisite dependence files
+dep/*
+*.d
 
 # ignore all tex intermediate files
 *.aux
