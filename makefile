@@ -38,6 +38,9 @@ spike.out : spike.o main_spike.o
 spike2.out : spike.o main_spike2d.o
 	$(CXX) -o $@ $^
 
+lfp_simple.out : get-config.o lfp.o main_lfp_simple.o
+	$(CXX) -o $@ $^
+
 lfp.out : get-config.o lfp.o main_lfp.o
 	$(CXX) -o $@ $^
 

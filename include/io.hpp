@@ -116,6 +116,7 @@ template <class T> void Read1DBin(string path, vector<T>& data, int index, int a
     data.resize(shape[1]);
     size_t prefix = index * shape[1] * sizeof(T);
     ifile.read((char*)buffer_vec.data(), prefix);
+		//for (int i = 0; i < index; i ++) ifile.read((char*)buffer_vec.data(), shape[1]*sizeof(T));
     for (int i = 0; i < shape[1]; i ++) {
       ifile.read((char*)&buffer, sizeof(T));
       data[i] = buffer;

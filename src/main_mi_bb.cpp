@@ -18,9 +18,10 @@ using namespace std;
 //	arguments:
 //	argv[1] = path for first spike train;
 //	argv[2] = path for second spike train;
-//	argv[3] = range of timelag;
+//	argv[3] = path for output data file;
+//	argv[4] = range of timelag;
 int main(int argc, const char* argv[]) {
-	if (argc != 4) throw runtime_error("wrong number of args");
+	if (argc != 5) throw runtime_error("wrong number of args");
 	clock_t start, finish;
 	start = clock();
 	// INPUT NEURONAL DATA:
@@ -29,7 +30,7 @@ int main(int argc, const char* argv[]) {
 	Read1DBin(argv[2], y, 0, 0);
 	// Set time range;
 	size_t range[2];
-	istringstream range_in(argv[3]);
+	istringstream range_in(argv[4]);
 	string buffer;
 	getline(range_in, buffer, ',');
 	int ntd = atoi(buffer.c_str());
@@ -43,9 +44,8 @@ int main(int argc, const char* argv[]) {
 
 	//	Output data:
 	ofstream data_out;
-	cout << ">> Outputing data ... " << endl;
-	data_out.open("./data/mi/mi_bb.csv");
-	data_out << "timelag,mi" << endl;
+	data_out.open(argv[3]);
+	data_out << "#timelag,mi" << endl;
 	for (int i = 0; i < ntd + ptd + 1; i++) {
 		data_out << i - ntd << ',' << setprecision(15) << (double)tdmi[i] << '\n';
 	}
