@@ -82,9 +82,9 @@ void CalculateSpatialWeight(map<string, string> & m_config, vector<double> & spa
 				distance = L2(electrode_pos, coordinates[i]);
 				spatial_weights[i] = 1.0 / distance / distance;
 			}
+		} else {
+			cout << "Not proper decay order\n";
 		}
-	} else {
-		cout << "Not proper decay order\n";
 	}
 	return;
 }

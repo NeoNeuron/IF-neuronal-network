@@ -14,19 +14,20 @@ uniform_real_distribution<> rand_distribution(0.0, 1.0);
 //	Simulation program for single network system;
 //	
 //	arguments:
-//	argv[1] = Outputing directory for neur al data;
+//	argv[1] = path of config file;
+//	argv[2] = Output directory for neural data;
 //
 int main(int argc, const char* argv[]) {
-	if (argc != 2) throw runtime_error("wrong number of args");
+	if (argc != 3) throw runtime_error("wrong number of args");
 	clock_t start, finish;
 	start = clock();
 	// 	Setup directory for output files;
 	//	it must be existing dir;
 	string dir;
-	dir = argv[1];
+	dir = argv[2];
 
 	// Loading config.ini:
-	string net_config_path = "./doc/config_net.ini";
+	string net_config_path = argv[1];
   map<string, string> m_map_config;
   ReadConfig(net_config_path,m_map_config);
   cout << ">> [Config.ini]:\n#####\n";
