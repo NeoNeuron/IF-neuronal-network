@@ -116,7 +116,7 @@ void NeuronSim::UpdateSource(double *dym_val, double t, double dt) {
 			p_neuron_ -> UpdateSource(dym_val, synaptic_driven_.begin()->t - t);
 		}
 		for (vector<Spike>::iterator iter = synaptic_driven_.begin(); iter != synaptic_driven_.end(); iter++) {
-			if (iter -> s) dym_val[ p_neuron_ -> GetGEID() ] += iter -> s;
+			if (iter -> type) dym_val[ p_neuron_ -> GetGEID() ] += iter -> s;
 			else dym_val[ p_neuron_ -> GetGIID() ] += iter -> s;
 			if (iter + 1 == synaptic_driven_.end() || (iter + 1)->t >= tmax) {
 				p_neuron_ -> UpdateSource(dym_val, tmax - iter->t);

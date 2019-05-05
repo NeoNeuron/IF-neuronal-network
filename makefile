@@ -82,7 +82,7 @@ $(DIRS) :
 $(DIR_DEP)/%.d : $(DEP_DIR_DEP) %.cpp
 	@echo "Making $@ ..."
 	@set -e; rm -f $@; \
-		$(CC) -MM $(CPPFLAGS) $< > $@.$$$$; \
+		$(CC) -MM $(CPPFLAGS) $(filter %.cpp, $^) > $@.$$$$; \
 		sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
 		rm -f $@.$$$$
 
